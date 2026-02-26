@@ -1,0 +1,10 @@
+.github/
+.vscode/
+android/
+coverage/
+demonstration/
+dist/
+info/
+node_modules/
+public/
+resources/

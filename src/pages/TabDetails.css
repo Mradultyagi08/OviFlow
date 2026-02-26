@@ -1,0 +1,198 @@
+#width-details-screen {
+  max-width: 320px;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  #width-details-screen {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 1200px) {
+  #width-details-screen {
+    max-width: 900px;
+  }
+}
+
+#general-block {
+  margin-top: 10px;
+  margin-bottom: 25px;
+  border-radius: 22px;
+  height: 100px;
+  width: 100%;
+  transition: box-shadow 0.2s ease;
+  animation: fadeInUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+#inline-block {
+  width: 150px;
+  height: 70px;
+}
+
+@media (min-width: 768px) {
+  #general-block {
+    height: 120px;
+    border-radius: 28px;
+  }
+
+  #inline-block {
+    width: 250px;
+    height: 80px;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+p.h_style-basic {
+  font-size: 26px;
+  color: var(--ion-color-dark-basic);
+  margin-top: 10px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+p.h_style-dark {
+  font-size: 26px;
+  color: var(--ion-color-dark-dark);
+  margin-top: 10px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+p.p_style {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+p.no-periods {
+  font-size: 13px;
+  text-align: center;
+}
+
+#vertical-line-basic {
+  width: 1.5px;
+  height: 60px;
+  margin-top: 5px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, transparent, #e2e3e7, transparent);
+}
+
+#vertical-line-dark {
+  width: 1.5px;
+  height: 60px;
+  margin-top: 5px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, transparent, #717274, transparent);
+}
+
+#progress-block {
+  width: 100%;
+  border-radius: 22px;
+
+  padding-top: 14px;
+  padding-bottom: 14px;
+  animation: fadeInUp 0.48s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+ion-progress-bar {
+  height: 8px;
+  border-radius: 20px;
+}
+
+ion-progress-bar.current-progress-basic,
+ion-progress-bar.current-progress-dark {
+  height: 8px;
+  border-radius: 20px;
+}
+
+/* basic group */
+ion-progress-bar.basic::part(stream),
+ion-progress-bar.current-progress-basic::part(stream) {
+  border-radius: 20px;
+  background: #ffffff;
+}
+
+ion-progress-bar.basic::part(progress),
+ion-progress-bar.current-progress-basic::part(progress) {
+  border-radius: 20px;
+  background: var(--ion-color-dark-basic);
+}
+
+ion-progress-bar.basic::part(track) {
+  border-radius: 20px;
+  background: var(--ion-color-light-basic);
+}
+
+ion-progress-bar.current-progress-basic::part(track) {
+  border-radius: 20px;
+  background: var(--ion-color-transparent-basic);
+}
+
+/* dark group */
+ion-progress-bar.dark::part(stream),
+ion-progress-bar.current-progress-dark::part(stream) {
+  border-radius: 20px;
+  background: var(--ion-color-calendar-dark);
+}
+
+ion-progress-bar.dark::part(progress),
+ion-progress-bar.current-progress-dark::part(progress) {
+  border-radius: 20px;
+  background: var(--ion-color-dark-dark);
+}
+
+ion-progress-bar.dark::part(track) {
+  border-radius: 20px;
+  background: rgba(var(--ion-color-light-dark-rgb), 0.4);
+}
+
+ion-progress-bar.current-progress-dark::part(track) {
+  border-radius: 20px;
+  background: rgba(var(--ion-color-light-dark-rgb), 0.3);
+}
+
+/* =============================================
+   CARD SHADOW — basic theme
+   ============================================= */
+#wide-screen.basic #general-block {
+  box-shadow:
+    0 4px 24px rgba(76, 59, 157, 0.09),
+    0 1px 4px rgba(76, 59, 157, 0.05);
+}
+
+#wide-screen.basic #progress-block {
+  box-shadow:
+    0 6px 32px rgba(76, 59, 157, 0.1),
+    0 2px 8px rgba(76, 59, 157, 0.06);
+}
+
+/* =============================================
+   CARD SHADOW — dark theme
+   ============================================= */
+#wide-screen.dark #general-block {
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.38),
+    0 1px 4px rgba(0, 0, 0, 0.22);
+}
+
+#wide-screen.dark #progress-block {
+  box-shadow:
+    0 6px 32px rgba(0, 0, 0, 0.42),
+    0 2px 8px rgba(0, 0, 0, 0.28);
+}

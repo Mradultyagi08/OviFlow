@@ -1,0 +1,941 @@
+/* Default body background — JS updates this to match the saved theme */
+body {
+  background: #eae7ff;
+}
+
+/* =============================================
+   SCROLLBAR THEMING
+   ============================================= */
+
+/* Firefox */
+body.basic * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(76, 59, 157, 0.45) rgba(200, 194, 255, 0.2);
+}
+
+body.dark * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(130, 100, 255, 0.5) rgba(30, 20, 60, 0.4);
+}
+
+/* WebKit / Blink (Chrome, Safari, Edge) */
+body.basic ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+body.basic ::-webkit-scrollbar-track {
+  background: rgba(200, 194, 255, 0.15);
+  border-radius: 10px;
+}
+
+body.basic ::-webkit-scrollbar-thumb {
+  background: rgba(76, 59, 157, 0.4);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+body.basic ::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 59, 157, 0.7);
+}
+
+body.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+body.dark ::-webkit-scrollbar-track {
+  background: rgba(30, 20, 60, 0.3);
+  border-radius: 10px;
+}
+
+body.dark ::-webkit-scrollbar-thumb {
+  background: rgba(130, 100, 255, 0.45);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+body.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(130, 100, 255, 0.75);
+}
+
+/* Make Ionic surfaces transparent so body-level bubble animation shows through */
+ion-content {
+  --background: transparent;
+}
+
+ion-page {
+  background: transparent;
+}
+
+/* Desktop-friendly overrides */
+@media (min-width: 768px) {
+  ion-app {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  ion-content {
+    --padding-start: 24px;
+    --padding-end: 24px;
+  }
+
+  ion-modal {
+    --width: 90%;
+    --max-width: 700px;
+    --border-radius: 20px;
+  }
+
+  ion-menu {
+    --width: 350px;
+  }
+}
+
+@media (min-width: 1200px) {
+  ion-content {
+    --padding-start: 48px;
+    --padding-end: 48px;
+  }
+}
+
+ion-tab-bar {
+  height: 44px;
+  border: 0;
+  padding: 3px 10px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  width: 100%;
+  max-width: 594px;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  ion-tab-bar {
+    max-width: 100%;
+  }
+}
+
+ion-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+#context-size {
+  max-width: 550px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  #context-size {
+    max-width: 800px;
+  }
+}
+
+@media (min-width: 1200px) {
+  #context-size {
+    max-width: 960px;
+  }
+}
+
+#wide-screen {
+  height: 100%;
+  width: 100%;
+  max-width: 600px;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  #wide-screen {
+    max-width: 100%;
+  }
+}
+
+#top-space {
+  height: 0;
+  max-width: 600px;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  #top-space {
+    max-width: 100%;
+  }
+}
+
+ion-button {
+  --box-shadow: none;
+}
+
+ion-button.main {
+  --border-radius: 22px;
+  --box-shadow: none;
+  width: 140px;
+  height: 42px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease;
+}
+
+ion-list {
+  --ion-item-background: transparent;
+}
+
+ion-datetime {
+  border-radius: 20px;
+}
+
+/* basic group */
+ion-tab-bar.basic,
+#wide-screen.basic,
+#top-space.basic {
+  border-right: 3px solid var(--ion-color-transparent-basic);
+  border-left: 3px solid var(--ion-color-transparent-basic);
+}
+
+@media (min-width: 768px) {
+  ion-tab-bar.basic,
+  #wide-screen.basic,
+  #top-space.basic {
+    border-right: none;
+    border-left: none;
+  }
+}
+
+ion-tab-button.basic {
+  background: var(--ion-color-light);
+  color: var(--ion-color-dark-basic);
+  border: 1px var(--ion-color-light) solid;
+  border-radius: 18px;
+  max-width: 110px;
+  font-size: 13px;
+  font-weight: 500;
+  height: 34px;
+  letter-spacing: 0.02em;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --color-selected: var(--ion-color-dark-basic);
+}
+
+ion-tab-button.tab-selected.basic {
+  background: var(--ion-color-dark-basic);
+  color: var(--ion-color-light);
+  border: 1px var(--ion-color-dark-basic) solid;
+  border-radius: 18px;
+  max-width: 110px;
+  font-size: 13px;
+  font-weight: 600;
+  height: 34px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 14px rgba(76, 59, 157, 0.32);
+  transform: scale(1.04);
+
+  --color-selected: var(--ion-color-light);
+}
+
+@media (min-width: 768px) {
+  ion-tab-button.basic,
+  ion-tab-button.tab-selected.basic {
+    max-width: 160px;
+  }
+}
+
+ion-menu {
+  outline-width: 0;
+}
+
+ion-menu.basic::part(container) {
+  background-color: var(--ion-color-light);
+}
+
+ion-select.basic::part(text),
+ion-select.basic::part(icon) {
+  color: var(--ion-color-text-basic);
+}
+
+ion-datetime.welcome-calendar-basic::part(calendar-day today),
+ion-datetime.edit-calendar-basic::part(calendar-day today) {
+  color: var(--ion-color-blackout-basic);
+  border: 2px solid var(--ion-color-blackout-basic);
+  background-color: var(--ion-color-light);
+  font-weight: bold;
+}
+
+ion-datetime.view-calendar-basic::part(calendar-day today),
+ion-datetime.view-calendar-today-ovulation-basic::part(calendar-day today) {
+  color: var(--ion-color-dark-basic);
+  border: 2px solid var(--ion-color-dark-basic);
+  background-color: var(--ion-color-light);
+  font-weight: bold;
+}
+
+ion-datetime.edit-calendar-basic::part(calendar-day active),
+ion-datetime.welcome-calendar-basic::part(calendar-day active),
+ion-datetime.edit-calendar-basic::part(calendar-day active):focus,
+ion-datetime.welcome-calendar-basic::part(calendar-day active):focus {
+  color: var(--ion-color-blackout-basic);
+  border: 2px dotted var(--ion-color-blackout-basic);
+  background-color: var(--ion-color-light);
+}
+ion-datetime.welcome-calendar-basic::part(month-year-button),
+ion-datetime.edit-calendar-basic::part(month-year-button) {
+  pointer-events: none;
+}
+
+ion-datetime.view-calendar-today-ovulation-basic::part(calendar-day today) {
+  color: var(--ion-color-ovulation-basic);
+  border-color: var(--ion-color-ovulation-basic);
+}
+ion-datetime.view-calendar-basic::part(month-year-button),
+ion-datetime.view-calendar-today-ovulation-basic::part(month-year-button) {
+  pointer-events: none;
+}
+
+ion-datetime.view-calendar-basic::part(calendar-day):focus,
+ion-datetime.edit-calendar-basic::part(calendar-day):focus,
+ion-datetime.welcome-calendar-basic::part(calendar-day):focus,
+ion-datetime.view-calendar-today-ovulation-basic::part(calendar-day):focus {
+  background-color: #fff;
+  box-shadow: 0px 0px 0px 0px #fff;
+}
+ion-datetime.view-calendar-basic::part(calendar-day),
+ion-datetime.view-calendar-today-ovulation-basic::part(calendar-day) {
+  pointer-events: none;
+}
+
+button.alert-button.basic {
+  color: var(--ion-color-dark-basic);
+}
+
+/* dark group */
+ion-tab-bar.dark,
+#wide-screen.dark,
+#top-space.dark {
+  border-right: 3px solid var(--ion-color-transparent-dark);
+  border-left: 3px solid var(--ion-color-transparent-dark);
+}
+
+@media (min-width: 768px) {
+  ion-tab-bar.dark,
+  #wide-screen.dark,
+  #top-space.dark {
+    border-right: none;
+    border-left: none;
+  }
+}
+
+ion-tab-button.dark {
+  background: var(--ion-color-calendar-dark);
+  color: var(--ion-color-dark-dark);
+  border: 1px var(--ion-color-calendar-dark) solid;
+  border-radius: 18px;
+  max-width: 110px;
+  font-size: 13px;
+  font-weight: 500;
+  height: 34px;
+  letter-spacing: 0.02em;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --color-selected: var(--ion-color-dark-dark);
+}
+
+ion-tab-button.tab-selected.dark {
+  background: var(--ion-color-dark-dark);
+  color: #000000;
+  border: 1px var(--ion-color-dark-dark) solid;
+  border-radius: 18px;
+  max-width: 110px;
+  font-size: 13px;
+  font-weight: 600;
+  height: 34px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 14px rgba(120, 93, 249, 0.38);
+  transform: scale(1.04);
+
+  --color-selected: var(--ion-color-light);
+}
+
+@media (min-width: 768px) {
+  ion-tab-button.dark,
+  ion-tab-button.tab-selected.dark {
+    max-width: 160px;
+  }
+}
+
+ion-menu.dark::part(container) {
+  background-color: var(--ion-color-calendar-dark);
+}
+
+ion-select.dark::part(text),
+ion-select.dark::part(icon) {
+  color: var(--ion-color-text-dark);
+}
+ion-popover.dark {
+  --background: var(--ion-color-transparent-dark);
+}
+ion-popover.dark * {
+  color: white;
+}
+ion-popover.dark .item-radio-checked {
+  background-color: var(--ion-color-dark-dark);
+}
+
+ion-datetime.welcome-calendar-dark,
+ion-datetime.edit-calendar-dark,
+ion-datetime.view-calendar-dark,
+ion-datetime.view-calendar-today-ovulation-dark {
+  --background: var(--ion-color-calendar-dark);
+}
+
+ion-datetime.welcome-calendar-dark::part(calendar-day today),
+ion-datetime.edit-calendar-dark::part(calendar-day today) {
+  color: var(--ion-color-blackout-dark);
+  border: 2px solid var(--ion-color-blackout-dark);
+  background-color: var(--ion-color-calendar-dark);
+  font-weight: bold;
+}
+
+ion-datetime.view-calendar-dark::part(calendar-day today),
+ion-datetime.view-calendar-today-ovulation-dark::part(calendar-day today) {
+  color: var(--ion-color-dark-dark);
+  border: 2px solid var(--ion-color-dark-dark);
+  background-color: var(--ion-color-calendar-dark);
+  font-weight: bold;
+}
+
+ion-datetime.edit-calendar-dark::part(calendar-day active),
+ion-datetime.welcome-calendar-dark::part(calendar-day active),
+ion-datetime.edit-calendar-dark::part(calendar-day active):focus,
+ion-datetime.welcome-calendar-dark::part(calendar-day active):focus {
+  color: var(--ion-color-blackout-dark);
+  border: 2px dotted var(--ion-color-blackout-dark);
+  background-color: var(--ion-color-calendar-dark);
+}
+
+ion-datetime.welcome-calendar-dark::part(month-year-button),
+ion-datetime.edit-calendar-dark::part(month-year-button) {
+  pointer-events: none;
+}
+
+ion-datetime.view-calendar-today-ovulation-dark::part(calendar-day today) {
+  color: var(--ion-color-ovulation-dark);
+  border-color: var(--ion-color-ovulation-dark);
+}
+
+ion-datetime.view-calendar-dark::part(month-year-button),
+ion-datetime.view-calendar-today-ovulation-dark::part(month-year-button) {
+  pointer-events: none;
+}
+
+ion-datetime.view-calendar-dark::part(calendar-day):focus,
+ion-datetime.edit-calendar-dark::part(calendar-day):focus,
+ion-datetime.welcome-calendar-dark::part(calendar-day):focus,
+ion-datetime.view-calendar-today-ovulation-dark::part(calendar-day):focus {
+  background-color: var(--ion-color-calendar-dark);
+  box-shadow: 0px 0px 0px 0px #fff;
+}
+
+ion-datetime.view-calendar-dark::part(calendar-day),
+ion-datetime.view-calendar-today-ovulation-dark::part(calendar-day) {
+  pointer-events: none;
+}
+
+ion-datetime.view-calendar-dark::part(calendar-day today) {
+  color: white;
+  border: 2px solid white;
+}
+ion-datetime.view-calendar-today-ovulation-dark::part(calendar-day today) {
+  border: 2px solid var(--ion-color-ovulation-dark);
+}
+
+ion-alert.dark .alert-wrapper {
+  --background: #434246;
+
+  .alert-head {
+    h2 {
+      color: var(--ion-color-light);
+    }
+  }
+  .alert-message {
+    color: #aca9b5;
+  }
+  .alert-button {
+    color: var(--ion-color-dark-dark);
+  }
+}
+
+ion-modal#alert-demo-modal {
+  --width: fit-content;
+  --min-width: 250px;
+  --height: fit-content;
+  --border-radius: 6px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+
+ion-modal#alert-demo-modal .wrapper {
+  margin: 10px 20px 10px 10px;
+}
+ion-alert.custom-alert {
+  --button-color: var(--ion-color-dark-basic);
+  --button-border-radius: 6px;
+  --button-font-weight: 500;
+}
+
+ion-alert.custom-alert .alert-button {
+  background-color: transparent;
+  color: var(--ion-color-dark-basic);
+}
+
+ion-alert.custom-alert .alert-button:hover {
+  background-color: var(--ion-color-dark-basic);
+  color: var(--ion-color-light);
+}
+
+/* =============================================
+   ANIMATIONS
+   ============================================= */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes gentlePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow-basic {
+  0%,
+  100% {
+    box-shadow: 0 6px 22px rgba(76, 59, 157, 0.36);
+  }
+  50% {
+    box-shadow: 0 6px 36px rgba(76, 59, 157, 0.62);
+  }
+}
+
+@keyframes pulseGlow-dark {
+  0%,
+  100% {
+    box-shadow: 0 6px 22px rgba(120, 93, 249, 0.36);
+  }
+  50% {
+    box-shadow: 0 6px 36px rgba(120, 93, 249, 0.62);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* =============================================
+   PAGE CONTENT ANIMATION WRAPPER
+   ============================================= */
+.page-content-animated {
+  animation: fadeIn 0.35s ease both;
+}
+
+/* =============================================
+   ELEMENT-LEVEL ANIMATIONS
+   ============================================= */
+.anim-slide-in-left {
+  animation: slideInLeft 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+}
+
+.anim-fade-in-up-slow {
+  animation: fadeInUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.anim-fade-in-delay {
+  animation: fadeIn 0.4s ease 0.3s both;
+}
+
+.anim-scale-in {
+  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s both;
+}
+
+.anim-emoji-pulse {
+  animation: gentlePulse 2.8s ease-in-out infinite;
+  display: inline-block;
+}
+
+.anim-fade-in-down {
+  animation: fadeInDown 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+/* =============================================
+   HERO CARD  (title + days + button)
+   ============================================= */
+.hero-card {
+  border-radius: 28px;
+  padding: 4px 24px 16px;
+  margin-bottom: 20px;
+  animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+.hero-card-basic {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 4px 32px rgba(76, 59, 157, 0.09),
+    0 1px 4px rgba(76, 59, 157, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.85);
+}
+
+.hero-card-dark {
+  background: rgba(40, 40, 40, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 4px 32px rgba(0, 0, 0, 0.38),
+    0 1px 4px rgba(0, 0, 0, 0.22),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
+/* =============================================
+   CALENDAR CARD
+   ============================================= */
+.calendar-card {
+  border-radius: 28px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+.calendar-card-basic {
+  box-shadow:
+    0 8px 40px rgba(76, 59, 157, 0.11),
+    0 2px 8px rgba(76, 59, 157, 0.07);
+}
+
+.calendar-card-dark {
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.42),
+    0 2px 8px rgba(0, 0, 0, 0.28);
+}
+
+/* flatten the inner datetime border-radius inside the card */
+.calendar-card ion-datetime {
+  border-radius: 0 !important;
+}
+
+/* =============================================
+   MARK BUTTON GLOW & HOVER
+   ============================================= */
+ion-button.main:not([disabled]) {
+  transform-origin: center;
+}
+
+ion-button.main[color="dark-basic"]:not([disabled]) {
+  --background: linear-gradient(135deg, #5f4ec2 0%, #7565c5 100%);
+  animation: pulseGlow-basic 3.2s ease-in-out infinite;
+}
+
+ion-button.main[color="dark-basic"]:not([disabled]):hover {
+  --background: linear-gradient(135deg, #5243ac 0%, #6a5bb8 100%);
+  transform: translateY(-3px) scale(1.04);
+  animation: none;
+  box-shadow: 0 10px 32px rgba(76, 59, 157, 0.52);
+}
+
+ion-button.main[color="dark-basic"]:not([disabled]):active {
+  transform: scale(0.96);
+  animation: none;
+}
+
+ion-button.main[color="dark-dark"]:not([disabled]) {
+  --background: linear-gradient(135deg, #5c46d9 0%, #785df9 100%);
+  animation: pulseGlow-dark 3.2s ease-in-out infinite;
+}
+
+ion-button.main[color="dark-dark"]:not([disabled]):hover {
+  --background: linear-gradient(135deg, #4f3dc2 0%, #6a52e0 100%);
+  transform: translateY(-3px) scale(1.04);
+  animation: none;
+  box-shadow: 0 10px 32px rgba(120, 93, 249, 0.52);
+}
+
+ion-button.main[color="dark-dark"]:not([disabled]):active {
+  transform: scale(0.96);
+  animation: none;
+}
+
+/* =============================================
+   GLASSMORPHISM MENU BUTTON (hamburger)
+   ============================================= */
+.menu-button-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+  cursor: pointer;
+}
+
+.menu-button-wrapper:hover {
+  transform: scale(1.1);
+}
+
+.menu-button-wrapper-basic {
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 8px rgba(76, 59, 157, 0.14);
+}
+
+.menu-button-wrapper-dark {
+  background: rgba(60, 60, 60, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* =============================================
+   BACKGROUND GRADIENT ENHANCEMENT
+   ============================================= */
+#wide-screen.basic {
+  background: linear-gradient(
+    160deg,
+    rgba(234, 231, 255, 0.72) 0%,
+    rgba(204, 197, 254, 0.28) 50%,
+    rgba(234, 231, 255, 0.72) 100%
+  );
+}
+
+#wide-screen.dark {
+  background: linear-gradient(
+    160deg,
+    rgba(31, 31, 31, 0.7) 0%,
+    rgba(20, 15, 45, 0.5) 50%,
+    rgba(31, 31, 31, 0.7) 100%
+  );
+}
+
+/* =============================================
+   TAB BAR — glass header strip
+   ============================================= */
+ion-tab-bar.basic {
+  background: rgba(234, 231, 255, 0.82) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 2px 20px rgba(76, 59, 157, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+  border-right: none !important;
+  border-left: none !important;
+}
+
+ion-tab-bar.dark {
+  background: rgba(25, 25, 25, 0.82) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 2px 20px rgba(0, 0, 0, 0.35),
+    0 1px 3px rgba(0, 0, 0, 0.2);
+  border-right: none !important;
+  border-left: none !important;
+}
+
+/* =============================================
+   FLOATING BUBBLE BACKGROUND
+   ============================================= */
+.floating-bubbles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.bubble {
+  position: absolute;
+  bottom: -150px;
+  border-radius: 10px;
+  opacity: 0;
+  animation: float-up 25s infinite ease-in-out;
+  will-change: transform, opacity;
+}
+
+.bubble.basic {
+  background: rgba(180, 166, 255, 0.18);
+  border: 1.5px solid rgba(180, 166, 255, 0.3);
+  box-shadow: 0 0 12px rgba(180, 166, 255, 0.12);
+}
+
+.bubble.dark {
+  background: rgba(120, 93, 249, 0.14);
+  border: 1.5px solid rgba(130, 100, 255, 0.25);
+  box-shadow: 0 0 12px rgba(120, 93, 249, 0.1);
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-120vh) translateX(80px) rotate(200deg);
+    opacity: 0;
+  }
+}
+
+/* Individual bubble delays and sizes */
+.bubble:nth-child(1) {
+  left: 10%;
+  width: 60px;
+  height: 60px;
+  animation-delay: 0s;
+  animation-duration: 28s;
+}
+
+.bubble:nth-child(2) {
+  left: 25%;
+  width: 45px;
+  height: 45px;
+  animation-delay: 3s;
+  animation-duration: 32s;
+}
+
+.bubble:nth-child(3) {
+  left: 40%;
+  width: 70px;
+  height: 70px;
+  animation-delay: 1.5s;
+  animation-duration: 26s;
+}
+
+.bubble:nth-child(4) {
+  left: 60%;
+  width: 50px;
+  height: 50px;
+  animation-delay: 5s;
+  animation-duration: 30s;
+}
+
+.bubble:nth-child(5) {
+  left: 75%;
+  width: 55px;
+  height: 55px;
+  animation-delay: 2s;
+  animation-duration: 29s;
+}
+
+.bubble:nth-child(6) {
+  left: 90%;
+  width: 40px;
+  height: 40px;
+  animation-delay: 4s;
+  animation-duration: 27s;
+}
+
+.bubble:nth-child(7) {
+  left: 15%;
+  width: 65px;
+  height: 65px;
+  animation-delay: 6s;
+  animation-duration: 31s;
+}
+
+.bubble:nth-child(8) {
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  animation-delay: 7s;
+  animation-duration: 28s;
+}
+
+.bubble:nth-child(9) {
+  left: 80%;
+  width: 52px;
+  height: 52px;
+  animation-delay: 2.5s;
+  animation-duration: 33s;
+}
+
+.bubble:nth-child(10) {
+  left: 35%;
+  width: 58px;
+  height: 58px;
+  animation-delay: 4.5s;
+  animation-duration: 29s;
+}
