@@ -192,7 +192,16 @@ const Welcome = (props: PropsWelcomeModal) => {
           {/* ── Header ── */}
           <div style={styles.header}>
             <div style={styles.logoWrap}>
-              <img src="/assets/icon/LOGO.png" alt="OVIFLOW" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '22px' }} />
+              <img
+                src="/assets/icon/LOGO.png"
+                alt="OVIFLOW"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  borderRadius: "22px",
+                }}
+              />
             </div>
             <p style={styles.appName}>{t("Welcome to OVIFLOW")}</p>
             <p style={styles.tagline}>

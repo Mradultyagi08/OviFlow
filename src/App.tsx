@@ -323,9 +323,7 @@ const App = (props: AppProps) => {
 
   // While checking auth state, show a simple loading spinner
   if (authLoading) {
-    return (
-      <div className={`auth-spinner ${theme === "dark" ? "dark" : ""}`} />
-    );
+    return <div className={`auth-spinner ${theme === "dark" ? "dark" : ""}`} />;
   }
 
   return (
@@ -375,13 +373,34 @@ const App = (props: AppProps) => {
             <Menu contentId="main-content" />
             <IonReactRouter>
               {/* ── Auth routes (no tabs / header) ── */}
-              <Route exact path="/login">
-                {user ? <Redirect to={user.isOnboarded ? "/OVIFLOW/" : "/cycle-setup"} /> : <LoginPage />}
+              <Route
+                exact
+                path="/login"
+              >
+                {user ? (
+                  <Redirect
+                    to={user.isOnboarded ? "/OVIFLOW/" : "/cycle-setup"}
+                  />
+                ) : (
+                  <LoginPage />
+                )}
               </Route>
-              <Route exact path="/register">
-                {user ? <Redirect to={user.isOnboarded ? "/OVIFLOW/" : "/cycle-setup"} /> : <RegisterPage />}
+              <Route
+                exact
+                path="/register"
+              >
+                {user ? (
+                  <Redirect
+                    to={user.isOnboarded ? "/OVIFLOW/" : "/cycle-setup"}
+                  />
+                ) : (
+                  <RegisterPage />
+                )}
               </Route>
-              <Route exact path="/cycle-setup">
+              <Route
+                exact
+                path="/cycle-setup"
+              >
                 {!user ? <Redirect to="/login" /> : <CycleSetupPage />}
               </Route>
 
@@ -413,7 +432,13 @@ const App = (props: AppProps) => {
                       exact
                       path="/OVIFLOW/"
                     >
-                      {!user ? <Redirect to="/login" /> : !user.isOnboarded ? <Redirect to="/cycle-setup" /> : <TabHome />}
+                      {!user ? (
+                        <Redirect to="/login" />
+                      ) : !user.isOnboarded ? (
+                        <Redirect to="/cycle-setup" />
+                      ) : (
+                        <TabHome />
+                      )}
                     </Route>
 
                     <Route
@@ -427,7 +452,13 @@ const App = (props: AppProps) => {
                       exact
                       path="/"
                     >
-                      {!user ? <Redirect to="/login" /> : !user.isOnboarded ? <Redirect to="/cycle-setup" /> : <Redirect to="/OVIFLOW/" />}
+                      {!user ? (
+                        <Redirect to="/login" />
+                      ) : !user.isOnboarded ? (
+                        <Redirect to="/cycle-setup" />
+                      ) : (
+                        <Redirect to="/OVIFLOW/" />
+                      )}
                     </Route>
 
                     <Route
