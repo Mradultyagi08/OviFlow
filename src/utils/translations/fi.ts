@@ -31,7 +31,7 @@ const fi = {
   mark: "Merkitse",
   cancel: "Peruuta",
   // Welcome Modal
-  "Welcome to OviFlow": "Tervetuloa OviFlow-sovellukseen",
+  "Welcome to OVIFLOW": "Tervetuloa OVIFLOW-sovellukseen",
   "Mark the days of your": "Merkitse tähän",
   "last period": "edellisten kuukautistesi ajankohta",
   Continue: "Jatka",

@@ -35,7 +35,7 @@ const ta = {
   cancel: "ரத்துசெய்யவும்",
 
   // Welcome Modal
-  "Welcome to OviFlow": "OviFlow-யில் உங்களை வரவேற்கிறோம்",
+  "Welcome to OVIFLOW": "OVIFLOW-யில் உங்களை வரவேற்கிறோம்",
   "Mark the days of your": "உங்கள் நாட்களை அடையாளப்படுத்தவும்",
   "last period": "கடைசியாக மாதவிடாய்",
   Continue: "தொடரவும்",

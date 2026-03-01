@@ -31,7 +31,7 @@ const tl = {
   mark: "Markahan",
   cancel: "Kanselahin",
   // Welcome Modal
-  "Welcome to OviFlow": "Maligayang pagdating sa OviFlow",
+  "Welcome to OVIFLOW": "Maligayang pagdating sa OVIFLOW",
   "Mark the days of your": "Markahan ang mga araw ng iyong",
   "last period": "huling regla",
   Continue: "Magpatuloy",

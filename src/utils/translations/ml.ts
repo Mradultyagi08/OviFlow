@@ -36,7 +36,7 @@ const ml = {
   cancel: "റദ്ദാക്കുക",
 
   // Welcome Modal
-  "Welcome to OviFlow": "OviFlow യിലേക്ക് സ്വാഗതം",
+  "Welcome to OVIFLOW": "OVIFLOW യിലേക്ക് സ്വാഗതം",
   "Mark the days of your":
     "നിങ്ങളുടെ അവസാന ആർത്തവത്തിന്റെ ദിവസങ്ങൾ അടയാളപ്പെടുത്തുക", // eg. Mark the days of your last period
   "last period": "അവസാന ആർത്തവം", // eg. Mark the days of your last period

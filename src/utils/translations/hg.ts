@@ -32,7 +32,7 @@ const hg = {
   mark: "Mark karo",
   cancel: "Cancel karo",
   // Welcome Modal
-  "Welcome to OviFlow": "OviFlow mein swagat hai",
+  "Welcome to OVIFLOW": "OVIFLOW mein swagat hai",
   "Mark the days of your": "Apne dinon ko mark karo",
   "last period": "Aakhri period",
   Continue: "Aage badho",

@@ -35,7 +35,7 @@ const pl = {
   cancel: "anuluj",
 
   // Welcome Modal
-  "Welcome to OviFlow": "Witaj w OviFlow",
+  "Welcome to OVIFLOW": "Witaj w OVIFLOW",
   "Mark the days of your": "Oznacz dni swojej",
   "last period": "ostatniej miesiączki",
   Continue: "Kontynuuj",

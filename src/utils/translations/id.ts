@@ -34,7 +34,7 @@ const id = {
   cancel: "batal",
 
   // Welcome Modal
-  "Welcome to OviFlow": "Selamat datang di OviFlow",
+  "Welcome to OVIFLOW": "Selamat datang di OVIFLOW",
   "Mark the days of your": "Tandai hari-hari",
   "last period": "haid terakhir",
   Continue: "Lanjutkan",

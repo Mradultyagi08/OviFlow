@@ -32,7 +32,7 @@ const gu = {
   mark: "ચિહ્નિત કરો",
   cancel: "રદ કરો",
   // Welcome Modal
-  "Welcome to OviFlow": "OviFlow માં આપનું સ્વાગત છે",
+  "Welcome to OVIFLOW": "OVIFLOW માં આપનું સ્વાગત છે",
   "Mark the days of your": "તમારા દિવસોને ચિહ્નિત કરો",
   "last period": "છેલ્લા માસિક ધારા ના",
   Continue: "આગળ વધો",

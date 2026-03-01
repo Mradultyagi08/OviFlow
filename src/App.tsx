@@ -19,6 +19,10 @@ import { menuOutline } from "ionicons/icons";
 import { useTranslation } from "react-i18next";
 import TabHome from "./pages/TabHome";
 import TabDetails from "./pages/TabDetails";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import CycleSetupPage from "./pages/CycleSetupPage";
+import { useAuth } from "./state/AuthContext";
 import "./App.css";
 
 /* Core CSS required for Ionic components to work properly */
@@ -315,6 +319,15 @@ const App = (props: AppProps) => {
     });
   }, [notificationEnabled, cycles, maxNumberOfDisplayedCycles]);
 
+  const { user, isLoading: authLoading } = useAuth();
+
+  // While checking auth state, show a simple loading spinner
+  if (authLoading) {
+    return (
+      <div className={`auth-spinner ${theme === "dark" ? "dark" : ""}`} />
+    );
+  }
+
   return (
     <CyclesContext.Provider
       value={{
@@ -361,6 +374,17 @@ const App = (props: AppProps) => {
 
             <Menu contentId="main-content" />
             <IonReactRouter>
+              {/* ── Auth routes (no tabs / header) ── */}
+              <Route exact path="/login">
+                {user ? <Redirect to={user.isOnboarded ? "/OVIFLOW/" : "/cycle-setup"} /> : <LoginPage />}
+              </Route>
+              <Route exact path="/register">
+                {user ? <Redirect to={user.isOnboarded ? "/OVIFLOW/" : "/cycle-setup"} /> : <RegisterPage />}
+              </Route>
+              <Route exact path="/cycle-setup">
+                {!user ? <Redirect to="/login" /> : <CycleSetupPage />}
+              </Route>
+
               <IonHeader
                 class="ion-no-border"
                 style={{
@@ -387,37 +411,37 @@ const App = (props: AppProps) => {
                   <IonRouterOutlet>
                     <Route
                       exact
-                      path="/oviflow/"
+                      path="/OVIFLOW/"
                     >
-                      <TabHome />
+                      {!user ? <Redirect to="/login" /> : !user.isOnboarded ? <Redirect to="/cycle-setup" /> : <TabHome />}
                     </Route>
 
                     <Route
                       exact
-                      path="/oviflow-details/"
+                      path="/OVIFLOW-details/"
                     >
-                      <TabDetails />
+                      {!user ? <Redirect to="/login" /> : <TabDetails />}
                     </Route>
 
                     <Route
                       exact
                       path="/"
                     >
-                      <Redirect to="/oviflow/" />
+                      {!user ? <Redirect to="/login" /> : !user.isOnboarded ? <Redirect to="/cycle-setup" /> : <Redirect to="/OVIFLOW/" />}
                     </Route>
 
                     <Route
                       exact
                       path="/peri/"
                     >
-                      <Redirect to="/oviflow/" />
+                      <Redirect to="/OVIFLOW/" />
                     </Route>
 
                     <Route
                       exact
                       path="/peri-details/"
                     >
-                      <Redirect to="/oviflow-details/" />
+                      <Redirect to="/OVIFLOW-details/" />
                     </Route>
                   </IonRouterOutlet>
 
@@ -453,14 +477,14 @@ const App = (props: AppProps) => {
 
                     <IonTabButton
                       tab="home"
-                      href="/oviflow/"
+                      href="/OVIFLOW/"
                       className={theme}
                     >
                       <IonLabel>{t("Home")}</IonLabel>
                     </IonTabButton>
                     <IonTabButton
                       tab="details"
-                      href="/oviflow-details/"
+                      href="/OVIFLOW-details/"
                       className={theme}
                       style={{ marginLeft: "15px" }}
                     >

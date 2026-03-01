@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 
 import App from "./App";
+import { AuthProvider } from "./state/AuthContext";
 
 import { init as initTranslation } from "./utils/translation";
 import { init as initDateTimeLocale } from "./utils/datetime";
@@ -50,7 +51,9 @@ async function init() {
   const root = createRoot(container);
   root.render(
     <React.StrictMode>
-      <App theme={theme} />
+      <AuthProvider>
+        <App theme={theme} />
+      </AuthProvider>
     </React.StrictMode>,
   );
 }

@@ -35,7 +35,6 @@ import { CyclesContext, SettingsContext, ThemeContext } from "../state/Context";
 import { storage } from "../data/Storage";
 import { configuration } from "../data/AppConfiguration";
 
-import Welcome from "../modals/WelcomeModal";
 import InfoModal from "../modals/InfoModal";
 
 import {
@@ -704,7 +703,6 @@ const TabHome = () => {
   const theme = useContext(ThemeContext).theme;
 
   const [isInfoModal, setIsInfoModal] = useState(false);
-  const [isWelcomeModal, setIsWelcomeModal] = useState(false);
   const [isEditCalendar, setIsEditCalendar] = useState(false);
 
   const router = useIonRouter();
@@ -712,7 +710,6 @@ const TabHome = () => {
   useEffect(() => {
     storage.get.cycles().catch((err) => {
       console.error(`Can't get cycles ${(err as Error).message}`);
-      setIsWelcomeModal(true);
     });
   }, []);
 
@@ -755,10 +752,6 @@ const TabHome = () => {
           className="ion-padding"
           color={`transparent-${theme}`}
         >
-          <Welcome
-            isOpen={isWelcomeModal}
-            setIsOpen={setIsWelcomeModal}
-          />
           <div
             id="context-size"
             className="page-content-animated"

@@ -44,7 +44,7 @@ const zh = {
   cancel: "取消",
 
   // Welcome Modal
-  "Welcome to OviFlow": "欢迎使用 OviFlow",
+  "Welcome to OVIFLOW": "欢迎使用 OVIFLOW",
   "Mark the days of your": "登记您", // eg. Mark the days of your last period
   "last period": "上次月经", // eg. Mark the days of your last period
   Continue: "继续",

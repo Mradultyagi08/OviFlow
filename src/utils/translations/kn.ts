@@ -35,7 +35,7 @@ const kn = {
   cancel: "ರದ್ದುಮಾಡಿ",
 
   // Welcome Modal
-  "Welcome to OviFlow": "OviFlow ಗೆ ಸ್ವಾಗತ",
+  "Welcome to OVIFLOW": "OVIFLOW ಗೆ ಸ್ವಾಗತ",
   "Mark the days of your": "ನಿಮ್ಮ ದಿನಗಳನ್ನು ಗುರುತಿಸಿ",
   "last period": "ಕೊನೆಯ ಮಾಸಿಕಿ",
   Continue: "ಮುಂದುವರಿಸಿ",

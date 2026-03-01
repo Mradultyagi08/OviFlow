@@ -1,14 +1,15 @@
 {
-  "name": "oviflow",
-  "description": "OviFlow - The Period Tracker App",
+  "name": "OVIFLOW",
+  "description": "OVIFLOW - The Period Tracker App",
   "version": "2.6.7",
   "type": "module",
   "author": {
-    "name": "OviFlow Team",
+    "name": "OVIFLOW Team",
     "email": "mradultyagi17@gmail.com"
   },
   "scripts": {
     "dev": "vite",
+    "dev:all": "npx concurrently -n frontend,backend -c cyan,magenta \"npm run dev\" \"npm run dev --prefix backend\"",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run --silent",
@@ -68,6 +69,7 @@
     "@types/semver": "^7.5.8",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@vitest/coverage-v8": "^2.1.8",
+    "concurrently": "^9.2.1",
     "gh-pages": "^5.0.0",
     "vite-plugin-pwa": "^0.21.1",
     "vitest": "^2.1.8"

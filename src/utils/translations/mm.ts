@@ -34,7 +34,7 @@ const mm = {
   cancel: "မလုပ်တော့ပါ",
 
   // welcome
-  "Welcome to OviFlow": "OviFlow မှ ကြိုဆိုပါတယ်",
+  "Welcome to OVIFLOW": "OVIFLOW မှ ကြိုဆိုပါတယ်",
   "Mark the days of your": "သင့်နောက်ဆုံး",
   "last period": "ရာသီ လာခဲ့သည့်ရက်များ ကို မှတ်ပါ",
   Continue: "ဆက်လက်ရန်",

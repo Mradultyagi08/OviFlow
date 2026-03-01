@@ -36,7 +36,7 @@ const hu = {
   cancel: "mégse",
 
   // Welcome Modal
-  "Welcome to OviFlow": "Üdv a OviFlow alkalmazásban!",
+  "Welcome to OVIFLOW": "Üdv a OVIFLOW alkalmazásban!",
   "Mark the days of your": "Jelöld be az",
   "last period": "utolsó menstruációd napjait",
   Continue: "Folytatás",

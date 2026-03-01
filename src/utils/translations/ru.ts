@@ -31,7 +31,7 @@ const ru = {
   mark: "отметить",
   cancel: "отмена",
   // Welcome Modal
-  "Welcome to OviFlow": "Добро пожаловать в OviFlow",
+  "Welcome to OVIFLOW": "Добро пожаловать в OVIFLOW",
   "Mark the days of your": "Отметьте дни",
   "last period": "последних месячных",
   Continue: "Продолжить",

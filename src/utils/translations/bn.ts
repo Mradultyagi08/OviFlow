@@ -34,7 +34,7 @@ const bn = {
   cancel: "বাতিল করুন",
 
   // Welcome Modal
-  "Welcome to OviFlow": "OviFlow-তে স্বাগতম",
+  "Welcome to OVIFLOW": "OVIFLOW-তে স্বাগতম",
   "Mark the days of your": "আপনার দিনগুলি চিহ্নিত করুন",
   "last period": "শেষ পিরিয়ড",
   Continue: "চালিয়ে যান",

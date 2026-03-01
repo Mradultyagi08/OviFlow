@@ -44,7 +44,7 @@ const ar = {
   cancel: "إلغاء",
 
   // Welcome Modal
-  "Welcome to OviFlow": "مرحباً بك في OviFlow",
+  "Welcome to OVIFLOW": "مرحباً بك في OVIFLOW",
   "Mark the days of your": "اختاري أيام", // eg. Mark the days of your last period
   "last period": "دورتك الأخيرة", // eg. Mark the days of your last period
   Continue: "متابعة",

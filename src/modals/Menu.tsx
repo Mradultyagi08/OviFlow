@@ -466,7 +466,7 @@ export const Menu = (props: MenuProps) => {
             style={{ fontSize: "13px" }}
             color="medium"
           >
-            OviFlow - The Period Tracker App
+            OVIFLOW - The Period Tracker App
           </IonLabel>
           <IonLabel
             style={{ fontSize: "13px" }}

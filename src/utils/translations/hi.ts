@@ -31,7 +31,7 @@ const hi = {
   mark: "चिह्नित करें",
   cancel: "रद्द करें",
 
-  "Welcome to OviFlow": "OviFlow में आपका स्वागत है",
+  "Welcome to OVIFLOW": "OVIFLOW में आपका स्वागत है",
   "Mark the days of your": "अपने अंतिम मासिक धर्म के दिनों को चिह्नित करें",
   "last period": "अंतिम मासिक धर्म",
   Continue: "जारी रखें",

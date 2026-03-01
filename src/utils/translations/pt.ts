@@ -44,7 +44,7 @@ const pt = {
   cancel: "cancelar",
 
   // Welcome Modal
-  "Welcome to OviFlow": "Bem-vinda ao OviFlow",
+  "Welcome to OVIFLOW": "Bem-vinda ao OVIFLOW",
   "Mark the days of your": "Selecione os dias do seu", // eg. Mark the days of your last period
   "last period": "último período", // eg. Mark the days of your last period
   Continue: "Continuar",

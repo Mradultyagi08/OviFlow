@@ -44,7 +44,7 @@ const example = {
   cancel: "",
 
   // Welcome Modal
-  "Welcome to OviFlow": "",
+  "Welcome to OVIFLOW": "",
   "Mark the days of your": "", // eg. Mark the days of your last period
   "last period": "", // eg. Mark the days of your last period
   Continue: "",

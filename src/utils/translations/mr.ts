@@ -31,7 +31,7 @@ const mr = {
   mark: "नोंद करा",
   cancel: "रद्द करा",
 
-  "Welcome to OviFlow": "OviFlow मध्ये तुमचे स्वागत आहे",
+  "Welcome to OVIFLOW": "OVIFLOW मध्ये तुमचे स्वागत आहे",
   "Mark the days of your": "तुमच्या पाळीचे दिवस नोंद करा",
   "last period": "शेवटची पाळी",
   Continue: "पुढे चला",

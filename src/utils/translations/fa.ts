@@ -32,7 +32,7 @@ const fa = {
   mark: "علامت زدن",
   cancel: "کنسل",
   // Welcome Modal
-  "Welcome to OviFlow": "به OviFlow خوش آمدید",
+  "Welcome to OVIFLOW": "به OVIFLOW خوش آمدید",
   "Mark the days of your": "روز های آخرین پریودی را",
   "last period": "مشخص کنید",
   Continue: "ادامه",

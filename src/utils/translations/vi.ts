@@ -31,7 +31,7 @@ const vi = {
   mark: "đánh dấu",
   cancel: "huỷ bỏ",
   // Welcome Modal
-  "Welcome to OviFlow": "Chào mừng bạn đến với OviFlow",
+  "Welcome to OVIFLOW": "Chào mừng bạn đến với OVIFLOW",
   "Mark the days of your": "Bạn hãy đánh dấu những ngày",
   "last period": "kỳ kinh nguyệt gần nhất của bạn",
   Continue: "Tiếp tục",

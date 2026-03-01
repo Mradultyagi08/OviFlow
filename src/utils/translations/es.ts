@@ -32,7 +32,7 @@ const es = {
   mark: "Marcar",
   cancel: "Cancelar",
   // Welcome Modal
-  "Welcome to OviFlow": "Te damos la bienvenida a OviFlow",
+  "Welcome to OVIFLOW": "Te damos la bienvenida a OVIFLOW",
   "Mark the days of your": "Marca los días de tu",
   "last period": "última menstruación",
   Continue: "Continuar",
