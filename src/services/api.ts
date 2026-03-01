@@ -103,3 +103,42 @@ export function apiCycleSetup(
     token,
   });
 }
+
+/* ── Cycle Logs ──────────────────────────────────────────────────── */
+
+export interface CycleLogPayload {
+  date: string;
+  isPeriod: boolean;
+  flow: string;
+  mood: string;
+  symptoms: string[];
+  notes: string;
+}
+
+export interface CycleLog {
+  _id: string;
+  userId: string;
+  date: string;
+  isPeriod: boolean;
+  flow: string;
+  mood: string;
+  symptoms: string[];
+  notes: string;
+}
+
+export function apiSaveCycleLog(
+  token: string,
+  data: CycleLogPayload,
+): Promise<{ log: CycleLog }> {
+  return request<{ log: CycleLog }>("/cycle/log", {
+    method: "POST",
+    body: data,
+    token,
+  });
+}
+
+export function apiGetCycleLogs(
+  token: string,
+): Promise<{ logs: CycleLog[] }> {
+  return request<{ logs: CycleLog[] }>("/cycle/logs", { token });
+}

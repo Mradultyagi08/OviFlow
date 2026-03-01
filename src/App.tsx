@@ -22,6 +22,7 @@ import TabDetails from "./pages/TabDetails";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CycleSetupPage from "./pages/CycleSetupPage";
+import CycleDashboard from "./pages/CycleDashboard";
 import { useAuth } from "./state/AuthContext";
 import "./App.css";
 
@@ -437,7 +438,7 @@ const App = (props: AppProps) => {
                       ) : !user.isOnboarded ? (
                         <Redirect to="/cycle-setup" />
                       ) : (
-                        <TabHome />
+                        <CycleDashboard />
                       )}
                     </Route>
 

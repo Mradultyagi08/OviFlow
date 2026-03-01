@@ -6,6 +6,7 @@
 .auth-page {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px 16px;
@@ -53,6 +54,62 @@
   border-radius: 18px;
 }
 
+/* ── Hero logo (above the card) ────────────────────── */
+.auth-hero-logo {
+  width: 180px;
+  height: 180px;
+  border-radius: 36px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.auth-hero-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.auth-hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  /* gap: 6px; */
+}
+
+.auth-hero-section .auth-hero-logo {
+  margin-bottom: -50px;
+}
+
+.auth-brand-name {
+  font-size: 32px;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  color: #5a4a8a;
+  margin: 0;
+  text-align: center;
+}
+
+.dark .auth-brand-name {
+  color: #e8e3ff;
+}
+
+.auth-brand-tagline {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #7565a5;
+  margin: 0;
+  text-align: center;
+}
+
+.dark .auth-brand-tagline {
+  color: #b0a5d0;
+}
+
 .auth-title {
   text-align: center;
   font-size: 24px;
@@ -81,65 +138,122 @@
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
-.auth-field {
+/* ── Icon input group ──────────────────────────────── */
+.auth-input-group {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  align-items: center;
 }
 
-.auth-field label {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #4c3b9d;
-  padding-left: 4px;
+.auth-input-icon {
+  position: absolute;
+  left: 18px;
+  display: flex;
+  align-items: center;
+  color: #7565c5;
+  pointer-events: none;
+  z-index: 1;
 }
 
-.dark .auth-field label {
-  color: #bdb2e8;
+.dark .auth-input-icon {
+  color: #a38dff;
 }
 
-.auth-field input {
+.auth-input-group input {
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(76, 59, 157, 0.18);
-  background: rgba(255, 255, 255, 0.7);
+  padding: 15px 50px 15px 48px;
+  border-radius: 50px;
+  border: none;
+  background: rgba(255, 255, 255, 0.82);
   font-size: 15px;
   color: #2e254a;
   outline: none;
+  box-shadow: 0 2px 12px rgba(76, 59, 157, 0.1);
   transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+    box-shadow 0.2s,
+    background 0.2s;
   box-sizing: border-box;
 }
 
-.auth-field input:focus {
-  border-color: #7565c5;
-  box-shadow: 0 0 0 3px rgba(117, 101, 197, 0.18);
+.auth-input-group input:focus {
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow:
+    0 0 0 3px rgba(117, 101, 197, 0.22),
+    0 2px 12px rgba(76, 59, 157, 0.1);
 }
 
-.dark .auth-field input {
-  background: rgba(30, 30, 60, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.dark .auth-input-group input {
+  background: rgba(40, 36, 72, 0.72);
   color: #e8e3ff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
 }
 
-.dark .auth-field input:focus {
-  border-color: #785df9;
-  box-shadow: 0 0 0 3px rgba(120, 93, 249, 0.25);
+.dark .auth-input-group input:focus {
+  background: rgba(50, 44, 90, 0.9);
+  box-shadow:
+    0 0 0 3px rgba(120, 93, 249, 0.28),
+    0 2px 12px rgba(0, 0, 0, 0.22);
 }
 
-.auth-field input::placeholder {
+.auth-input-group input::placeholder {
   color: #a09ab5;
+  font-weight: 500;
 }
 
-.dark .auth-field input::placeholder {
+.dark .auth-input-group input::placeholder {
   color: #6b6192;
+}
+
+/* ── Eye toggle button ─────────────────────────────── */
+.auth-eye-btn {
+  position: absolute;
+  right: 16px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #7565c5;
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+
+.auth-eye-btn:hover {
+  opacity: 1;
+}
+
+.dark .auth-eye-btn {
+  color: #a38dff;
+}
+
+/* ── Forgot password ───────────────────────────────── */
+.auth-forgot-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -4px;
+}
+
+.auth-forgot-link {
+  background: none;
+  border: none;
+  color: #7565c5;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}
+
+.auth-forgot-link:hover {
+  text-decoration: underline;
+}
+
+.dark .auth-forgot-link {
+  color: #a38dff;
 }
 
 /* ── Buttons ───────────────────────────────────────── */
