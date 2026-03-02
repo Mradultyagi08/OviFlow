@@ -7,60 +7,98 @@ body {
   background: #eae7ff;
 }
 
+:root {
+  --ovi-radius: 24px;
+  --ovi-card-bg: rgba(255, 255, 255, 0.3);
+  --ovi-card-border: rgba(255, 255, 255, 0.2);
+  --ovi-card-shadow: 0 10px 24px rgba(76, 59, 157, 0.1);
+  --ovi-space-page: 16px;
+  --ovi-space-section: 16px;
+  --ovi-space-card: 12px;
+
+  --ovi-title: #1f2937;
+  --ovi-heading: #374151;
+  --ovi-body: #6b7280;
+  --ovi-metric: #111827;
+
+  --ovi-mode-gradient-start: #f9a8d4;
+  --ovi-mode-gradient-end: #e9d5ff;
+  --ovi-mode-accent: #f472b6;
+  --ovi-mode-bg-tint: #fdf2f8;
+}
+
+body.mode-cycle {
+  --ovi-mode-gradient-start: #f9a8d4;
+  --ovi-mode-gradient-end: #e9d5ff;
+  --ovi-mode-accent: #f472b6;
+  --ovi-mode-bg-tint: #fdf2f8;
+}
+
+body.mode-pregnancy {
+  --ovi-mode-gradient-start: #f9a8d4;
+  --ovi-mode-gradient-end: #e9d5ff;
+  --ovi-mode-accent: #f472b6;
+  --ovi-mode-bg-tint: #fdf2f8;
+}
+
+body.mode-postpartum {
+  --ovi-mode-gradient-start: #f9a8d4;
+  --ovi-mode-gradient-end: #e9d5ff;
+  --ovi-mode-accent: #f472b6;
+  --ovi-mode-bg-tint: #fdf2f8;
+}
+
+/* ── Dark theme text & surface tokens ──────────────── */
+body.dark {
+  --ovi-title: #f3f4f6;
+  --ovi-heading: #e5e7eb;
+  --ovi-body: #9ca3af;
+  --ovi-metric: #f9fafb;
+  --ovi-card-bg: rgba(42, 42, 61, 0.35);
+  --ovi-card-border: rgba(255, 255, 255, 0.1);
+  --ovi-card-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --ovi-space-page: 24px;
+    --ovi-space-section: 24px;
+  }
+}
+
 /* =============================================
    SCROLLBAR THEMING
    ============================================= */
 
 /* Firefox */
-body.basic * {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(76, 59, 157, 0.45) rgba(200, 194, 255, 0.2);
-}
-
+body.basic *,
 body.dark * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(130, 100, 255, 0.5) rgba(30, 20, 60, 0.4);
+  scrollbar-color: rgba(244, 114, 182, 0.35) transparent;
 }
 
 /* WebKit / Blink (Chrome, Safari, Edge) */
-body.basic ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-body.basic ::-webkit-scrollbar-track {
-  background: rgba(200, 194, 255, 0.15);
-  border-radius: 10px;
-}
-
-body.basic ::-webkit-scrollbar-thumb {
-  background: rgba(76, 59, 157, 0.4);
-  border-radius: 10px;
-  transition: background 0.2s ease;
-}
-
-body.basic ::-webkit-scrollbar-thumb:hover {
-  background: rgba(76, 59, 157, 0.7);
-}
-
+body.basic ::-webkit-scrollbar,
 body.dark ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
+body.basic ::-webkit-scrollbar-track,
 body.dark ::-webkit-scrollbar-track {
-  background: rgba(30, 20, 60, 0.3);
-  border-radius: 10px;
+  background: transparent;
 }
 
+body.basic ::-webkit-scrollbar-thumb,
 body.dark ::-webkit-scrollbar-thumb {
-  background: rgba(130, 100, 255, 0.45);
-  border-radius: 10px;
+  background: rgba(244, 114, 182, 0.35);
+  border-radius: 999px;
   transition: background 0.2s ease;
 }
 
+body.basic ::-webkit-scrollbar-thumb:hover,
 body.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(130, 100, 255, 0.75);
+  background: rgba(244, 114, 182, 0.65);
 }
 
 /* Make Ionic surfaces transparent so body-level bubble animation shows through */
@@ -243,7 +281,7 @@ ion-tab-button.tab-selected.basic {
   font-weight: 600;
   height: 34px;
   letter-spacing: 0.02em;
-  box-shadow: 0 2px 14px rgba(76, 59, 157, 0.32);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.18);
   transform: scale(1.04);
 
   --color-selected: var(--ion-color-light);
@@ -261,12 +299,28 @@ ion-menu {
 }
 
 ion-menu.basic::part(container) {
-  background-color: var(--ion-color-light);
+  background: rgba(255, 255, 255, 0.55);
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 ion-select.basic::part(text),
 ion-select.basic::part(icon) {
-  color: var(--ion-color-text-basic);
+  color: var(--ovi-heading);
+}
+
+ion-menu ion-item {
+  --background: transparent;
+  --color: var(--ovi-heading);
+}
+
+ion-menu.dark ion-item {
+  --color: #e5e7eb;
+}
+
+ion-menu ion-item ion-icon {
+  color: var(--ovi-mode-accent) !important;
 }
 
 ion-datetime.welcome-calendar-basic::part(calendar-day today),
@@ -320,7 +374,7 @@ ion-datetime.view-calendar-today-ovulation-basic::part(calendar-day) {
 }
 
 button.alert-button.basic {
-  color: var(--ion-color-dark-basic);
+  color: var(--ovi-mode-accent);
 }
 
 /* dark group */
@@ -379,12 +433,15 @@ ion-tab-button.tab-selected.dark {
 }
 
 ion-menu.dark::part(container) {
-  background-color: var(--ion-color-calendar-dark);
+  background: rgba(24, 20, 38, 0.78);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 ion-select.dark::part(text),
 ion-select.dark::part(icon) {
-  color: var(--ion-color-text-dark);
+  color: #e5e7eb;
 }
 ion-popover.dark {
   --background: var(--ion-color-transparent-dark);
@@ -393,7 +450,7 @@ ion-popover.dark * {
   color: white;
 }
 ion-popover.dark .item-radio-checked {
-  background-color: var(--ion-color-dark-dark);
+  background-color: var(--ovi-mode-accent);
 }
 
 ion-datetime.welcome-calendar-dark,
@@ -492,18 +549,18 @@ ion-modal#alert-demo-modal .wrapper {
   margin: 10px 20px 10px 10px;
 }
 ion-alert.custom-alert {
-  --button-color: var(--ion-color-dark-basic);
+  --button-color: var(--ovi-mode-accent);
   --button-border-radius: 6px;
   --button-font-weight: 500;
 }
 
 ion-alert.custom-alert .alert-button {
   background-color: transparent;
-  color: var(--ion-color-dark-basic);
+  color: var(--ovi-mode-accent);
 }
 
 ion-alert.custom-alert .alert-button:hover {
-  background-color: var(--ion-color-dark-basic);
+  background-color: var(--ovi-mode-accent);
   color: var(--ion-color-light);
 }
 
@@ -812,8 +869,8 @@ ion-tab-bar.dark {
 }
 
 /* =============================================
-   FLOATING BUBBLE BACKGROUND
-   ============================================= */
+  FALLING FLOWER PETALS BACKGROUND
+  ============================================= */
 .floating-bubbles {
   position: fixed;
   top: 0;
@@ -825,121 +882,234 @@ ion-tab-bar.dark {
   pointer-events: none;
 }
 
-.bubble {
+.petal {
   position: absolute;
-  bottom: -150px;
-  border-radius: 10px;
+  top: -140px;
+  border-radius: 65% 35% 60% 40% / 60% 45% 55% 40%;
   opacity: 0;
-  animation: float-up 25s infinite ease-in-out;
+  transform-origin: center;
+  animation: petal-fall 18s linear infinite;
   will-change: transform, opacity;
 }
 
-.bubble.basic {
-  background: rgba(180, 166, 255, 0.18);
-  border: 1.5px solid rgba(180, 166, 255, 0.3);
-  box-shadow: 0 0 12px rgba(180, 166, 255, 0.12);
+.petal::before {
+  content: "";
+  position: absolute;
+  top: 14%;
+  left: 48%;
+  width: 1.5px;
+  height: 72%;
+  border-radius: 2px;
+  transform: rotate(8deg);
+  opacity: 0.35;
 }
 
-.bubble.dark {
-  background: rgba(120, 93, 249, 0.14);
-  border: 1.5px solid rgba(130, 100, 255, 0.25);
-  box-shadow: 0 0 12px rgba(120, 93, 249, 0.1);
+.petal.basic {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 209, 236, 0.45),
+    rgba(230, 180, 255, 0.34)
+  );
+  border: 1px solid rgba(236, 187, 255, 0.4);
+  box-shadow: 0 3px 10px rgba(189, 132, 230, 0.14);
 }
 
-@keyframes float-up {
+.petal.basic::before {
+  background: rgba(183, 106, 222, 0.48);
+}
+
+.petal.dark {
+  background: linear-gradient(
+    160deg,
+    rgba(246, 166, 219, 0.34),
+    rgba(157, 103, 218, 0.28)
+  );
+  border: 1px solid rgba(201, 124, 236, 0.35);
+  box-shadow: 0 3px 10px rgba(140, 88, 196, 0.18);
+}
+
+.petal.dark::before {
+  background: rgba(247, 176, 224, 0.52);
+}
+
+@keyframes petal-fall {
   0% {
-    transform: translateY(0) translateX(0) rotate(0deg);
+    transform: translate3d(0, -12vh, 0) rotate(0deg) scale(0.92);
     opacity: 0;
   }
-  8% {
+  7% {
     opacity: 1;
   }
-  85% {
-    opacity: 0.7;
+  45% {
+    transform: translate3d(26px, 44vh, 0) rotate(115deg) scale(1);
+  }
+  75% {
+    transform: translate3d(-18px, 78vh, 0) rotate(240deg) scale(1.03);
+    opacity: 0.86;
   }
   100% {
-    transform: translateY(-120vh) translateX(80px) rotate(200deg);
+    transform: translate3d(35px, 114vh, 0) rotate(360deg) scale(0.95);
     opacity: 0;
   }
 }
 
-/* Individual bubble delays and sizes */
-.bubble:nth-child(1) {
+/* Individual petal positions, sizes and timing */
+.petal:nth-child(1) {
   left: 10%;
-  width: 60px;
-  height: 60px;
+  width: 18px;
+  height: 28px;
   animation-delay: 0s;
-  animation-duration: 28s;
+  animation-duration: 16s;
 }
 
-.bubble:nth-child(2) {
+.petal:nth-child(2) {
   left: 25%;
-  width: 45px;
-  height: 45px;
-  animation-delay: 3s;
-  animation-duration: 32s;
+  width: 16px;
+  height: 24px;
+  animation-delay: 1.6s;
+  animation-duration: 18s;
 }
 
-.bubble:nth-child(3) {
+.petal:nth-child(3) {
   left: 40%;
-  width: 70px;
-  height: 70px;
-  animation-delay: 1.5s;
-  animation-duration: 26s;
+  width: 20px;
+  height: 30px;
+  animation-delay: 0.9s;
+  animation-duration: 17s;
 }
 
-.bubble:nth-child(4) {
+.petal:nth-child(4) {
   left: 60%;
-  width: 50px;
-  height: 50px;
-  animation-delay: 5s;
-  animation-duration: 30s;
+  width: 15px;
+  height: 23px;
+  animation-delay: 2.7s;
+  animation-duration: 19s;
 }
 
-.bubble:nth-child(5) {
+.petal:nth-child(5) {
   left: 75%;
-  width: 55px;
-  height: 55px;
-  animation-delay: 2s;
-  animation-duration: 29s;
+  width: 19px;
+  height: 27px;
+  animation-delay: 1.3s;
+  animation-duration: 16.8s;
 }
 
-.bubble:nth-child(6) {
+.petal:nth-child(6) {
   left: 90%;
-  width: 40px;
-  height: 40px;
-  animation-delay: 4s;
-  animation-duration: 27s;
+  width: 14px;
+  height: 21px;
+  animation-delay: 3.1s;
+  animation-duration: 20s;
 }
 
-.bubble:nth-child(7) {
+.petal:nth-child(7) {
   left: 15%;
-  width: 65px;
-  height: 65px;
-  animation-delay: 6s;
-  animation-duration: 31s;
+  width: 17px;
+  height: 25px;
+  animation-delay: 4.2s;
+  animation-duration: 18.5s;
 }
 
-.bubble:nth-child(8) {
+.petal:nth-child(8) {
   left: 50%;
-  width: 48px;
-  height: 48px;
-  animation-delay: 7s;
-  animation-duration: 28s;
+  width: 15px;
+  height: 22px;
+  animation-delay: 5.1s;
+  animation-duration: 17.4s;
 }
 
-.bubble:nth-child(9) {
+.petal:nth-child(9) {
   left: 80%;
-  width: 52px;
-  height: 52px;
-  animation-delay: 2.5s;
-  animation-duration: 33s;
+  width: 18px;
+  height: 26px;
+  animation-delay: 2.2s;
+  animation-duration: 18.8s;
 }
 
-.bubble:nth-child(10) {
+.petal:nth-child(10) {
   left: 35%;
-  width: 58px;
-  height: 58px;
-  animation-delay: 4.5s;
-  animation-duration: 29s;
+  width: 16px;
+  height: 24px;
+  animation-delay: 3.6s;
+  animation-duration: 16.6s;
+}
+
+.petal:nth-child(11) {
+  left: 5%;
+  width: 13px;
+  height: 20px;
+  animation-delay: 5.8s;
+  animation-duration: 19.7s;
+}
+
+.petal:nth-child(12) {
+  left: 67%;
+  width: 20px;
+  height: 31px;
+  animation-delay: 6.4s;
+  animation-duration: 17.1s;
+}
+
+.petal:nth-child(13) {
+  left: 57%;
+  width: 14px;
+  height: 22px;
+  animation-delay: 7.2s;
+  animation-duration: 20.2s;
+}
+
+.petal:nth-child(14) {
+  left: 92%;
+  width: 15px;
+  height: 23px;
+  animation-delay: 8.1s;
+  animation-duration: 18.1s;
+}
+
+.petal:nth-child(15) {
+  left: 22%;
+  width: 13px;
+  height: 20px;
+  animation-delay: 9.4s;
+  animation-duration: 19.4s;
+}
+
+.petal:nth-child(16) {
+  left: 46%;
+  width: 19px;
+  height: 28px;
+  animation-delay: 10.2s;
+  animation-duration: 17.2s;
+}
+
+.petal:nth-child(17) {
+  left: 71%;
+  width: 14px;
+  height: 22px;
+  animation-delay: 11.3s;
+  animation-duration: 20.4s;
+}
+
+.petal:nth-child(18) {
+  left: 84%;
+  width: 17px;
+  height: 25px;
+  animation-delay: 12.1s;
+  animation-duration: 18.6s;
+}
+
+.petal:nth-child(19) {
+  left: 31%;
+  width: 16px;
+  height: 24px;
+  animation-delay: 13.2s;
+  animation-duration: 16.9s;
+}
+
+.petal:nth-child(20) {
+  left: 63%;
+  width: 15px;
+  height: 23px;
+  animation-delay: 14.4s;
+  animation-duration: 19.1s;
 }

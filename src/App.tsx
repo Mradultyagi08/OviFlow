@@ -18,6 +18,7 @@ import RegisterPage from "./pages/RegisterPage";
 import CycleSetupPage from "./pages/CycleSetupPage";
 import CycleDashboard from "./pages/CycleDashboard";
 import SettingsPage from "./pages/SettingsPage";
+import ProfilePage from "./pages/ProfilePage";
 import { useAuth } from "./state/AuthContext";
 import Navbar from "./components/Navbar";
 import "./App.css";
@@ -292,6 +293,24 @@ const App = (props: AppProps) => {
     });
   }, [notificationEnabled, cycles, maxNumberOfDisplayedCycles]);
 
+  useEffect(() => {
+    document.body.classList.remove(
+      "mode-cycle",
+      "mode-pregnancy",
+      "mode-postpartum",
+    );
+
+    if (appMode === "pregnancy") {
+      document.body.classList.add("mode-pregnancy");
+      return;
+    }
+    if (appMode === "postpartum") {
+      document.body.classList.add("mode-postpartum");
+      return;
+    }
+    document.body.classList.add("mode-cycle");
+  }, [appMode]);
+
   const { user, isLoading: authLoading } = useAuth();
 
   // While checking auth state, show a simple loading spinner
@@ -330,13 +349,13 @@ const App = (props: AppProps) => {
           }}
         >
           <IonApp>
-            {/* Floating Bubbles Background - rendered via portal to bypass Ionic stacking contexts */}
+            {/* Falling Petals Background - rendered via portal to bypass Ionic stacking contexts */}
             {createPortal(
               <div className="floating-bubbles">
-                {[...Array(10)].map((_, i) => (
+                {[...Array(20)].map((_, i) => (
                   <div
                     key={i}
-                    className={`bubble ${theme}`}
+                    className={`petal ${theme}`}
                   />
                 ))}
               </div>,
@@ -376,12 +395,6 @@ const App = (props: AppProps) => {
               >
                 {!user ? <Redirect to="/login" /> : <CycleSetupPage />}
               </Route>
-              <Route
-                exact
-                path="/settings"
-              >
-                {!user ? <Redirect to="/login" /> : <SettingsPage />}
-              </Route>
 
               {/* New navbar – only visible for authenticated users */}
               {user && <Navbar />}
@@ -410,6 +423,20 @@ const App = (props: AppProps) => {
                       path="/OVIFLOW-details/"
                     >
                       {!user ? <Redirect to="/login" /> : <TabDetails />}
+                    </Route>
+
+                    <Route
+                      exact
+                      path="/settings"
+                    >
+                      {!user ? <Redirect to="/login" /> : <SettingsPage />}
+                    </Route>
+
+                    <Route
+                      exact
+                      path="/profile"
+                    >
+                      {!user ? <Redirect to="/login" /> : <ProfilePage />}
                     </Route>
 
                     <Route
