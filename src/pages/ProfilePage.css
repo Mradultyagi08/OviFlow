@@ -1,0 +1,229 @@
+/* =============================================
+   PROFILE PAGE
+   ============================================= */
+
+.profile-page {
+  min-height: 100vh;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 16px;
+  padding-top: env(safe-area-inset-top);
+}
+
+@media (min-width: 768px) {
+  .profile-page {
+    max-width: 720px;
+    padding: 0 32px;
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0 12px;
+}
+
+.profile-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.profile-back-btn:active {
+  transform: scale(0.9);
+}
+
+.profile-page.light .profile-back-btn {
+  background: rgba(76, 59, 157, 0.09);
+  color: #4c3b9d;
+}
+
+.profile-page.dark .profile-back-btn {
+  background: rgba(196, 181, 253, 0.12);
+  color: #c4b5fd;
+}
+
+.profile-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.profile-page.light .profile-title {
+  color: #1e1b4b;
+}
+
+.profile-page.dark .profile-title {
+  color: #ede9fe;
+}
+
+.profile-card {
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.profile-page.light .profile-card {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(76, 59, 157, 0.06);
+  box-shadow: 0 2px 16px rgba(76, 59, 157, 0.07);
+}
+
+.profile-page.dark .profile-card {
+  background: rgba(42, 42, 61, 0.65);
+  border: 1px solid rgba(196, 181, 253, 0.08);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+}
+
+.profile-main-card {
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.profile-page.light .profile-avatar {
+  background: linear-gradient(135deg, #7c5cbf, #4c3b9d);
+  color: #fff;
+}
+
+.profile-page.dark .profile-avatar {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #ede9fe;
+}
+
+.profile-name {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.profile-email {
+  margin: 5px 0 0;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.profile-page.light .profile-name {
+  color: #1e1b4b;
+}
+
+.profile-page.dark .profile-name {
+  color: #ede9fe;
+}
+
+.profile-page.light .profile-email {
+  color: #4c3b9d;
+}
+
+.profile-page.dark .profile-email {
+  color: #c4b5fd;
+}
+
+.profile-section-title {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.profile-page.light .profile-section-title {
+  color: #6b5bb5;
+}
+
+.profile-page.dark .profile-section-title {
+  color: #a78bfa;
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.profile-label {
+  font-size: 0.86rem;
+  opacity: 0.8;
+}
+
+.profile-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.profile-page.light .profile-label,
+.profile-page.light .profile-value {
+  color: #3b3766;
+}
+
+.profile-page.dark .profile-label,
+.profile-page.dark .profile-value {
+  color: #e0daf9;
+}
+
+.profile-divider {
+  height: 1px;
+}
+
+.profile-page.light .profile-divider {
+  background: rgba(76, 59, 157, 0.08);
+}
+
+.profile-page.dark .profile-divider {
+  background: rgba(196, 181, 253, 0.08);
+}
+
+.profile-action-btn {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 11px 14px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.12s ease;
+}
+
+.profile-action-btn:active {
+  transform: scale(0.98);
+}
+
+.profile-page.light .profile-action-btn {
+  background: rgba(76, 59, 157, 0.1);
+  color: #4c3b9d;
+}
+
+.profile-page.dark .profile-action-btn {
+  background: rgba(196, 181, 253, 0.12);
+  color: #c4b5fd;
+}
+
+.profile-action-btn.danger {
+  background: rgba(220, 38, 38, 0.12) !important;
+  color: #dc2626 !important;
+}
