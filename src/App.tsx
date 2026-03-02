@@ -1,29 +1,25 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
-  IonLabel,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
   IonTabs,
   setupIonicReact,
-  IonHeader,
   IonContent,
-  IonMenuButton,
-  IonIcon,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { menuOutline } from "ionicons/icons";
 import { useTranslation } from "react-i18next";
-import TabHome from "./pages/TabHome";
 import TabDetails from "./pages/TabDetails";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CycleSetupPage from "./pages/CycleSetupPage";
 import CycleDashboard from "./pages/CycleDashboard";
+import SettingsPage from "./pages/SettingsPage";
 import { useAuth } from "./state/AuthContext";
+import Navbar from "./components/Navbar";
 import "./App.css";
 
 /* Core CSS required for Ionic components to work properly */
@@ -65,26 +61,6 @@ setupIonicReact({
   mode: "md",
 });
 
-const Badge = () => {
-  const theme = useContext(ThemeContext).theme;
-  // NOTE: Ionic's badge can't be empty and need some text in it,
-  //       that's why I decided to write my own badge component
-  return (
-    <div
-      style={{
-        position: "fixed",
-        left: 42,
-        top: 0,
-        backgroundColor: `var(--ion-color-opposite-${theme})`,
-        minWidth: 10,
-        minHeight: 10,
-        borderRadius: 10,
-        marginTop: "env(safe-area-inset-top)",
-      }}
-    />
-  );
-};
-
 interface AppProps {
   theme?: string;
 }
@@ -93,8 +69,7 @@ const App = (props: AppProps) => {
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [theme, setTheme] = useState(props.theme ?? "basic");
 
-  const { t, i18n } = useTranslation();
-  const [needUpdate, setNeedUpdate] = useState(false);
+  const { i18n } = useTranslation();
   const [notificationEnabled, setNotificationEnabled] = useState(false);
   const [maxNumberOfDisplayedCycles, setMaxNumberOfDisplayedCycles] =
     useState(6);
@@ -216,11 +191,8 @@ const App = (props: AppProps) => {
     }
 
     isNewVersionAvailable()
-      .then((newVersionAvailable) => {
-        if (!newVersionAvailable) {
-          return;
-        }
-        setNeedUpdate(true);
+      .then((_newVersionAvailable) => {
+        // Version update check available for future use
       })
       .catch((err) => {
         console.error(err);
@@ -404,24 +376,15 @@ const App = (props: AppProps) => {
               >
                 {!user ? <Redirect to="/login" /> : <CycleSetupPage />}
               </Route>
-
-              <IonHeader
-                class="ion-no-border"
-                style={{
-                  backgroundColor: `var(--ion-color-background-${theme})`,
-                  height: 0,
-                  minHeight: 0,
-                }}
+              <Route
+                exact
+                path="/settings"
               >
-                <div
-                  id="top-space"
-                  className={theme}
-                  style={{
-                    background: `var(--ion-color-transparent-${theme})`,
-                    height: 0,
-                  }}
-                />
-              </IonHeader>
+                {!user ? <Redirect to="/login" /> : <SettingsPage />}
+              </Route>
+
+              {/* New navbar – only visible for authenticated users */}
+              {user && <Navbar />}
 
               <IonContent
                 id="main-content"
@@ -477,51 +440,19 @@ const App = (props: AppProps) => {
                     </Route>
                   </IonRouterOutlet>
 
+                  {/* Hidden tab bar – required by IonTabs for routing */}
                   <IonTabBar
-                    className={theme}
                     slot="top"
-                    color={`transparent-${theme}`}
-                    style={{ position: "relative" }}
+                    style={{ display: "none" }}
                   >
-                    <IonTabButton
-                      tab="menu"
-                      href="#"
-                      style={{
-                        position: "absolute",
-                        left: "15px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: `var(--ion-color-transparent-${theme})`,
-                        border: `var(--ion-color-transparent-${theme})`,
-                        maxWidth: "30px",
-                        zIndex: 10,
-                      }}
-                    >
-                      <IonMenuButton>
-                        <IonIcon
-                          color={`dark-${theme}`}
-                          icon={menuOutline}
-                          size="large"
-                        />
-                        {needUpdate && <Badge />}
-                      </IonMenuButton>
-                    </IonTabButton>
-
                     <IonTabButton
                       tab="home"
                       href="/OVIFLOW/"
-                      className={theme}
-                    >
-                      <IonLabel>{t("Home")}</IonLabel>
-                    </IonTabButton>
+                    />
                     <IonTabButton
                       tab="details"
                       href="/OVIFLOW-details/"
-                      className={theme}
-                      style={{ marginLeft: "15px" }}
-                    >
-                      <IonLabel>{t("Details")}</IonLabel>
-                    </IonTabButton>
+                    />
                   </IonTabBar>
                 </IonTabs>
               </IonContent>

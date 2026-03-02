@@ -1,0 +1,705 @@
+/* =============================================
+   SETTINGS PAGE
+   ============================================= */
+
+.settings-page {
+  min-height: 100vh;
+  padding: 0 16px;
+  padding-top: env(safe-area-inset-top);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .settings-page {
+    max-width: 720px;
+    padding: 0 32px;
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* ── Header ── */
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0 12px;
+}
+
+.settings-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.settings-back-btn:active {
+  transform: scale(0.9);
+}
+
+.settings-page.light .settings-back-btn {
+  background: rgba(76, 59, 157, 0.09);
+  color: #4c3b9d;
+}
+
+.settings-page.light .settings-back-btn:hover {
+  background: rgba(76, 59, 157, 0.17);
+}
+
+.settings-page.dark .settings-back-btn {
+  background: rgba(196, 181, 253, 0.12);
+  color: #c4b5fd;
+}
+
+.settings-page.dark .settings-back-btn:hover {
+  background: rgba(196, 181, 253, 0.22);
+}
+
+.settings-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin: 0;
+}
+
+.settings-page.light .settings-title {
+  color: #1e1b4b;
+}
+
+.settings-page.dark .settings-title {
+  color: #ede9fe;
+}
+
+/* =============================================
+   SECTION
+   ============================================= */
+
+.settings-section {
+  margin-bottom: 20px;
+}
+
+.settings-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 8px 4px;
+}
+
+.settings-page.light .settings-section-title {
+  color: #6b5bb5;
+}
+
+.settings-page.dark .settings-section-title {
+  color: #a78bfa;
+}
+
+/* =============================================
+   CARD
+   ============================================= */
+
+.settings-card {
+  border-radius: 16px;
+  padding: 16px;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.settings-page.light .settings-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 16px rgba(76, 59, 157, 0.07);
+  border: 1px solid rgba(76, 59, 157, 0.06);
+}
+
+.settings-page.dark .settings-card {
+  background: rgba(42, 42, 61, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(196, 181, 253, 0.08);
+}
+
+/* =============================================
+   LANGUAGE CHIPS
+   ============================================= */
+
+.settings-select-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.settings-lang-chip {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.settings-page.light .settings-lang-chip {
+  background: rgba(76, 59, 157, 0.07);
+  color: #4c3b9d;
+  border-color: rgba(76, 59, 157, 0.1);
+}
+
+.settings-page.light .settings-lang-chip:hover {
+  background: rgba(76, 59, 157, 0.14);
+}
+
+.settings-page.light .settings-lang-chip.active {
+  background: #4c3b9d;
+  color: #fff;
+  border-color: #4c3b9d;
+  box-shadow: 0 2px 10px rgba(76, 59, 157, 0.25);
+}
+
+.settings-page.dark .settings-lang-chip {
+  background: rgba(196, 181, 253, 0.1);
+  color: #c4b5fd;
+  border-color: rgba(196, 181, 253, 0.12);
+}
+
+.settings-page.dark .settings-lang-chip:hover {
+  background: rgba(196, 181, 253, 0.18);
+}
+
+.settings-page.dark .settings-lang-chip.active {
+  background: #7c3aed;
+  color: #fff;
+  border-color: #7c3aed;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);
+}
+
+/* =============================================
+   RADIO GROUP (App Mode)
+   ============================================= */
+
+.settings-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-radio-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.settings-radio-item input[type="radio"] {
+  display: none;
+}
+
+.settings-radio-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid;
+  position: relative;
+  transition: border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.settings-radio-dot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.settings-radio-item.active .settings-radio-dot::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* light radio */
+.settings-page.light .settings-radio-item {
+  color: #3b3766;
+}
+
+.settings-page.light .settings-radio-item:hover {
+  background: rgba(76, 59, 157, 0.05);
+}
+
+.settings-page.light .settings-radio-dot {
+  border-color: rgba(76, 59, 157, 0.3);
+}
+
+.settings-page.light .settings-radio-item.active .settings-radio-dot {
+  border-color: #4c3b9d;
+}
+
+.settings-page.light .settings-radio-dot::after {
+  background: #4c3b9d;
+}
+
+/* dark radio */
+.settings-page.dark .settings-radio-item {
+  color: #e0daf9;
+}
+
+.settings-page.dark .settings-radio-item:hover {
+  background: rgba(196, 181, 253, 0.06);
+}
+
+.settings-page.dark .settings-radio-dot {
+  border-color: rgba(196, 181, 253, 0.3);
+}
+
+.settings-page.dark .settings-radio-item.active .settings-radio-dot {
+  border-color: #a78bfa;
+}
+
+.settings-page.dark .settings-radio-dot::after {
+  background: #a78bfa;
+}
+
+/* =============================================
+   TOGGLE (Notifications)
+   ============================================= */
+
+.settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.settings-toggle-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin: 0 0 2px;
+}
+
+.settings-toggle-desc {
+  font-size: 0.78rem;
+  opacity: 0.6;
+  margin: 0;
+}
+
+.settings-page.light .settings-toggle-label {
+  color: #1e1b4b;
+}
+
+.settings-page.dark .settings-toggle-label {
+  color: #ede9fe;
+}
+
+.settings-page.light .settings-toggle-desc {
+  color: #6b5bb5;
+}
+
+.settings-page.dark .settings-toggle-desc {
+  color: #c4b5fd;
+}
+
+.settings-toggle {
+  position: relative;
+  width: 50px;
+  height: 28px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.settings-toggle.off {
+  background: rgba(120, 120, 140, 0.25);
+}
+
+.settings-page.light .settings-toggle.on {
+  background: #4c3b9d;
+}
+
+.settings-page.dark .settings-toggle.on {
+  background: #7c3aed;
+}
+
+.settings-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+
+.settings-toggle.on .settings-toggle-knob {
+  transform: translateX(22px);
+}
+
+/* =============================================
+   CYCLE COUNT CHIPS
+   ============================================= */
+
+.settings-chip-row {
+  display: flex;
+  gap: 10px;
+}
+
+.settings-count-chip {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s ease;
+}
+
+.settings-page.light .settings-count-chip {
+  background: rgba(76, 59, 157, 0.07);
+  color: #4c3b9d;
+  border-color: rgba(76, 59, 157, 0.1);
+}
+
+.settings-page.light .settings-count-chip:hover {
+  background: rgba(76, 59, 157, 0.14);
+}
+
+.settings-page.light .settings-count-chip.active {
+  background: #4c3b9d;
+  color: #fff;
+  border-color: #4c3b9d;
+  box-shadow: 0 2px 10px rgba(76, 59, 157, 0.25);
+}
+
+.settings-page.dark .settings-count-chip {
+  background: rgba(196, 181, 253, 0.1);
+  color: #c4b5fd;
+  border-color: rgba(196, 181, 253, 0.12);
+}
+
+.settings-page.dark .settings-count-chip:hover {
+  background: rgba(196, 181, 253, 0.18);
+}
+
+.settings-page.dark .settings-count-chip.active {
+  background: #7c3aed;
+  color: #fff;
+  border-color: #7c3aed;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);
+}
+
+.settings-hint {
+  font-size: 0.76rem;
+  opacity: 0.55;
+  margin: 10px 0 0;
+}
+
+.settings-page.light .settings-hint {
+  color: #6b5bb5;
+}
+
+.settings-page.dark .settings-hint {
+  color: #c4b5fd;
+}
+
+/* =============================================
+   ACTION ROWS (Import / Export)
+   ============================================= */
+
+.settings-action-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background 0.15s ease;
+  text-align: left;
+}
+
+.settings-page.light .settings-action-row {
+  color: #4c3b9d;
+}
+
+.settings-page.light .settings-action-row:hover {
+  background: rgba(76, 59, 157, 0.05);
+}
+
+.settings-page.dark .settings-action-row {
+  color: #c4b5fd;
+}
+
+.settings-page.dark .settings-action-row:hover {
+  background: rgba(196, 181, 253, 0.06);
+}
+
+.settings-action-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-action-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.settings-action-desc {
+  font-size: 0.76rem;
+  opacity: 0.55;
+}
+
+.settings-page.light .settings-action-label {
+  color: #1e1b4b;
+}
+
+.settings-page.dark .settings-action-label {
+  color: #ede9fe;
+}
+
+.settings-import-success {
+  margin: 8px 4px 4px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  animation: fadeIn 0.25s ease;
+}
+
+.settings-page.light .settings-import-success {
+  background: rgba(34, 197, 94, 0.12);
+  color: #166534;
+}
+
+.settings-page.dark .settings-import-success {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Divider ── */
+
+.settings-divider {
+  height: 1px;
+  margin: 4px 0;
+}
+
+.settings-page.light .settings-divider {
+  background: rgba(76, 59, 157, 0.08);
+}
+
+.settings-page.dark .settings-divider {
+  background: rgba(196, 181, 253, 0.08);
+}
+
+/* =============================================
+   ABOUT
+   ============================================= */
+
+.settings-about-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px;
+}
+
+.settings-about-label {
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.settings-about-value {
+  font-size: 0.84rem;
+  opacity: 0.7;
+}
+
+.settings-page.light .settings-about-label {
+  color: #1e1b4b;
+}
+
+.settings-page.dark .settings-about-label {
+  color: #ede9fe;
+}
+
+.settings-page.light .settings-about-value {
+  color: #6b5bb5;
+}
+
+.settings-page.dark .settings-about-value {
+  color: #c4b5fd;
+}
+
+/* =============================================
+   CONFIRM DIALOG (overlay)
+   ============================================= */
+
+.settings-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.18s ease;
+}
+
+.settings-confirm-dialog {
+  width: 90%;
+  max-width: 380px;
+  border-radius: 18px;
+  padding: 24px;
+  animation: dialogSlideIn 0.22s ease;
+}
+
+@keyframes dialogSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.settings-confirm-dialog.light {
+  background: #fff;
+  box-shadow: 0 8px 40px rgba(76, 59, 157, 0.15);
+}
+
+.settings-confirm-dialog.dark {
+  background: #2a2a3d;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+}
+
+.settings-confirm-dialog h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.settings-confirm-dialog.light h3 {
+  color: #1e1b4b;
+}
+
+.settings-confirm-dialog.dark h3 {
+  color: #ede9fe;
+}
+
+.settings-confirm-dialog p {
+  font-size: 0.88rem;
+  margin: 0 0 6px;
+  opacity: 0.8;
+}
+
+.settings-confirm-dialog.light p {
+  color: #3b3766;
+}
+
+.settings-confirm-dialog.dark p {
+  color: #d5ccf5;
+}
+
+.settings-confirm-warning {
+  font-size: 0.82rem !important;
+  color: #dc2626 !important;
+  opacity: 1 !important;
+  font-weight: 500;
+}
+
+.settings-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.settings-confirm-btn {
+  padding: 9px 22px;
+  border-radius: 12px;
+  border: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.15s ease;
+}
+
+.settings-confirm-btn:active {
+  transform: scale(0.95);
+}
+
+.settings-confirm-btn.cancel {
+  background: rgba(120, 120, 140, 0.12);
+}
+
+.settings-confirm-dialog.light .settings-confirm-btn.cancel {
+  color: #4c3b9d;
+}
+
+.settings-confirm-dialog.dark .settings-confirm-btn.cancel {
+  color: #c4b5fd;
+}
+
+.settings-confirm-btn.confirm {
+  color: #fff;
+}
+
+.settings-confirm-dialog.light .settings-confirm-btn.confirm {
+  background: #4c3b9d;
+}
+
+.settings-confirm-dialog.light .settings-confirm-btn.confirm:hover {
+  background: #3d2e8a;
+}
+
+.settings-confirm-dialog.dark .settings-confirm-btn.confirm {
+  background: #7c3aed;
+}
+
+.settings-confirm-dialog.dark .settings-confirm-btn.confirm:hover {
+  background: #6d28d9;
+}
