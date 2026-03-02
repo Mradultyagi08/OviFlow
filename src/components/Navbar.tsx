@@ -196,7 +196,7 @@ const Navbar: React.FC = () => {
 
   const handleViewProfile = () => {
     setDropdownOpen(false);
-    // TODO: navigate to a dedicated profile page if created
+    history.push("/profile");
   };
 
   const handleSettings = () => {
