@@ -130,7 +130,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className={`auth-page ${isDark ? "dark" : ""}`}>
+    <div className={`auth-page login ${isDark ? "dark" : ""}`}>
       <div className="auth-hero-section">
         <div className="auth-hero-logo">
           <img
@@ -141,12 +141,12 @@ const LoginPage: React.FC = () => {
         </div>
         <h2 className="auth-brand-name">OVIFLOW</h2>
         <p className="auth-brand-tagline">
-          Your Personal Women&apos;s Health Companion
+          Your intelligent women&apos;s health companion
         </p>
       </div>
       <div className="auth-card">
-        <h1 className="auth-title">W E L C O M E </h1>
-        <p className="auth-subtitle">Log in to continue</p>
+        <h1 className="auth-title">Welcome back</h1>
+        <p className="auth-subtitle">Sign in to continue</p>
 
         <form
           className="auth-form"
@@ -163,7 +163,7 @@ const LoginPage: React.FC = () => {
             <input
               id="login-email"
               type="email"
-              placeholder="Email"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
@@ -178,7 +178,7 @@ const LoginPage: React.FC = () => {
             <input
               id="login-password"
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
@@ -194,21 +194,12 @@ const LoginPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="auth-forgot-row">
-            <button
-              type="button"
-              className="auth-forgot-link"
-            >
-              Forgot Password?
-            </button>
-          </div>
-
           <button
             type="submit"
             className="auth-btn auth-btn-primary"
             disabled={loading}
           >
-            {loading ? "Signing in…" : "Log In"}
+            {loading ? "Signing in…" : "Sign In"}
           </button>
         </form>
 
@@ -218,7 +209,7 @@ const LoginPage: React.FC = () => {
             type="button"
             onClick={() => history.push("/register")}
           >
-            Create account
+            Sign up
           </button>
         </div>
       </div>
