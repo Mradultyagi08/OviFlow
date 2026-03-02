@@ -13,6 +13,15 @@
   background: linear-gradient(160deg, #f3f2ff 0%, #e8e3ff 50%, #ddd5ff 100%);
 }
 
+.auth-page.login {
+  padding: 16px;
+  background: linear-gradient(135deg, #fdf2f8 0%, #faf5ff 48%, #fff1f2 100%);
+}
+
+.auth-page.login.dark {
+  background: linear-gradient(160deg, #171324 0%, #1f1a33 56%, #241631 100%);
+}
+
 .auth-page.dark {
   background: linear-gradient(160deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
 }
@@ -27,6 +36,23 @@
   -webkit-backdrop-filter: blur(18px);
   box-shadow: 0 8px 40px rgba(76, 59, 157, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.auth-page.login .auth-card {
+  max-width: 448px;
+  border-radius: 24px;
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(76, 59, 157, 0.1);
+}
+
+.auth-page.login.dark .auth-card {
+  background: rgba(47, 40, 74, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 .dark .auth-card {
@@ -66,6 +92,12 @@
   margin-bottom: 0;
 }
 
+.auth-page.login .auth-hero-logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+}
+
 .auth-hero-logo-img {
   width: 100%;
   height: 100%;
@@ -80,8 +112,17 @@
   /* gap: 6px; */
 }
 
+.auth-page.login .auth-hero-section {
+  margin-bottom: 16px;
+  gap: 6px;
+}
+
 .auth-hero-section .auth-hero-logo {
   margin-bottom: -50px;
+}
+
+.auth-page.login .auth-hero-section .auth-hero-logo {
+  margin-bottom: 2px;
 }
 
 .auth-brand-name {
@@ -91,6 +132,12 @@
   color: #5a4a8a;
   margin: 0;
   text-align: center;
+}
+
+.auth-page.login .auth-brand-name {
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
 }
 
 .dark .auth-brand-name {
@@ -106,6 +153,15 @@
   text-align: center;
 }
 
+.auth-page.login .auth-brand-tagline {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.auth-page.login.dark .auth-brand-tagline {
+  color: #c7bfdc;
+}
+
 .dark .auth-brand-tagline {
   color: #b0a5d0;
 }
@@ -119,6 +175,17 @@
   margin: 0 0 6px;
 }
 
+.auth-page.login .auth-title {
+  font-size: 30px;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: -0.01em;
+}
+
+.auth-page.login.dark .auth-title {
+  color: #f3f4f6;
+}
+
 .dark .auth-title {
   color: #e8e3ff;
 }
@@ -130,6 +197,15 @@
   margin: 0 0 28px;
 }
 
+.auth-page.login .auth-subtitle {
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.auth-page.login.dark .auth-subtitle {
+  color: #b8b0d1;
+}
+
 .dark .auth-subtitle {
   color: #a9a0d0;
 }
@@ -139,6 +215,10 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.auth-page.login .auth-form {
+  gap: 12px;
 }
 
 /* ── Icon input group ──────────────────────────────── */
@@ -176,6 +256,29 @@
     box-shadow 0.2s,
     background 0.2s;
   box-sizing: border-box;
+}
+
+.auth-page.login .auth-input-group input {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: none;
+  padding: 14px 50px 14px 48px;
+}
+
+.auth-page.login .auth-input-group input:focus {
+  box-shadow: 0 0 0 2px rgba(244, 114, 182, 0.35);
+  border-color: #f9a8d4;
+}
+
+.auth-page.login.dark .auth-input-group input {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(36, 31, 57, 0.7);
+}
+
+.auth-page.login.dark .auth-input-group input:focus {
+  border-color: rgba(244, 114, 182, 0.55);
+  box-shadow: 0 0 0 2px rgba(244, 114, 182, 0.3);
 }
 
 .auth-input-group input:focus {
@@ -281,6 +384,20 @@
   box-shadow: 0 4px 16px rgba(76, 59, 157, 0.35);
 }
 
+.auth-page.login .auth-btn-primary {
+  min-height: 48px;
+  border-radius: 12px;
+  background: #f9a8d4;
+  box-shadow: 0 6px 18px rgba(249, 168, 212, 0.3);
+  color: #831843;
+}
+
+.auth-page.login .auth-btn-primary:hover {
+  background: #f472b6;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(244, 114, 182, 0.28);
+}
+
 .auth-btn-primary:hover {
   box-shadow: 0 6px 24px rgba(76, 59, 157, 0.45);
 }
@@ -297,18 +414,18 @@
 
 /* ── Error message ─────────────────────────────────── */
 .auth-error {
-  background: rgba(220, 60, 80, 0.1);
-  border: 1px solid rgba(220, 60, 80, 0.25);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
   border-radius: 12px;
   padding: 12px 16px;
   font-size: 13px;
-  color: #c7354b;
+  color: #b45309;
   text-align: center;
 }
 
 .dark .auth-error {
-  background: rgba(220, 60, 80, 0.15);
-  color: #ff8a9b;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
 }
 
 /* ── Link row ──────────────────────────────────────── */
