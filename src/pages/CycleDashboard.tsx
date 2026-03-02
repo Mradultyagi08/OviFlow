@@ -13,7 +13,7 @@ import {
   isSameDay,
   isToday,
 } from "date-fns";
-import { ThemeContext } from "../state/Context";
+import { ThemeContext, SettingsContext } from "../state/Context";
 import { useAuth } from "../state/AuthContext";
 import { apiSaveCycleLog, apiGetCycleLogs } from "../services/api";
 import type { CycleLog } from "../services/api";
@@ -60,15 +60,15 @@ function getCyclePhase(
 function getPhaseColor(phase: string) {
   switch (phase) {
     case "Menstrual":
-      return "#e05c7a";
+      return "#ec4899";
     case "Follicular":
-      return "#7c3aed";
+      return "#a855f7";
     case "Ovulation":
       return "#f59e0b";
     case "Luteal":
-      return "#6366f1";
+      return "#8b5cf6";
     default:
-      return "#7c3aed";
+      return "#a855f7";
   }
 }
 
@@ -98,9 +98,66 @@ function calcHealthScore(logs: CycleLog[], cycleLength: number): number {
 }
 
 function getScoreColor(score: number) {
-  if (score >= 75) return "#22c55e";
-  if (score >= 50) return "#f59e0b";
-  return "#ef4444";
+  if (score >= 75) return "#db2777";
+  if (score >= 50) return "#f472b6";
+  return "#fda4af";
+}
+
+function getPregnancyWeek(lastPeriodDate: string) {
+  const days = Math.max(
+    0,
+    differenceInDays(startOfToday(), parseISO(lastPeriodDate)),
+  );
+  return Math.max(1, Math.floor(days / 7) + 1);
+}
+
+function getTrimester(week: number) {
+  if (week <= 13) return "1st Trimester";
+  if (week <= 27) return "2nd Trimester";
+  return "3rd Trimester";
+}
+
+interface BabyData {
+  fruit: string;
+  emoji: string;
+  weight: string;
+  length: string;
+  tip: string;
+  development: string;
+}
+function getBabyData(week: number): BabyData {
+  if (week <= 4)  return { fruit: "Poppy seed",   emoji: "🌱", weight: "< 1g",  length: "0.1 cm", tip: "Folic acid is crucial now.",             development: "Neural tube forming." };
+  if (week <= 6)  return { fruit: "Pea",           emoji: "🫛", weight: "< 1g",  length: "0.6 cm", tip: "Avoid alcohol and raw fish.",            development: "Heart starts beating." };
+  if (week <= 8)  return { fruit: "Raspberry",     emoji: "🫐", weight: "1g",    length: "1.6 cm", tip: "Stay hydrated, 8–10 glasses/day.",       development: "Fingers and toes forming." };
+  if (week <= 10) return { fruit: "Strawberry",    emoji: "🍓", weight: "4g",    length: "3.1 cm", tip: "First prenatal visit if not done.",      development: "All organs present." };
+  if (week <= 12) return { fruit: "Lime",           emoji: "🍋", weight: "14g",   length: "5.4 cm", tip: "Nausea may ease soon.",                  development: "Baby can make facial expressions." };
+  if (week <= 14) return { fruit: "Lemon",          emoji: "🍋", weight: "43g",   length: "8.7 cm", tip: "Start gentle prenatal exercises.",       development: "Sucking reflex developing." };
+  if (week <= 16) return { fruit: "Avocado",        emoji: "🥑", weight: "100g",  length: "11.6 cm",tip: "You may feel first flutters soon.",      development: "Skeleton hardening." };
+  if (week <= 18) return { fruit: "Sweet potato",  emoji: "🍠", weight: "190g",  length: "14.2 cm",tip: "Schedule anatomy scan (18–20 wks).",     development: "Baby can yawn and hiccup." };
+  if (week <= 20) return { fruit: "Banana",         emoji: "🍌", weight: "300g",  length: "16.4 cm",tip: "Halfway there! Sleep on your side.",     development: "Swallowing amniotic fluid." };
+  if (week <= 22) return { fruit: "Papaya",         emoji: "🍈", weight: "430g",  length: "19.0 cm",tip: "Kick counts: aim for 10 kicks in 2 hrs.",development: "Brain developing rapidly." };
+  if (week <= 24) return { fruit: "Corn",           emoji: "🌽", weight: "600g",  length: "21.0 cm",tip: "Glucose test coming up at 24–28 wks.",   development: "Lungs forming air sacs." };
+  if (week <= 26) return { fruit: "Lettuce",        emoji: "🥬", weight: "760g",  length: "23.0 cm",tip: "Baby responds to your voice now.",       development: "Eyes opening for first time." };
+  if (week <= 28) return { fruit: "Eggplant",       emoji: "🍆", weight: "1 kg",  length: "25.0 cm",tip: "Third trimester — rest is essential.",   development: "REM sleep cycles beginning." };
+  if (week <= 30) return { fruit: "Cabbage",        emoji: "🥦", weight: "1.3 kg",length: "27.0 cm",tip: "Pelvic floor exercises help recovery.",  development: "Bone marrow producing blood." };
+  if (week <= 32) return { fruit: "Squash",         emoji: "🎃", weight: "1.7 kg",length: "28.7 cm",tip: "Hospital bag — pack by week 34.",        development: "Baby settling head-down." };
+  if (week <= 34) return { fruit: "Cantaloupe",     emoji: "🍈", weight: "2.1 kg",length: "30.2 cm",tip: "Watch for swelling, headaches, flashes.",development: "Central nervous system maturing." };
+  if (week <= 36) return { fruit: "Honeydew",       emoji: "🍈", weight: "2.6 kg",length: "32.0 cm",tip: "Group B Strep test this week.",          development: "Fat layers building for warmth." };
+  if (week <= 38) return { fruit: "Watermelon",     emoji: "🍉", weight: "3.0 kg",length: "33.5 cm",tip: "Full term — any day now!",               development: "Lungs fully mature." };
+  return           { fruit: "Pumpkin",         emoji: "🎃", weight: "3.4+ kg",length: "35+ cm", tip: "Consult doctor if past due date.",       development: "Baby ready for the world!" };
+}
+
+function formatTimer(totalSeconds: number) {
+  const h = Math.floor(totalSeconds / 3600)
+    .toString()
+    .padStart(2, "0");
+  const m = Math.floor((totalSeconds % 3600) / 60)
+    .toString()
+    .padStart(2, "0");
+  const s = Math.floor(totalSeconds % 60)
+    .toString()
+    .padStart(2, "0");
+  return `${h}:${m}:${s}`;
 }
 
 function isPeriodDay(date: Date, logs: CycleLog[]) {
@@ -215,6 +272,480 @@ const IconChevronLeft = () => (
   </svg>
 );
 
+const IconMoodHappy = () => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+    <circle cx="9" cy="9" r="0.8" fill="currentColor" stroke="none" />
+    <circle cx="15" cy="9" r="0.8" fill="currentColor" stroke="none" />
+  </svg>
+);
+const IconMoodOkay = () => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="8.5" y1="15" x2="15.5" y2="15" />
+    <circle cx="9" cy="9" r="0.8" fill="currentColor" stroke="none" />
+    <circle cx="15" cy="9" r="0.8" fill="currentColor" stroke="none" />
+  </svg>
+);
+const IconMoodLow = () => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 16s1.5-2 4-2 4 2 4 2" />
+    <circle cx="9" cy="9" r="0.8" fill="currentColor" stroke="none" />
+    <circle cx="15" cy="9" r="0.8" fill="currentColor" stroke="none" />
+  </svg>
+);
+const IconMoodAnxious = () => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 15q2-2 4 0t4 0" />
+    <circle cx="9" cy="9" r="0.8" fill="currentColor" stroke="none" />
+    <circle cx="15" cy="9" r="0.8" fill="currentColor" stroke="none" />
+    <line x1="16.5" y1="4.5" x2="18" y2="3" strokeWidth="1.5" opacity="0.45" />
+  </svg>
+);
+
+/* Symptom icons */
+const IconCramps = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M13 2 9 13h5l-4 9" />
+  </svg>
+);
+const IconHeadache = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 4a6 6 0 0 0 0 12h6a4 4 0 0 0 0-8 4 4 0 0 0-4-4z" />
+    <line x1="12" y1="12" x2="12" y2="20" />
+    <line x1="8" y1="20" x2="16" y2="20" />
+  </svg>
+);
+const IconBloating = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="8" />
+    <path d="M8 12c0-2.2 1.8-4 4-4" opacity="0.5" />
+    <path d="M12 8c2.2 0 4 1.8 4 4" opacity="0.5" />
+  </svg>
+);
+const IconFatigue = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 3a9 9 0 0 0 0 18 9 9 0 0 0 9-9H12V3z" />
+  </svg>
+);
+const IconNausea = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 12c2-4 4-6 6-4s3 6 5 6 4-4 6-4" />
+    <path d="M2 18c2-2 4-3 6-2s3 3 5 3 4-2 6-2" opacity="0.4" />
+  </svg>
+);
+const IconBackPain = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 3c0 0-4 4-4 9s4 9 4 9" />
+    <path d="M12 3c0 0 4 4 4 9s-4 9-4 9" opacity="0.4" />
+    <line x1="8" y1="9" x2="16" y2="9" />
+    <line x1="8" y1="15" x2="16" y2="15" />
+  </svg>
+);
+
+/* Pregnancy panel icons */
+const IconLightbulb = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 4 12.5V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.5A7 7 0 0 1 12 2z" />
+  </svg>
+);
+const IconBaby = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="5" r="3" />
+    <path d="M6 20v-5a6 6 0 0 1 12 0v5" />
+    <path d="M6 20h12" />
+  </svg>
+);
+const IconTimer = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="13" r="8" />
+    <path d="M12 9v4l2.5 2.5" />
+    <path d="M9 3h6" />
+    <path d="M12 3v2" />
+  </svg>
+);
+const IconDroplet = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2C6 9 4 13 4 16a8 8 0 0 0 16 0c0-3-2-7-8-14z" />
+  </svg>
+);
+const IconPill = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="10" width="18" height="4" rx="2" />
+    <path d="M3 12h18" />
+    <path d="M7 10V7a5 5 0 0 1 10 0v3" />
+    <path d="M7 14v3a5 5 0 0 0 10 0v-3" />
+  </svg>
+);
+const IconHeartPulse = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    <path d="M3.22 12H9.5l1.5-3 2 5 1.5-3 1 1.5h5.28" />
+  </svg>
+);
+const IconAlertTriangle = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+    <line x1="12" y1="9" x2="12" y2="13" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+);
+const IconCalendar = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+const IconCheckCircle = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="9 12 11 14 15 10" />
+  </svg>
+);
+
+const IconMilk = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 2h8l2 5H6z" />
+    <path d="M6 7v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7" />
+    <path d="M10 12h4" />
+    <path d="M10 16h4" />
+  </svg>
+);
+
+const IconMoon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+);
+
+const IconScale = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2v20" />
+    <path d="M4 12h16" />
+    <circle cx="6" cy="8" r="2" />
+    <circle cx="18" cy="8" r="2" />
+    <path d="M5 20h14" />
+  </svg>
+);
+
+const IconShield = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
+const SYMPTOM_LIST = [
+  { label: "Cramps",   Icon: IconCramps,   color: "#db2777" },
+  { label: "Headache", Icon: IconHeadache, color: "#e11d48" },
+  { label: "Bloating", Icon: IconBloating, color: "#c026d3" },
+  { label: "Fatigue",  Icon: IconFatigue,  color: "#7c3aed" },
+  { label: "Nausea",   Icon: IconNausea,   color: "#be185d" },
+  { label: "Back pain",Icon: IconBackPain, color: "#9333ea" },
+];
+
+/* ─────────────────────────────────────────────────────
+   Pregnancy Setup Modal
+───────────────────────────────────────────────────── */
+interface PregnancySetupData {
+  type: "confirmed" | "maybe";
+  confirmDate: string;
+  doctorConfirmed: boolean;
+  highRisk: boolean;
+}
+interface PregnancySetupModalProps {
+  onConfirm: (data: PregnancySetupData) => void;
+  onCancel: () => void;
+}
+const PregnancySetupModal: React.FC<PregnancySetupModalProps> = ({
+  onConfirm,
+  onCancel,
+}) => {
+  const [selection, setSelection] = useState<"confirmed" | "maybe" | null>(
+    null,
+  );
+  const [confirmDate, setConfirmDate] = useState(
+    format(startOfToday(), "yyyy-MM-dd"),
+  );
+  const [doctorConfirmed, setDoctorConfirmed] = useState(false);
+  const [highRisk, setHighRisk] = useState(false);
+
+  return (
+    <div
+      className="cd-overlay"
+      onClick={onCancel}
+    >
+      <div
+        className="cd-preg-setup"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="cd-preg-setup-title">Are you pregnant?</h2>
+
+        <div className="cd-preg-setup-options">
+          <button
+            className={`cd-preg-option${
+              selection === "confirmed" ? " active" : ""
+            }`}
+            onClick={() => setSelection("confirmed")}
+          >
+            <span className="cd-preg-option-icon">
+              {selection === "confirmed" ? "✓" : "○"}
+            </span>
+            <span className="cd-preg-option-label">Yes, confirmed</span>
+            <span className="cd-preg-option-arrow">›</span>
+          </button>
+          <button
+            className={`cd-preg-option${
+              selection === "maybe" ? " active" : ""
+            }`}
+            onClick={() => setSelection("maybe")}
+          >
+            <span className="cd-preg-option-icon">?</span>
+            <span className="cd-preg-option-label">I think I might be</span>
+            <span className="cd-preg-option-arrow">›</span>
+          </button>
+        </div>
+
+        {selection === "confirmed" && (
+          <div className="cd-preg-setup-details">
+            <h3 className="cd-preg-details-title">
+              When did you confirm your pregnancy?
+            </h3>
+            <label className="cd-preg-field-label">
+              Pregnancy Confirmation Date
+            </label>
+            <div className="cd-preg-date-row">
+              <input
+                type="date"
+                className="cd-preg-date-input"
+                value={confirmDate}
+                onChange={(e) => setConfirmDate(e.target.value)}
+              />
+              <span className="cd-preg-date-icon"><IconCalendar /></span>
+            </div>
+            <p className="cd-preg-date-hint">
+              Your due date will be estimated based on this date.
+            </p>
+
+            <label className="cd-preg-check-row">
+              <input
+                type="checkbox"
+                className="cd-preg-check"
+                checked={doctorConfirmed}
+                onChange={(e) => setDoctorConfirmed(e.target.checked)}
+              />
+              <span>Doctor confirmed my pregnancy</span>
+            </label>
+
+            <label className="cd-preg-check-row">
+              <input
+                type="checkbox"
+                className="cd-preg-check"
+                checked={highRisk}
+                onChange={(e) => setHighRisk(e.target.checked)}
+              />
+              <div>
+                <span className="cd-preg-check-title">High-risk pregnancy</span>
+                <p className="cd-preg-check-desc">
+                  We&apos;ll provide extra guidance to help you monitor and
+                  manage your pregnancy.
+                </p>
+              </div>
+            </label>
+          </div>
+        )}
+
+        <div className="cd-confirm-footer" style={{ marginTop: 20 }}>
+          <button
+            className="cd-confirm-cancel"
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+          <button
+            className="cd-confirm-ok"
+            style={{ opacity: selection ? 1 : 0.5 }}
+            disabled={!selection}
+            onClick={() => {
+              if (selection)
+                onConfirm({ type: selection, confirmDate, doctorConfirmed, highRisk });
+            }}
+          >
+            Confirm ›
+          </button>
+        </div>
+
+        <p className="cd-preg-disclaimer">
+          OVIFLOW is not a medical diagnosis tool.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+/* ─────────────────────────────────────────────────────
+   Postpartum Setup Modal
+───────────────────────────────────────────────────── */
+interface PostpartumSetupData {
+  type: "delivered" | "mishappening" | "stillPregnant";
+  deliveryDate: string;
+  cSection: boolean;
+  doctorFollowUp: boolean;
+}
+interface PostpartumSetupModalProps {
+  onConfirm: (data: PostpartumSetupData) => void;
+  onCancel: () => void;
+}
+const PostpartumSetupModal: React.FC<PostpartumSetupModalProps> = ({
+  onConfirm,
+  onCancel,
+}) => {
+  const [selection, setSelection] = useState<"delivered" | "mishappening" | "stillPregnant" | null>(null);
+  const [deliveryDate, setDeliveryDate] = useState(format(startOfToday(), "yyyy-MM-dd"));
+  const [cSection, setCSection] = useState(false);
+  const [doctorFollowUp, setDoctorFollowUp] = useState(false);
+
+  const options: { key: "delivered" | "mishappening" | "stillPregnant"; label: string; Icon: React.FC }[] = [
+    { key: "delivered",     label: "Yes, delivered",         Icon: IconCheckCircle },
+    { key: "mishappening",  label: "Mishappening occurred",   Icon: IconAlertTriangle },
+    { key: "stillPregnant", label: "Still pregnant",          Icon: IconBaby },
+  ];
+
+  return (
+    <div className="cd-overlay" onClick={onCancel}>
+      <div className="cd-preg-setup" onClick={(e) => e.stopPropagation()}>
+        <h2 className="cd-preg-setup-title">Have you delivered your baby?</h2>
+
+        <div className="cd-preg-setup-options">
+          {options.map(({ key, label, Icon }) => (
+            <button
+              key={key}
+              className={`cd-preg-option${selection === key ? " active" : ""}`}
+              onClick={() => setSelection(key)}
+            >
+              <span className="cd-preg-option-icon"><Icon /></span>
+              <span className="cd-preg-option-label">{label}</span>
+              <span className="cd-preg-option-arrow">›</span>
+            </button>
+          ))}
+        </div>
+
+        {selection === "delivered" && (
+          <div className="cd-preg-setup-details">
+            <h3 className="cd-preg-details-title">When did you deliver?</h3>
+            <label className="cd-preg-field-label">Delivery Date</label>
+            <div className="cd-preg-date-row">
+              <input
+                type="date"
+                className="cd-preg-date-input"
+                value={deliveryDate}
+                max={format(startOfToday(), "yyyy-MM-dd")}
+                onChange={(e) => setDeliveryDate(e.target.value)}
+              />
+              <span className="cd-preg-date-icon"><IconCalendar /></span>
+            </div>
+            <p className="cd-preg-date-hint">
+              Your postpartum tracking will begin from this date.
+            </p>
+            <label className="cd-preg-check-row">
+              <input
+                type="checkbox"
+                className="cd-preg-check"
+                checked={cSection}
+                onChange={(e) => setCSection(e.target.checked)}
+              />
+              <div>
+                <span className="cd-preg-check-title">C-section delivery</span>
+                <p className="cd-preg-check-desc">
+                  We&apos;ll tailor recovery guidance for surgical birth.
+                </p>
+              </div>
+            </label>
+            <label className="cd-preg-check-row">
+              <input
+                type="checkbox"
+                className="cd-preg-check"
+                checked={doctorFollowUp}
+                onChange={(e) => setDoctorFollowUp(e.target.checked)}
+              />
+              <span>Postpartum check-up scheduled with doctor</span>
+            </label>
+          </div>
+        )}
+
+        {selection === "mishappening" && (
+          <div className="cd-preg-setup-details">
+            <p className="cd-preg-date-hint" style={{ lineHeight: 1.6 }}>
+              We&apos;re deeply sorry for your loss. Please reach out to your
+              healthcare provider for support and guidance during this time.
+            </p>
+          </div>
+        )}
+
+        <p className="cd-confirm-body" style={{ marginTop: 16, fontSize: 13 }}>
+          If you have any concerns,<br />reach out to a gynecologist.
+        </p>
+
+        <div className="cd-confirm-footer" style={{ marginTop: 16 }}>
+          <button className="cd-confirm-cancel" onClick={onCancel}>Cancel</button>
+          <button
+            className="cd-confirm-ok"
+            style={{ opacity: selection ? 1 : 0.5 }}
+            disabled={!selection}
+            onClick={() => {
+              if (selection) onConfirm({ type: selection, deliveryDate, cSection, doctorFollowUp });
+            }}
+          >
+            Confirm ›
+          </button>
+        </div>
+
+        <p className="cd-preg-disclaimer">OVIFLOW is not a medical diagnosis tool.</p>
+      </div>
+    </div>
+  );
+};
+
 /* ─────────────────────────────────────────────────────
    Mode Confirmation Modal
 ───────────────────────────────────────────────────── */
@@ -268,6 +799,7 @@ const ModeConfirmModal: React.FC<ModeModalProps> = ({
 const CycleDashboard: React.FC = () => {
   const { user, token } = useAuth();
   const { theme } = useContext(ThemeContext);
+  const { appMode, updateAppMode } = useContext(SettingsContext);
   const isDark = theme === "dark";
 
   const cp = user?.cycleProfile;
@@ -279,7 +811,13 @@ const CycleDashboard: React.FC = () => {
   /* ── Mode ── */
   const [activeMode, setActiveMode] = useState<
     "cycle" | "pregnant" | "postpartum"
-  >("cycle");
+  >(
+    appMode === "pregnancy"
+      ? "pregnant"
+      : appMode === "postpartum"
+        ? "postpartum"
+        : "cycle",
+  );
   const [pendingMode, setPendingMode] = useState<
     "pregnant" | "postpartum" | null
   >(null);
@@ -302,12 +840,78 @@ const CycleDashboard: React.FC = () => {
   /* ── Calendar ── */
   const [calMonth, setCalMonth] = useState(startOfToday());
 
+  /* ── Pregnancy/Postpartum states ── */
+  const [kickCount, setKickCount] = useState(0);
+  const [contractionSeconds, setContractionSeconds] = useState(0);
+  const [isContractionRunning, setIsContractionRunning] = useState(false);
+  /* ── Pregnancy enriched state ── */
+  const [waterGlasses, setWaterGlasses] = useState(0);
+  const [vitaminTaken, setVitaminTaken] = useState(false);
+  const [nextApptDate, setNextApptDate] = useState("");
+  const [pregSymptoms, setPregSymptoms] = useState<string[]>([]);
+  const [contractionLog, setContractionLog] = useState<{ duration: number; time: string }[]>([]);
+  const [lastFeedAt, setLastFeedAt] = useState<Date | null>(null);
+  const [recoveryEnergy, setRecoveryEnergy] = useState(60);
+  const [recoveryPain, setRecoveryPain] = useState(35);
+  const [recoverySleep, setRecoverySleep] = useState(55);
+  /* ── Postpartum enriched state ── */
+  const [ppFeedSide, setPPFeedSide] = useState<"left" | "right" | "both" | "">("");
+  const [ppFeedSeconds, setPPFeedSeconds] = useState(0);
+  const [isPPFeedRunning, setIsPPFeedRunning] = useState(false);
+  const [ppFeedLog, setPPFeedLog] = useState<{ side: string; duration: number; time: string }[]>([]);
+  const [ppMood, setPPMood] = useState("");
+  const [ppSymptoms, setPPSymptoms] = useState<string[]>([]);
+  const [ppWaterGlasses, setPPWaterGlasses] = useState(0);
+  const [ppChecklist, setPPChecklist] = useState<string[]>([]);
+  const [babyFeedCount, setBabyFeedCount] = useState(0);
+  const [babySleepHours, setBabySleepHours] = useState(0);
+  const [ppNextApptDate, setPPNextApptDate] = useState("");
+  /* ── Cycle extra state ── */
+  const [cycleWaterGlasses, setCycleWaterGlasses] = useState(0);
+
+  /* ── OVI Assistant ── */
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantInput, setAssistantInput] = useState("");
+  const [assistantMessages, setAssistantMessages] = useState<string[]>([
+    "Hi, I’m OVI. I can help with cycle, pregnancy and postpartum guidance.",
+  ]);
+
+  useEffect(() => {
+    if (appMode === "pregnancy") {
+      setActiveMode("pregnant");
+      return;
+    }
+    if (appMode === "postpartum") {
+      setActiveMode("postpartum");
+      return;
+    }
+    setActiveMode("cycle");
+  }, [appMode]);
+
   useEffect(() => {
     if (!token) return;
     apiGetCycleLogs(token)
       .then(({ logs: l }) => setLogs(l))
       .catch(console.error);
   }, [token]);
+
+  useEffect(() => {
+    if (!isContractionRunning) {
+      return;
+    }
+    const intervalId = window.setInterval(() => {
+      setContractionSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [isContractionRunning]);
+
+  useEffect(() => {
+    if (!isPPFeedRunning) return;
+    const intervalId = window.setInterval(() => {
+      setPPFeedSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [isPPFeedRunning]);
 
   /* ── Derived ── */
   const nextPeriod = calcNextPeriod(lastPeriodDate, cycleLength);
@@ -318,6 +922,32 @@ const CycleDashboard: React.FC = () => {
   const progress = calcProgressRing(lastPeriodDate, cycleLength);
   const healthScore = calcHealthScore(logs, cycleLength);
   const scoreColor = getScoreColor(healthScore);
+  const pregnancyWeek = getPregnancyWeek(lastPeriodDate);
+  const dueDate = addDays(parseISO(lastPeriodDate), 280);
+  const trimester = getTrimester(pregnancyWeek);
+  const postpartumDay = Math.max(
+    1,
+    differenceInDays(startOfToday(), parseISO(lastPeriodDate)),
+  );
+  const babyData = getBabyData(pregnancyWeek);
+  const daysUntilDue = Math.max(0, differenceInDays(dueDate, startOfToday()));
+  const PREG_SYMPTOM_LIST = ["Nausea", "Fatigue", "Back pain", "Heartburn", "Swelling", "Headache", "Insomnia", "Mood swings"];
+  const togglePregSymptom = (s: string) =>
+    setPregSymptoms((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
+
+  const POSTPARTUM_SYMPTOM_LIST = ["Bleeding", "Soreness", "Cramps", "Fatigue", "Swelling", "Headache", "Tenderness", "Night sweats"];
+  const PP_MOOD_LIST = [
+    { label: "Joyful",       msg: "Wonderful! Cherish these moments." },
+    { label: "Overwhelmed",  msg: "It's okay to ask for help. You're not alone." },
+    { label: "Anxious",      msg: "Take slow breaths. Baby steps every day." },
+    { label: "Tearful",      msg: "Baby blues are normal. Talk to someone you trust." },
+  ];
+  const togglePPSymptom = (s: string) =>
+    setPPSymptoms((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
+  const togglePPChecklist = (s: string) =>
+    setPPChecklist((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
+  const ppFeedMins = Math.floor(ppFeedSeconds / 60);
+  const ppFeedSecs = ppFeedSeconds % 60;
 
   /* ── Ring math ── */
   const R = 58;
@@ -367,10 +997,37 @@ const CycleDashboard: React.FC = () => {
   const handleModeClick = (m: "cycle" | "pregnant" | "postpartum") => {
     if (m === "cycle") {
       setActiveMode("cycle");
+      updateAppMode("regular");
       return;
     }
     setPendingMode(m);
   };
+
+  const handleSendAssistantMessage = () => {
+    const msg = assistantInput.trim();
+    if (!msg) return;
+
+    const modeReply =
+      activeMode === "pregnant"
+        ? "Pregnancy tip: stay hydrated, track contractions, and call your doctor for persistent pain."
+        : activeMode === "postpartum"
+          ? "Postpartum tip: prioritize rest, hydration, and monitor recovery symptoms daily."
+          : "Cycle tip: consistent logging improves prediction accuracy and health insights.";
+
+    setAssistantMessages((prev) => [
+      ...prev,
+      `You: ${msg}`,
+      `OVI: ${modeReply}`,
+    ]);
+    setAssistantInput("");
+  };
+
+  const modeClass =
+    activeMode === "pregnant"
+      ? "mode-pregnancy"
+      : activeMode === "postpartum"
+        ? "mode-postpartum"
+        : "mode-cycle";
 
   return (
     <IonPage>
@@ -378,13 +1035,23 @@ const CycleDashboard: React.FC = () => {
         className="ion-padding"
         scrollY={true}
       >
-        <div className={`cd-root ${isDark ? "dark" : ""}`}>
+        <div className={`cd-root ${modeClass} ${isDark ? "dark" : ""}`}>
           {/* ── Mode confirm modal ── */}
-          {pendingMode && (
-            <ModeConfirmModal
-              mode={pendingMode}
-              onConfirm={() => {
-                setActiveMode(pendingMode);
+          {pendingMode === "pregnant" && (
+            <PregnancySetupModal
+              onConfirm={(_data) => {
+                setActiveMode("pregnant");
+                updateAppMode("pregnancy");
+                setPendingMode(null);
+              }}
+              onCancel={() => setPendingMode(null)}
+            />
+          )}
+          {pendingMode === "postpartum" && (
+            <PostpartumSetupModal
+              onConfirm={(_data) => {
+                setActiveMode("postpartum");
+                updateAppMode("postpartum");
                 setPendingMode(null);
               }}
               onCancel={() => setPendingMode(null)}
@@ -400,7 +1067,7 @@ const CycleDashboard: React.FC = () => {
                 <div>
                   <p className="cd-welcome-sub">Today's Overview</p>
                   <h1 className="cd-welcome-name">
-                    Welcome, {user?.name?.split(" ")[0] ?? "there"} 👋
+                    Welcome, {user?.name?.split(" ")[0] ?? "there"}
                   </h1>
                 </div>
                 <div className="cd-welcome-date">
@@ -431,307 +1098,960 @@ const CycleDashboard: React.FC = () => {
             {/* ═══════════════════════════════════════════
             BODY GRID — 2 COLUMNS ON DESKTOP
         ═══════════════════════════════════════════ */}
-            <div className="cd-body-grid">
-              {/* ── LEFT COLUMN ── */}
-              <div className="cd-col-left">
-                {/* ── HERO CARD ── */}
-                <div className="cd-hero">
-                  <div className="cd-ring-wrap">
-                    <svg
-                      width="140"
-                      height="140"
-                      viewBox="0 0 140 140"
-                    >
-                      <circle
-                        cx="70"
-                        cy="70"
-                        r={R}
-                        fill="none"
-                        stroke="rgba(255,255,255,0.15)"
-                        strokeWidth="10"
-                      />
-                      <circle
-                        cx="70"
-                        cy="70"
-                        r={R}
-                        fill="none"
-                        stroke="#fff"
-                        strokeWidth="10"
-                        strokeDasharray={`${dash} ${C}`}
-                        strokeLinecap="round"
-                        transform="rotate(-90 70 70)"
-                        style={{ transition: "stroke-dasharray 0.6s ease" }}
-                      />
-                      <text
-                        x="70"
-                        y="65"
-                        textAnchor="middle"
-                        dy="0.3em"
-                        fill="#fff"
-                        fontSize="28"
-                        fontWeight="800"
+            {activeMode === "cycle" && (
+              <div className="cd-body-grid">
+                {/* ── LEFT COLUMN ── */}
+                <div className="cd-col-left">
+                  {/* ── HERO CARD ── */}
+                  <div className="cd-hero">
+                    <div className="cd-ring-wrap">
+                      <svg
+                        width="140"
+                        height="140"
+                        viewBox="0 0 140 140"
                       >
-                        {daysUntil}
-                      </text>
-                      <text
-                        x="70"
-                        y="88"
-                        textAnchor="middle"
-                        fill="rgba(255,255,255,0.75)"
-                        fontSize="10"
-                      >
-                        days left
-                      </text>
-                    </svg>
-                  </div>
-                  <div className="cd-hero-info">
-                    <p className="cd-hero-label">Next Period</p>
-                    <p className="cd-hero-date">
-                      {format(nextPeriod, "MMM d")}
-                    </p>
-                    <div className="cd-hero-divider" />
-                    <p className="cd-hero-label">Ovulation</p>
-                    <p className="cd-hero-date cd-hero-date-sm">
-                      {format(ovulationDate, "MMM d")}
-                    </p>
-                    <div className="cd-hero-divider" />
-                    <span
-                      className="cd-phase-badge"
-                      style={{ background: "rgba(255,255,255,0.22)" }}
-                    >
+                        <circle
+                          cx="70"
+                          cy="70"
+                          r={R}
+                          fill="none"
+                          stroke="rgba(255,255,255,0.15)"
+                          strokeWidth="10"
+                        />
+                        <circle
+                          cx="70"
+                          cy="70"
+                          r={R}
+                          fill="none"
+                          stroke="#fff"
+                          strokeWidth="10"
+                          strokeDasharray={`${dash} ${C}`}
+                          strokeLinecap="round"
+                          transform="rotate(-90 70 70)"
+                          style={{ transition: "stroke-dasharray 0.6s ease" }}
+                        />
+                        <text
+                          x="70"
+                          y="65"
+                          textAnchor="middle"
+                          dy="0.3em"
+                          fill="#fff"
+                          fontSize="28"
+                          fontWeight="800"
+                        >
+                          {daysUntil}
+                        </text>
+                        <text
+                          x="70"
+                          y="88"
+                          textAnchor="middle"
+                          fill="rgba(255,255,255,0.75)"
+                          fontSize="10"
+                        >
+                          days left
+                        </text>
+                      </svg>
+                    </div>
+                    <div className="cd-hero-info">
+                      <p className="cd-hero-label">Next Period</p>
+                      <p className="cd-hero-date">
+                        {format(nextPeriod, "MMM d")}
+                      </p>
+                      <div className="cd-hero-divider" />
+                      <p className="cd-hero-label">Ovulation</p>
+                      <p className="cd-hero-date cd-hero-date-sm">
+                        {format(ovulationDate, "MMM d")}
+                      </p>
+                      <div className="cd-hero-divider" />
                       <span
-                        className="cd-phase-dot"
-                        style={{ background: "#fff" }}
-                      />
-                      {phase}
-                    </span>
-                  </div>
-                </div>
-
-                {/* ── CALENDAR ── */}
-                <div className="cd-card">
-                  <div className="cd-cal-header">
-                    <button
-                      className="cd-cal-nav"
-                      onClick={() =>
-                        setCalMonth((m) => addDays(startOfMonth(m), -1))
-                      }
-                    >
-                      <IconChevronLeft />
-                    </button>
-                    <h2
-                      className="cd-card-title"
-                      style={{ margin: 0 }}
-                    >
-                      {format(calMonth, "MMMM yyyy")}
-                    </h2>
-                    <button
-                      className="cd-cal-nav"
-                      onClick={() =>
-                        setCalMonth((m) => addDays(endOfMonth(m), 1))
-                      }
-                    >
-                      <IconChevronRight />
-                    </button>
-                  </div>
-                  <div className="cd-cal-grid">
-                    {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
-                      <div
-                        key={d}
-                        className="cd-cal-dow"
+                        className="cd-phase-badge"
+                        style={{ background: "rgba(255,255,255,0.22)" }}
                       >
-                        {d}
-                      </div>
-                    ))}
-                    {Array.from({ length: startPad }).map((_, i) => (
-                      <div
-                        key={`pad-${i}`}
-                        className="cd-cal-day empty"
-                      />
-                    ))}
-                    {calDays.map((day) => {
-                      const period = isPeriodDay(day, logs);
-                      const ovul = isOvulationDay(
-                        day,
-                        lastPeriodDate,
-                        cycleLength,
-                      );
-                      const today = isToday(day);
-                      return (
-                        <div
-                          key={day.toISOString()}
-                          className={[
-                            "cd-cal-day",
-                            period ? "period" : "",
-                            ovul ? "ovulation" : "",
-                            today ? "today" : "",
-                          ]
-                            .filter(Boolean)
-                            .join(" ")}
-                        >
-                          {format(day, "d")}
-                        </div>
-                      );
-                    })}
+                        <span
+                          className="cd-phase-dot"
+                          style={{ background: "#fff" }}
+                        />
+                        {phase}
+                      </span>
+                    </div>
                   </div>
-                  <div className="cd-cal-legend">
-                    <span className="cd-legend-item">
-                      <span className="cd-legend-dot period" /> Period
-                    </span>
-                    <span className="cd-legend-item">
-                      <span className="cd-legend-dot ovulation" /> Ovulation
-                    </span>
-                    <span className="cd-legend-item">
-                      <span className="cd-legend-dot today" /> Today
-                    </span>
+
+                  {/* ── CALENDAR ── */}
+                  <div className="cd-card">
+                    <div className="cd-cal-header">
+                      <button
+                        className="cd-cal-nav"
+                        onClick={() =>
+                          setCalMonth((m) => addDays(startOfMonth(m), -1))
+                        }
+                      >
+                        <IconChevronLeft />
+                      </button>
+                      <h2
+                        className="cd-card-title"
+                        style={{ margin: 0 }}
+                      >
+                        {format(calMonth, "MMMM yyyy")}
+                      </h2>
+                      <button
+                        className="cd-cal-nav"
+                        onClick={() =>
+                          setCalMonth((m) => addDays(endOfMonth(m), 1))
+                        }
+                      >
+                        <IconChevronRight />
+                      </button>
+                    </div>
+                    <div className="cd-cal-grid">
+                      {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+                        <div
+                          key={d}
+                          className="cd-cal-dow"
+                        >
+                          {d}
+                        </div>
+                      ))}
+                      {Array.from({ length: startPad }).map((_, i) => (
+                        <div
+                          key={`pad-${i}`}
+                          className="cd-cal-day empty"
+                        />
+                      ))}
+                      {calDays.map((day) => {
+                        const period = isPeriodDay(day, logs);
+                        const ovul = isOvulationDay(
+                          day,
+                          lastPeriodDate,
+                          cycleLength,
+                        );
+                        const today = isToday(day);
+                        return (
+                          <div
+                            key={day.toISOString()}
+                            className={[
+                              "cd-cal-day",
+                              period ? "period" : "",
+                              ovul ? "ovulation" : "",
+                              today ? "today" : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                          >
+                            {format(day, "d")}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="cd-cal-legend">
+                      <span className="cd-legend-item">
+                        <span className="cd-legend-dot period" /> Period
+                      </span>
+                      <span className="cd-legend-item">
+                        <span className="cd-legend-dot ovulation" /> Ovulation
+                      </span>
+                      <span className="cd-legend-item">
+                        <span className="cd-legend-dot today" /> Today
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* ── When to See a Doctor ── */}
+                  <div className="cd-card cd-warning-soft">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconAlertTriangle /></span>
+                      When to See a Doctor
+                    </h2>
+                    <div className="cd-alert-grid">
+                      {[
+                        "Cycles shorter than 21 days",
+                        "Cycles longer than 35 days",
+                        "Bleeding lasting over 7 days",
+                        "Severe pain affecting daily life",
+                        "Spotting between periods",
+                        "Sudden change in cycle pattern",
+                      ].map((item) => (
+                        <div key={item} className="cd-alert-item">
+                          <span className="cd-alert-dot" />
+                          {item}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-              {/* end cd-col-left */}
+                {/* end cd-col-left */}
 
-              {/* ── RIGHT COLUMN ── */}
-              <div className="cd-col-right">
-                {/* ── QUICK LOG ── */}
-                <div className="cd-card">
-                  <h2 className="cd-card-title">Log Today's Cycle</h2>
-                  <div className="cd-log-row">
-                    <span className="cd-log-label">On period today?</span>
-                    <button
-                      className={`cd-toggle ${isPeriod ? "on" : ""}`}
-                      onClick={() => {
-                        setIsPeriod((v) => !v);
-                        if (!isPeriod) {
-                          setFlow("");
-                        }
-                      }}
-                    >
-                      <span className="cd-toggle-knob" />
-                    </button>
-                  </div>
-                  {isPeriod && (
-                    <div className="cd-chip-group">
-                      {(["light", "medium", "heavy"] as const).map((f) => (
+                {/* ── RIGHT COLUMN ── */}
+                <div className="cd-col-right">
+                  {/* ── QUICK LOG ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title">Log Today's Cycle</h2>
+                    <div className="cd-log-row">
+                      <span className="cd-log-label">On period today?</span>
+                      <button
+                        className={`cd-toggle ${isPeriod ? "on" : ""}`}
+                        onClick={() => {
+                          setIsPeriod((v) => !v);
+                          if (!isPeriod) {
+                            setFlow("");
+                          }
+                        }}
+                      >
+                        <span className="cd-toggle-knob" />
+                      </button>
+                    </div>
+                    {isPeriod && (
+                      <div className="cd-chip-group">
+                        {(["light", "medium", "heavy"] as const).map((f) => (
+                          <button
+                            key={f}
+                            className={`cd-chip ${flow === f ? "active" : ""}`}
+                            onClick={() => setFlow(f)}
+                          >
+                            {f.charAt(0).toUpperCase() + f.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <p className="cd-log-section-label">Mood</p>
+                    <div className="cd-mood-group">
+                      {(
+                        [
+                          { id: "happy",   Icon: IconMoodHappy,   label: "Happy" },
+                          { id: "okay",    Icon: IconMoodOkay,    label: "Okay" },
+                          { id: "low",     Icon: IconMoodLow,     label: "Low" },
+                          { id: "anxious", Icon: IconMoodAnxious, label: "Anxious" },
+                        ] as {
+                          id: "happy" | "okay" | "low" | "anxious";
+                          Icon: React.FC;
+                          label: string;
+                        }[]
+                      ).map(({ id, Icon, label }) => (
                         <button
-                          key={f}
-                          className={`cd-chip ${flow === f ? "active" : ""}`}
-                          onClick={() => setFlow(f)}
+                          key={id}
+                          data-mood={id}
+                          className={`cd-mood-btn ${mood === id ? "active" : ""}`}
+                          onClick={() => setMood(mood === id ? "" : id)}
                         >
-                          {f.charAt(0).toUpperCase() + f.slice(1)}
+                          <span className="cd-mood-icon"><Icon /></span>
+                          <span className="cd-mood-label">{label}</span>
                         </button>
                       ))}
                     </div>
-                  )}
-                  <p className="cd-log-section-label">Mood</p>
-                  <div className="cd-mood-group">
-                    {(
-                      [
-                        { id: "happy", icon: "😊", label: "Happy" },
-                        { id: "okay", icon: "😐", label: "Okay" },
-                        { id: "low", icon: "😞", label: "Low" },
-                        { id: "anxious", icon: "😰", label: "Anxious" },
-                      ] as const
-                    ).map(({ id, icon, label }) => (
-                      <button
-                        key={id}
-                        className={`cd-mood-btn ${mood === id ? "active" : ""}`}
-                        onClick={() => setMood(mood === id ? "" : id)}
-                      >
-                        <span className="cd-mood-icon">{icon}</span>
-                        <span className="cd-mood-label">{label}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <p className="cd-log-section-label">Symptoms</p>
-                  <div className="cd-symptom-group">
-                    {[
-                      "Cramps",
-                      "Headache",
-                      "Bloating",
-                      "Fatigue",
-                      "Nausea",
-                      "Back pain",
-                    ].map((s) => (
-                      <button
-                        key={s}
-                        className={`cd-chip ${symptoms.includes(s) ? "active" : ""}`}
-                        onClick={() => toggleSymptom(s)}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="cd-log-section-label">
-                    Notes <span className="cd-optional">(optional)</span>
-                  </p>
-                  <textarea
-                    className="cd-notes"
-                    placeholder="How are you feeling today?"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    rows={3}
-                  />
-                  {saveMsg && (
-                    <p
-                      className={`cd-save-msg ${saveMsg === "Saved!" ? "success" : "error"}`}
-                    >
-                      {saveMsg}
+                    <p className="cd-log-section-label">Symptoms</p>
+                    <div className="cd-symptom-group">
+                      {SYMPTOM_LIST.map(({ label, Icon, color }) => (
+                        <button
+                          key={label}
+                          className={`cd-chip ${symptoms.includes(label) ? "active" : ""}`}
+                          style={{ "--chip-icon-color": color } as React.CSSProperties}
+                          onClick={() => toggleSymptom(label)}
+                        >
+                          <span className="cd-chip-icon"><Icon /></span>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="cd-log-section-label">
+                      Notes <span className="cd-optional">(optional)</span>
                     </p>
-                  )}
-                  <button
-                    className="cd-save-btn"
-                    disabled={saving}
-                    onClick={() => {
-                      saveLog().catch(console.error);
-                    }}
-                  >
-                    {saving ? "Saving…" : "Save Today's Log"}
-                  </button>
-                </div>
-
-                {/* ── HEALTH SCORE ── */}
-                <div className="cd-card">
-                  <div className="cd-score-header">
-                    <h2
-                      className="cd-card-title"
-                      style={{ margin: 0 }}
-                    >
-                      Cycle Health Score
-                    </h2>
-                    <span
-                      className="cd-score-value"
-                      style={{ color: scoreColor }}
-                    >
-                      {healthScore}
-                    </span>
-                  </div>
-                  <div className="cd-score-track">
-                    <div
-                      className="cd-score-fill"
-                      style={{
-                        width: `${healthScore}%`,
-                        background: scoreColor,
-                      }}
+                    <textarea
+                      className="cd-notes"
+                      placeholder="How are you feeling today?"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      rows={3}
                     />
+                    {saveMsg && (
+                      <p
+                        className={`cd-save-msg ${saveMsg === "Saved!" ? "success" : "error"}`}
+                      >
+                        {saveMsg}
+                      </p>
+                    )}
+                    <button
+                      className="cd-save-btn"
+                      disabled={saving}
+                      onClick={() => {
+                        saveLog().catch(console.error);
+                      }}
+                    >
+                      {saving ? "Saving…" : "Save Today's Log"}
+                    </button>
                   </div>
-                  <div className="cd-score-labels">
-                    <span>0</span>
-                    <span style={{ color: scoreColor, fontWeight: 700 }}>
-                      {healthScore}/100
-                    </span>
-                    <span>100</span>
+
+                  {/* ── HEALTH SCORE ── */}
+                  <div className="cd-card">
+                    <div className="cd-score-header">
+                      <h2
+                        className="cd-card-title"
+                        style={{ margin: 0, color: "var(--cd-accent)" }}
+                      >
+                        Cycle Health Score
+                      </h2>
+                      <span
+                        className="cd-score-value"
+                        style={{ color: scoreColor }}
+                      >
+                        {healthScore}
+                      </span>
+                    </div>
+                    <div className="cd-score-track">
+                      <div
+                        className="cd-score-fill"
+                        style={{
+                          width: `${healthScore}%`,
+                          background: scoreColor,
+                        }}
+                      />
+                    </div>
+                    <div className="cd-score-labels">
+                      <span>0</span>
+                      <span style={{ color: scoreColor, fontWeight: 700 }}>
+                        {healthScore}/100
+                      </span>
+                      <span>100</span>
+                    </div>
+                    <p className="cd-score-desc">
+                      {healthScore >= 75
+                        ? "Your cycle looks healthy! Keep logging daily."
+                        : healthScore >= 50
+                          ? "Moderate score — try tracking symptoms consistently."
+                          : "Several symptoms detected. Consider consulting a doctor."}
+                    </p>
                   </div>
-                  <p className="cd-score-desc">
-                    {healthScore >= 75
-                      ? "Your cycle looks healthy! Keep logging daily."
-                      : healthScore >= 50
-                        ? "Moderate score — try tracking symptoms consistently."
-                        : "Several symptoms detected. Consider consulting a doctor."}
-                  </p>
+
+                  {/* ── AI Insight ── */}
+                  <div className="cd-card cd-insight-card">
+                    <h2 className="cd-card-title">AI Insight</h2>
+                    <p className="cd-score-desc">
+                      {phase === "Ovulation"
+                        ? "You’re in a high-fertility window. Prioritize hydration and balanced meals."
+                        : "Your cycle is trending stable. Continue daily logs for better prediction accuracy."}
+                    </p>
+                  </div>
+
+                  {/* ── Stay Hydrated ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconDroplet /></span>
+                      Stay Hydrated
+                    </h2>
+                    <div className="cd-water-grid">
+                      {Array.from({ length: 8 }).map((_, i) => (
+                        <button
+                          key={i}
+                          className={`cd-water-glass${i < cycleWaterGlasses ? " filled" : ""}`}
+                          onClick={() => setCycleWaterGlasses(i < cycleWaterGlasses ? i : i + 1)}
+                          aria-label={`Glass ${i + 1}`}
+                        >
+                          <IconDroplet />
+                        </button>
+                      ))}
+                    </div>
+                    <p className="cd-score-desc">
+                      {cycleWaterGlasses >= 8 ? (
+                        <span className="cd-goal-met">
+                          <IconCheckCircle /> 8 glasses done — great hydration!
+                        </span>
+                      ) : (
+                        `${cycleWaterGlasses}/8 glasses — hydration eases cramps and bloating`
+                      )}
+                    </p>
+                  </div>
+
                 </div>
               </div>
-              {/* end cd-col-right */}
-            </div>
+            )}
+
+            {activeMode === "pregnant" && (
+              <div className="cd-mode-stack">
+                {/* ── Hero: Week + Baby Info ── */}
+                <div className="cd-hero cd-preg-hero">
+                  <div className="cd-ring-wrap">
+                    <svg width="140" height="140" viewBox="0 0 140 140">
+                      <circle cx="70" cy="70" r={R} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="10" />
+                      <circle cx="70" cy="70" r={R} fill="none" stroke="#fff" strokeWidth="10"
+                        strokeDasharray={`${Math.min((pregnancyWeek / 40) * C, C)} ${C}`}
+                        strokeLinecap="round" transform="rotate(-90 70 70)" />
+                      <text x="70" y="63" textAnchor="middle" fill="#fff" fontSize="22" fontWeight="800">
+                        W{pregnancyWeek}
+                      </text>
+                      <text x="70" y="80" textAnchor="middle" fill="rgba(255,255,255,0.7)" fontSize="11">
+                        of 40
+                      </text>
+                    </svg>
+                  </div>
+                  <div className="cd-hero-info" style={{ flex: 1 }}>
+                    <div className="cd-preg-hero-grid">
+                      <div>
+                        <p className="cd-hero-label">Due Date</p>
+                        <p className="cd-hero-date">{format(dueDate, "MMM d, yyyy")}</p>
+                        <p className="cd-hero-sub">{daysUntilDue} days to go</p>
+                      </div>
+                      <div>
+                        <p className="cd-hero-label">Baby Size</p>
+                        <p className="cd-hero-date cd-hero-date-sm">
+                          {babyData.emoji} {babyData.fruit}
+                        </p>
+                        <p className="cd-hero-sub">{babyData.weight} · {babyData.length}</p>
+                      </div>
+                    </div>
+                    <div className="cd-hero-divider" />
+                    <p className="cd-preg-tip"><span className="cd-tip-icon"><IconLightbulb /></span>{babyData.tip}</p>
+                    <span className="cd-phase-badge cd-soft-badge">{trimester}</span>
+                  </div>
+                </div>
+
+                {/* ── Baby Development ── */}
+                <div className="cd-card cd-baby-dev-card">
+                  <div className="cd-baby-dev-header">
+                    <span className="cd-baby-dev-emoji">{babyData.emoji}</span>
+                    <div>
+                      <h2 className="cd-card-title" style={{ margin: 0 }}>Week {pregnancyWeek} Development</h2>
+                      <p className="cd-score-desc" style={{ margin: "2px 0 0" }}>{babyData.development}</p>
+                    </div>
+                  </div>
+                  <div className="cd-baby-stats-row">
+                    <div className="cd-baby-stat">
+                      <span className="cd-baby-stat-label">Weight</span>
+                      <span className="cd-baby-stat-value">{babyData.weight}</span>
+                    </div>
+                    <div className="cd-baby-stat">
+                      <span className="cd-baby-stat-label">Length</span>
+                      <span className="cd-baby-stat-value">{babyData.length}</span>
+                    </div>
+                    <div className="cd-baby-stat">
+                      <span className="cd-baby-stat-label">Trimester</span>
+                      <span className="cd-baby-stat-value">{trimester.split(" ")[0]}</span>
+                    </div>
+                    <div className="cd-baby-stat">
+                      <span className="cd-baby-stat-label">Progress</span>
+                      <span className="cd-baby-stat-value">{Math.round((pregnancyWeek / 40) * 100)}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="cd-mode-grid">
+                  {/* ── Kick Counter ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title"><span className="cd-title-icon"><IconBaby /></span>Kick Counter</h2>
+                    <p className="cd-score-desc" style={{ marginBottom: 4 }}>Goal: 10 kicks in 2 hours</p>
+                    <p className="cd-metric-value">{kickCount}<span style={{ fontSize: 16, fontWeight: 500, color: "#9ca3af" }}> kicks</span></p>
+                    <div className="cd-kick-progress">
+                      <div className="cd-kick-bar" style={{ width: `${Math.min(kickCount / 10 * 100, 100)}%` }} />
+                    </div>
+                    <p className="cd-score-desc" style={{ marginBottom: 10 }}>
+                      {kickCount >= 10 ? <span className="cd-goal-met"><IconCheckCircle /> Goal reached! Baby is active.</span> : `${10 - kickCount} more to reach today's goal`}
+                    </p>
+                    <div className="cd-action-row">
+                      <button className="cd-save-btn" style={{ flex: 2 }} onClick={() => setKickCount((k) => k + 1)}>
+                        + Kick
+                      </button>
+                      <button className="cd-secondary-btn" onClick={() => setKickCount(0)}>Reset</button>
+                    </div>
+                  </div>
+
+                  {/* ── Contraction Timer ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title"><span className="cd-title-icon"><IconTimer /></span>Contraction Timer</h2>
+                    <p className="cd-score-desc" style={{ marginBottom: 4 }}>Time each contraction</p>
+                    <p className="cd-metric-value">{formatTimer(contractionSeconds)}</p>
+                    <div className="cd-action-row">
+                      <button className="cd-save-btn" style={{ flex: 1 }}
+                        onClick={() => setIsContractionRunning(true)}
+                        disabled={isContractionRunning}
+                      >
+                        Start
+                      </button>
+                      <button className="cd-secondary-btn" onClick={() => setIsContractionRunning(false)}>Stop</button>
+                      <button className="cd-secondary-btn" onClick={() => {
+                        if (contractionSeconds > 0) {
+                          setContractionLog((prev) => [
+                            { duration: contractionSeconds, time: format(new Date(), "h:mm a") },
+                            ...prev.slice(0, 4),
+                          ]);
+                        }
+                        setContractionSeconds(0);
+                        setIsContractionRunning(false);
+                      }}>Log</button>
+                    </div>
+                    {contractionLog.length > 0 && (
+                      <div className="cd-contraction-log">
+                        {contractionLog.map((c, i) => (
+                          <div key={i} className="cd-contraction-entry">
+                            <span>{c.time}</span>
+                            <span>{formatTimer(c.duration)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ── Hydration ── */}
+                  <div className="cd-card cd-soft-tint">
+                    <h2 className="cd-card-title"><span className="cd-title-icon"><IconDroplet /></span>Hydration</h2>
+                    <p className="cd-score-desc" style={{ marginBottom: 8 }}>Target: 8–10 glasses/day</p>
+                    <div className="cd-water-grid">
+                      {Array.from({ length: 10 }).map((_, i) => (
+                        <button
+                          key={i}
+                          className={`cd-water-glass${i < waterGlasses ? " filled" : ""}`}
+                          onClick={() => setWaterGlasses(i < waterGlasses ? i : i + 1)}
+                          title={`${i + 1} glass${i > 0 ? "es" : ""}`}
+                        >
+                          <IconDroplet size={18} />
+                        </button>
+                      ))}
+                    </div>
+                    <p className="cd-score-desc" style={{ marginTop: 8 }}>
+                      {waterGlasses >= 8 ? <span className="cd-goal-met"><IconCheckCircle /> Great hydration today!</span> : `${waterGlasses}/8 glasses logged`}
+                    </p>
+                  </div>
+
+                  {/* ── Vitamins & Checklist ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title"><span className="cd-title-icon"><IconPill /></span>Daily Checklist</h2>
+                    <div className="cd-checklist">
+                      <label className="cd-check-item">
+                        <input type="checkbox" checked={vitaminTaken}
+                          onChange={(e) => setVitaminTaken(e.target.checked)} />
+                        <span>Prenatal vitamin taken</span>
+                      </label>
+                      <label className="cd-check-item">
+                        <input type="checkbox" checked={waterGlasses >= 8} readOnly />
+                        <span>Hydration goal (8 glasses)</span>
+                      </label>
+                      <label className="cd-check-item">
+                        <input type="checkbox" />
+                        <span>30 min gentle movement</span>
+                      </label>
+                      <label className="cd-check-item">
+                        <input type="checkbox" />
+                        <span>Took iron-rich meal</span>
+                      </label>
+                      <label className="cd-check-item">
+                        <input type="checkbox" />
+                        <span>Pelvic floor exercises</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* ── Symptoms today ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title"><span className="cd-title-icon"><IconHeartPulse /></span>Symptoms Today</h2>
+                    <div className="cd-preg-symptom-grid">
+                      {PREG_SYMPTOM_LIST.map((s) => (
+                        <button
+                          key={s}
+                          className={`cd-preg-symptom-chip${pregSymptoms.includes(s) ? " active" : ""}`}
+                          onClick={() => togglePregSymptom(s)}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                    {pregSymptoms.length > 0 && pregSymptoms.includes("Swelling") && (
+                      <p className="cd-preg-alert"><span className="cd-alert-icon"><IconAlertTriangle /></span>Swelling can indicate preeclampsia — mention to your doctor.</p>
+                    )}
+                  </div>
+
+                  {/* ── Next Appointment ── */}
+                  <div className="cd-card cd-soft-tint">
+                    <h2 className="cd-card-title"><span className="cd-title-icon"><IconCalendar /></span>Next Appointment</h2>
+                    <input
+                      type="date"
+                      className="cd-preg-date-input"
+                      value={nextApptDate}
+                      onChange={(e) => setNextApptDate(e.target.value)}
+                      style={{ marginBottom: 10 }}
+                    />
+                    {nextApptDate && (
+                      <p className="cd-score-desc">
+                        {differenceInDays(parseISO(nextApptDate), startOfToday()) <= 0
+                          ? "Appointment is today or past — did you go?"
+                          : `In ${differenceInDays(parseISO(nextApptDate), startOfToday())} days`}
+                      </p>
+                    )}
+                    <div className="cd-appt-checklist">
+                      <p className="cd-score-desc" style={{ fontWeight: 600, marginBottom: 6 }}>Questions to ask:</p>
+                      {["Baby's growth on track?", "Blood pressure normal?", "Birth plan discussion"].map((q) => (
+                        <label key={q} className="cd-check-item">
+                          <input type="checkbox" />
+                          <span>{q}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* ── Risk Alert ── */}
+                  <div className="cd-card cd-warning-soft" style={{ gridColumn: "1 / -1" }}>
+                    <h2 className="cd-card-title"><span className="cd-title-icon"><IconAlertTriangle /></span>When to Call Your Doctor</h2>
+                    <div className="cd-alert-grid">
+                      {[
+                        "Severe headache or vision changes",
+                        "Sudden swelling in face/hands",
+                        "Baby not moving for 2+ hours",
+                        "Vaginal bleeding",
+                        "Fever above 38°C (100.4°F)",
+                        "Painful urination",
+                      ].map((item) => (
+                        <div key={item} className="cd-alert-item">
+                          <span className="cd-alert-dot" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeMode === "postpartum" && (
+              <div className="cd-mode-stack">
+                {/* ── Hero ── */}
+                <div className="cd-hero cd-post-hero">
+                  <div className="cd-hero-info">
+                    <p className="cd-hero-label">Recovery Journey</p>
+                    <p className="cd-hero-date">Day {postpartumDay} Postpartum</p>
+                    <p className="cd-hero-sub">Week {Math.ceil(postpartumDay / 7)} of healing</p>
+                    <span className="cd-phase-badge cd-soft-badge">Healing Progress</span>
+                  </div>
+                </div>
+
+                <div className="cd-mode-grid">
+                  {/* ── Breastfeeding Tracker ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconMilk /></span>
+                      Breastfeeding Tracker
+                    </h2>
+                    <p className="cd-score-desc">
+                      Last feed: {lastFeedAt ? format(lastFeedAt, "h:mm a") : "Not logged yet"}
+                    </p>
+                    <div className="cd-action-row">
+                      {(["left", "right", "both"] as const).map((s) => (
+                        <button
+                          key={s}
+                          className={`cd-secondary-btn${ppFeedSide === s ? " cd-btn-active" : ""}`}
+                          onClick={() => setPPFeedSide(s)}
+                        >
+                          {s.charAt(0).toUpperCase() + s.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="cd-pp-timer-row">
+                      <span className="cd-pp-timer-display">
+                        {String(ppFeedMins).padStart(2, "0")}:{String(ppFeedSecs).padStart(2, "0")}
+                      </span>
+                      {!isPPFeedRunning ? (
+                        <button
+                          className="cd-save-btn"
+                          onClick={() => { setIsPPFeedRunning(true); setLastFeedAt(new Date()); }}
+                        >
+                          Start Feed
+                        </button>
+                      ) : (
+                        <button
+                          className="cd-secondary-btn"
+                          onClick={() => {
+                            setIsPPFeedRunning(false);
+                            if (ppFeedSide) {
+                              setPPFeedLog((prev) => [
+                                { side: ppFeedSide, duration: ppFeedSeconds, time: format(new Date(), "h:mm a") },
+                                ...prev,
+                              ].slice(0, 5));
+                            }
+                            setPPFeedSeconds(0);
+                          }}
+                        >
+                          Stop & Log
+                        </button>
+                      )}
+                    </div>
+                    {ppFeedLog.length > 0 && (
+                      <div className="cd-contraction-log">
+                        {ppFeedLog.slice(0, 3).map((l, i) => (
+                          <div key={i} className="cd-contraction-entry">
+                            <span>{l.side.charAt(0).toUpperCase() + l.side.slice(1)} · {Math.floor(l.duration / 60)}m {l.duration % 60}s</span>
+                            <span>{l.time}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ── Baby Daily Log ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconScale /></span>
+                      Baby's Day
+                    </h2>
+                    <div className="cd-pp-log-row">
+                      <span className="cd-pp-log-label">Feeds today</span>
+                      <div className="cd-pp-counter">
+                        <button className="cd-pp-counter-btn" onClick={() => setBabyFeedCount(Math.max(0, babyFeedCount - 1))}>−</button>
+                        <span className="cd-pp-counter-val">{babyFeedCount}</span>
+                        <button className="cd-pp-counter-btn" onClick={() => setBabyFeedCount(babyFeedCount + 1)}>+</button>
+                      </div>
+                    </div>
+                    <div className="cd-pp-log-row">
+                      <span className="cd-pp-log-label">Baby sleep</span>
+                      <div className="cd-pp-counter">
+                        <button className="cd-pp-counter-btn" onClick={() => setBabySleepHours(Math.max(0, parseFloat((babySleepHours - 0.5).toFixed(1))))}>−</button>
+                        <span className="cd-pp-counter-val">{babySleepHours}h</span>
+                        <button className="cd-pp-counter-btn" onClick={() => setBabySleepHours(parseFloat((babySleepHours + 0.5).toFixed(1)))}>+</button>
+                      </div>
+                    </div>
+                    <p className="cd-score-desc">
+                      {babyFeedCount >= 8
+                        ? <span className="cd-goal-met"><IconCheckCircle /> Great feeding count for a newborn!</span>
+                        : babyFeedCount > 0
+                          ? "Newborns typically feed 8–12 times/day"
+                          : "Log your baby's feeds to track intake"}
+                    </p>
+                    <p className="cd-preg-tip" style={{ marginTop: 6 }}>
+                      <span className="cd-tip-icon"><IconMoon /></span>
+                      Newborns sleep 14–17 hours/day in short bursts.
+                    </p>
+                  </div>
+
+                  {/* ── Mother Recovery ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconShield /></span>
+                      Your Recovery
+                    </h2>
+                    <div className="cd-slider-row">
+                      <span>Energy</span>
+                      <input type="range" min="0" max="100" value={recoveryEnergy} onChange={(e) => setRecoveryEnergy(Number(e.target.value))} />
+                    </div>
+                    <div className="cd-slider-row">
+                      <span>Pain</span>
+                      <input type="range" min="0" max="100" value={recoveryPain} onChange={(e) => setRecoveryPain(Number(e.target.value))} />
+                    </div>
+                    <div className="cd-slider-row">
+                      <span>Sleep quality</span>
+                      <input type="range" min="0" max="100" value={recoverySleep} onChange={(e) => setRecoverySleep(Number(e.target.value))} />
+                    </div>
+                    <div className="cd-pp-recovery-summary">
+                      <span>Energy {recoveryEnergy}%</span>
+                      <span>Pain {recoveryPain}%</span>
+                      <span>Rest {recoverySleep}%</span>
+                    </div>
+                  </div>
+
+                  {/* ── Emotional Wellness ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconHeartPulse /></span>
+                      How Are You Feeling?
+                    </h2>
+                    <div className="cd-pp-mood-grid">
+                      {PP_MOOD_LIST.map(({ label }) => (
+                        <button
+                          key={label}
+                          className={`cd-pp-mood-btn${ppMood === label ? " active" : ""}`}
+                          onClick={() => setPPMood(ppMood === label ? "" : label)}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    {ppMood && (
+                      <p className="cd-preg-alert" style={{ marginTop: 10 }}>
+                        <span className="cd-alert-icon"><IconLightbulb /></span>
+                        {PP_MOOD_LIST.find((x) => x.label === ppMood)?.msg}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* ── Symptoms Today ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconHeartPulse /></span>
+                      Symptoms Today
+                    </h2>
+                    <div className="cd-preg-symptom-grid">
+                      {POSTPARTUM_SYMPTOM_LIST.map((s) => (
+                        <button
+                          key={s}
+                          className={`cd-preg-symptom-chip${ppSymptoms.includes(s) ? " active" : ""}`}
+                          onClick={() => togglePPSymptom(s)}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                    {ppSymptoms.includes("Bleeding") && (
+                      <p className="cd-preg-alert">
+                        <span className="cd-alert-icon"><IconAlertTriangle /></span>
+                        Monitor closely — soaking more than 1 pad per hour is a warning sign.
+                      </p>
+                    )}
+                    {ppSymptoms.includes("Swelling") && (
+                      <p className="cd-preg-alert">
+                        <span className="cd-alert-icon"><IconAlertTriangle /></span>
+                        Sudden or severe swelling can indicate a blood clot — contact your doctor if it worsens.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* ── Recovery Checklist ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconCheckCircle /></span>
+                      Recovery Checklist
+                    </h2>
+                    <div className="cd-checklist">
+                      {[
+                        "Iron supplement taken",
+                        "Prenatal vitamin taken",
+                        "Pelvic floor exercises",
+                        "Incision / stitch check",
+                        "Drank enough water",
+                      ].map((item) => (
+                        <label key={item} className="cd-check-item">
+                          <input
+                            type="checkbox"
+                            checked={ppChecklist.includes(item)}
+                            onChange={() => togglePPChecklist(item)}
+                          />
+                          {item}
+                        </label>
+                      ))}
+                    </div>
+                    {ppChecklist.length === 5 && (
+                      <p className="cd-goal-met" style={{ marginTop: 10 }}>
+                        <IconCheckCircle /> All recovery tasks done today!
+                      </p>
+                    )}
+                  </div>
+
+                  {/* ── Hydration ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconDroplet /></span>
+                      Stay Hydrated
+                    </h2>
+                    <div className="cd-water-grid">
+                      {Array.from({ length: 10 }).map((_, i) => (
+                        <button
+                          key={i}
+                          className={`cd-water-glass${i < ppWaterGlasses ? " filled" : ""}`}
+                          onClick={() => setPPWaterGlasses(i < ppWaterGlasses ? i : i + 1)}
+                          aria-label={`Glass ${i + 1}`}
+                        >
+                          <IconDroplet />
+                        </button>
+                      ))}
+                    </div>
+                    <p className="cd-score-desc">
+                      {ppWaterGlasses >= 10
+                        ? <span className="cd-goal-met"><IconCheckCircle /> Excellent! Breastfeeding moms need extra water.</span>
+                        : `${ppWaterGlasses}/10 glasses — stay hydrated to support milk supply`}
+                    </p>
+                  </div>
+
+                  {/* ── Next Appointment ── */}
+                  <div className="cd-card">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconCalendar /></span>
+                      Postpartum Check-Up
+                    </h2>
+                    <label className="cd-preg-field-label">Next appointment</label>
+                    <input
+                      type="date"
+                      className="cd-preg-date-input"
+                      value={ppNextApptDate}
+                      min={format(startOfToday(), "yyyy-MM-dd")}
+                      onChange={(e) => setPPNextApptDate(e.target.value)}
+                    />
+                    {ppNextApptDate && (
+                      <p className="cd-preg-date-hint">
+                        {differenceInDays(parseISO(ppNextApptDate), startOfToday()) === 0
+                          ? "Your appointment is today!"
+                          : `${differenceInDays(parseISO(ppNextApptDate), startOfToday())} days until your check-up`}
+                      </p>
+                    )}
+                    <div className="cd-appt-checklist">
+                      {[
+                        "Discuss recovery progress",
+                        "Contraception options",
+                        "Mental health check-in",
+                        "Breastfeeding support",
+                      ].map((q) => (
+                        <label key={q} className="cd-check-item">
+                          <input type="checkbox" defaultChecked={false} />
+                          {q}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* ── Warning Signs ── */}
+                  <div className="cd-card cd-warning-soft">
+                    <h2 className="cd-card-title">
+                      <span className="cd-title-icon"><IconAlertTriangle /></span>
+                      When to Call Your Doctor
+                    </h2>
+                    <div className="cd-alert-grid">
+                      {[
+                        "Heavy bleeding (1+ pad/hour)",
+                        "Fever above 38°C (100.4°F)",
+                        "Severe headache or vision changes",
+                        "Chest pain or difficulty breathing",
+                        "Signs of wound infection",
+                        "Thoughts of harming self or baby",
+                      ].map((item) => (
+                        <div key={item} className="cd-alert-item">
+                          <span className="cd-alert-dot" />
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* end cd-body-grid */}
+
+            <button
+              className="cd-assistant-fab"
+              onClick={() => setAssistantOpen(true)}
+              aria-label="Open OVI Assistant"
+            >
+              OVI
+            </button>
+
+            {assistantOpen && (
+              <div className="cd-assistant-drawer-wrap">
+                <div
+                  className="cd-assistant-backdrop"
+                  onClick={() => setAssistantOpen(false)}
+                />
+                <div className="cd-assistant-drawer">
+                  <div className="cd-assistant-header">
+                    <h3>OVI Assistant</h3>
+                    <button onClick={() => setAssistantOpen(false)}>
+                      Close
+                    </button>
+                  </div>
+                  <div className="cd-assistant-body">
+                    {assistantMessages.map((msg, index) => (
+                      <p key={`${msg}-${index}`}>{msg}</p>
+                    ))}
+                  </div>
+                  <div className="cd-assistant-input-row">
+                    <input
+                      value={assistantInput}
+                      onChange={(e) => setAssistantInput(e.target.value)}
+                      placeholder="Ask OVI..."
+                    />
+                    <button onClick={handleSendAssistantMessage}>Send</button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </IonContent>
