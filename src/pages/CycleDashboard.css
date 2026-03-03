@@ -237,7 +237,49 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
-/* ── Hero Card ─────────────────────────────────────── */
+/* ── Edit Setup Button ─────────────────────────────── */
+.cd-edit-setup-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--cd-accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cd-accent);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.18s,
+    color 0.18s;
+  flex-shrink: 0;
+}
+
+.cd-edit-setup-btn:hover {
+  background: var(--cd-accent);
+  color: #fff;
+}
+
+.dark .cd-edit-setup-btn {
+  border-color: var(--cd-accent);
+  color: var(--cd-accent);
+}
+
+.dark .cd-edit-setup-btn:hover {
+  background: var(--cd-accent);
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .cd-edit-setup-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .cd-hero {
   border-radius: 24px;
   background: var(--cd-accent);
@@ -1296,6 +1338,42 @@
   margin-bottom: 8px;
 }
 
+/* Mini stat chips inside the pregnancy hero */
+.cd-hero-mini-stats {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.cd-hero-mini-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 6px 10px;
+  min-width: 52px;
+  flex: 1;
+}
+
+.cd-hero-mini-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 2px;
+}
+
+.cd-hero-mini-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+
 .cd-hero-sub {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.65);
@@ -2067,4 +2145,32 @@
   color: #fff;
   cursor: pointer;
   background: var(--cd-accent);
+}
+
+/* ── Embryo month image ── */
+.cd-embryo-img-wrap {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.cd-embryo-img {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3));
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px;
+}
+
+.cd-embryo-month-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
 }
