@@ -57,7 +57,7 @@ function getCyclePhase(
   return "Luteal";
 }
 
-function getPhaseColor(phase: string) {
+function _getPhaseColor(phase: string) {
   switch (phase) {
     case "Menstrual":
       return "#ec4899";
@@ -321,8 +321,18 @@ function isOvulationDay(
   lastPeriodDate: string,
   cycleLength: number,
 ) {
-  const ovul = calcOvulation(lastPeriodDate, cycleLength);
-  return isSameDay(date, ovul);
+  // Find the cycle start that covers this date's cycle, then compute ovulation
+  const lmp = parseISO(lastPeriodDate);
+  // Walk forward from LMP in cycle-length steps until we find the cycle that
+  // contains or is just before the given date
+  let cycleStart = lmp;
+  let next = addDays(cycleStart, cycleLength);
+  while (next <= date) {
+    cycleStart = next;
+    next = addDays(cycleStart, cycleLength);
+  }
+  const ovulInCycle = addDays(cycleStart, cycleLength - 14);
+  return isSameDay(date, ovulInCycle);
 }
 
 /* ─────────────────────────────────────────────────────
@@ -966,6 +976,26 @@ const IconShield = () => (
   </svg>
 );
 
+const IconSettings = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle
+      cx="12"
+      cy="12"
+      r="3"
+    />
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+  </svg>
+);
+
 const SYMPTOM_LIST = [
   { label: "Cramps", Icon: IconCramps, color: "#db2777" },
   { label: "Headache", Icon: IconHeadache, color: "#e11d48" },
@@ -987,16 +1017,20 @@ interface PregnancySetupData {
 interface PregnancySetupModalProps {
   onConfirm: (data: PregnancySetupData) => void;
   onCancel: () => void;
+  initialDate?: string;
+  initialSelection?: "confirmed" | "maybe";
 }
 const PregnancySetupModal: React.FC<PregnancySetupModalProps> = ({
   onConfirm,
   onCancel,
+  initialDate,
+  initialSelection,
 }) => {
   const [selection, setSelection] = useState<"confirmed" | "maybe" | null>(
-    null,
+    initialSelection ?? null,
   );
   const [confirmDate, setConfirmDate] = useState(
-    format(startOfToday(), "yyyy-MM-dd"),
+    initialDate ?? format(startOfToday(), "yyyy-MM-dd"),
   );
   const [doctorConfirmed, setDoctorConfirmed] = useState(false);
   const [highRisk, setHighRisk] = useState(false);
@@ -1040,16 +1074,17 @@ const PregnancySetupModal: React.FC<PregnancySetupModalProps> = ({
         {selection === "confirmed" && (
           <div className="cd-preg-setup-details">
             <h3 className="cd-preg-details-title">
-              When did you confirm your pregnancy?
+              When was your last menstrual period?
             </h3>
             <label className="cd-preg-field-label">
-              Pregnancy Confirmation Date
+              Last Period Date (LMP)
             </label>
             <div className="cd-preg-date-row">
               <input
                 type="date"
                 className="cd-preg-date-input"
                 value={confirmDate}
+                max={format(startOfToday(), "yyyy-MM-dd")}
                 onChange={(e) => setConfirmDate(e.target.value)}
               />
               <span className="cd-preg-date-icon">
@@ -1057,7 +1092,7 @@ const PregnancySetupModal: React.FC<PregnancySetupModalProps> = ({
               </span>
             </div>
             <p className="cd-preg-date-hint">
-              Your due date will be estimated based on this date.
+              Your due date and week will be estimated from this date.
             </p>
 
             <label className="cd-preg-check-row">
@@ -1136,16 +1171,20 @@ interface PostpartumSetupData {
 interface PostpartumSetupModalProps {
   onConfirm: (data: PostpartumSetupData) => void;
   onCancel: () => void;
+  initialDate?: string;
+  initialSelection?: "delivered" | "mishappening" | "stillPregnant";
 }
 const PostpartumSetupModal: React.FC<PostpartumSetupModalProps> = ({
   onConfirm,
   onCancel,
+  initialDate,
+  initialSelection,
 }) => {
   const [selection, setSelection] = useState<
     "delivered" | "mishappening" | "stillPregnant" | null
-  >(null);
+  >(initialSelection ?? null);
   const [deliveryDate, setDeliveryDate] = useState(
-    format(startOfToday(), "yyyy-MM-dd"),
+    initialDate ?? format(startOfToday(), "yyyy-MM-dd"),
   );
   const [cSection, setCSection] = useState(false);
   const [doctorFollowUp, setDoctorFollowUp] = useState(false);
@@ -1294,53 +1333,6 @@ const PostpartumSetupModal: React.FC<PostpartumSetupModalProps> = ({
 };
 
 /* ─────────────────────────────────────────────────────
-   Mode Confirmation Modal
-───────────────────────────────────────────────────── */
-interface ModeModalProps {
-  mode: "pregnant" | "postpartum";
-  onConfirm: () => void;
-  onCancel: () => void;
-}
-const ModeConfirmModal: React.FC<ModeModalProps> = ({
-  mode,
-  onConfirm,
-  onCancel,
-}) => (
-  <div
-    className="cd-overlay"
-    onClick={onCancel}
-  >
-    <div
-      className="cd-confirm-modal"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <h3 className="cd-confirm-title">
-        Switch to {mode === "pregnant" ? "Pregnancy" : "Postpartum"} mode?
-      </h3>
-      <p className="cd-confirm-body">
-        {mode === "pregnant"
-          ? "This will switch your dashboard to Pregnancy Care. Are you sure?"
-          : "This will switch your dashboard to Postpartum Tracking. Are you sure?"}
-      </p>
-      <div className="cd-confirm-footer">
-        <button
-          className="cd-confirm-cancel"
-          onClick={onCancel}
-        >
-          Cancel
-        </button>
-        <button
-          className="cd-confirm-ok"
-          onClick={onConfirm}
-        >
-          Yes, switch
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-/* ─────────────────────────────────────────────────────
    Main Dashboard
 ───────────────────────────────────────────────────── */
 const CycleDashboard: React.FC = () => {
@@ -1368,6 +1360,17 @@ const CycleDashboard: React.FC = () => {
   const [pendingMode, setPendingMode] = useState<
     "pregnant" | "postpartum" | null
   >(null);
+  /* ── Re-open setup modals to edit existing configuration ── */
+  const [editingSetup, setEditingSetup] = useState<
+    "pregnant" | "postpartum" | null
+  >(null);
+  /* ── Track whether each mode has been set up already ── */
+  const [pregnantSetupDone, setPregnantSetupDone] = useState(
+    appMode === "pregnancy",
+  );
+  const [postpartumSetupDone, setPostpartumSetupDone] = useState(
+    appMode === "postpartum",
+  );
 
   /* ── Quick Log ── */
   const todayStr = format(startOfToday(), "yyyy-MM-dd");
@@ -1421,6 +1424,18 @@ const CycleDashboard: React.FC = () => {
   const [ppNextApptDate, setPPNextApptDate] = useState("");
   /* ── Cycle extra state ── */
   const [cycleWaterGlasses, setCycleWaterGlasses] = useState(0);
+  /* ── Setup modal data ── */
+  const [pregnancyConfirmDate, setPregnancyConfirmDate] =
+    useState(lastPeriodDate);
+  const [deliveryDate, setDeliveryDate] = useState(
+    format(startOfToday(), "yyyy-MM-dd"),
+  );
+  const [_isCSection, setIsCSection] = useState(false);
+  /* ── Pregnant controlled checklists ── */
+  const [pregChecklist, setPregChecklist] = useState<string[]>([]);
+  const [apptChecklist, setApptChecklist] = useState<string[]>([]);
+  /* ── Postpartum appt checklist ── */
+  const [ppApptChecklist, setPPApptChecklist] = useState<string[]>([]);
 
   /* ── OVI Assistant ── */
   const [assistantOpen, setAssistantOpen] = useState(false);
@@ -1467,23 +1482,62 @@ const CycleDashboard: React.FC = () => {
   }, [isPPFeedRunning]);
 
   /* ── Derived ── */
+  const PP_CHECKLIST_ITEMS = [
+    "Iron supplement taken",
+    "Prenatal vitamin taken",
+    "Pelvic floor exercises",
+    "Incision / stitch check",
+    "Drank enough water",
+  ];
   const nextPeriod = calcNextPeriod(lastPeriodDate, cycleLength);
   const daysUntil = differenceInDays(nextPeriod, startOfToday());
   const ovulationDate = calcOvulation(lastPeriodDate, cycleLength);
   const phase = getCyclePhase(lastPeriodDate, cycleLength, periodLength);
-  const phaseColor = getPhaseColor(phase);
   const progress = calcProgressRing(lastPeriodDate, cycleLength);
   const healthScore = calcHealthScore(logs, cycleLength);
   const scoreColor = getScoreColor(healthScore);
-  const pregnancyWeek = getPregnancyWeek(lastPeriodDate);
-  const dueDate = addDays(parseISO(lastPeriodDate), 280);
+  const dueDate = addDays(parseISO(pregnancyConfirmDate), 280);
+  const daysUntilDue = Math.max(0, differenceInDays(dueDate, startOfToday()));
+  const pregnancyWeek = Math.min(
+    40,
+    Math.max(1, 40 - Math.floor(daysUntilDue / 7)),
+  );
   const trimester = getTrimester(pregnancyWeek);
   const postpartumDay = Math.max(
     1,
-    differenceInDays(startOfToday(), parseISO(lastPeriodDate)),
+    differenceInDays(startOfToday(), parseISO(deliveryDate)),
   );
   const babyData = getBabyData(pregnancyWeek);
-  const daysUntilDue = Math.max(0, differenceInDays(dueDate, startOfToday()));
+  const pregnancyMonth =
+    pregnancyWeek <= 4
+      ? 1
+      : pregnancyWeek <= 8
+        ? 2
+        : pregnancyWeek <= 13
+          ? 3
+          : pregnancyWeek <= 17
+            ? 4
+            : pregnancyWeek <= 21
+              ? 5
+              : pregnancyWeek <= 26
+                ? 6
+                : pregnancyWeek <= 30
+                  ? 7
+                  : pregnancyWeek <= 35
+                    ? 8
+                    : 9;
+  const embryoImages = [
+    "",
+    "/assets/EmbryoMonthStages/1-Month-Cherry.png",
+    "/assets/EmbryoMonthStages/2-Month-Peach.png",
+    "/assets/EmbryoMonthStages/3-Month-Plum.png",
+    "/assets/EmbryoMonthStages/4-Month-Pear.png",
+    "/assets/EmbryoMonthStages/5-Month-Orange.png",
+    "/assets/EmbryoMonthStages/6-Month-Avocado.png",
+    "/assets/EmbryoMonthStages/7-Month-Pineapple.png",
+    "/assets/EmbryoMonthStages/8-Month-MuskMelon.png",
+    "/assets/EmbryoMonthStages/9-Month-WaterMelon.png",
+  ];
   const PREG_SYMPTOM_LIST = [
     "Nausea",
     "Fatigue",
@@ -1563,7 +1617,7 @@ const CycleDashboard: React.FC = () => {
       });
       setSaveMsg("Saved!");
       setTimeout(() => setSaveMsg(""), 2500);
-    } catch (err) {
+    } catch (_err) {
       setSaveMsg("Error saving. Try again.");
     } finally {
       setSaving(false);
@@ -1578,9 +1632,23 @@ const CycleDashboard: React.FC = () => {
 
   /* ── Mode switch ── */
   const handleModeClick = (m: "cycle" | "pregnant" | "postpartum") => {
+    if (m === activeMode) return; // guard: no-op if already in this mode
+    setIsContractionRunning(false);
+    setIsPPFeedRunning(false);
     if (m === "cycle") {
       setActiveMode("cycle");
       updateAppMode("regular");
+      return;
+    }
+    // Only show the setup modal the very first time
+    if (m === "pregnant" && pregnantSetupDone) {
+      setActiveMode("pregnant");
+      updateAppMode("pregnancy");
+      return;
+    }
+    if (m === "postpartum" && postpartumSetupDone) {
+      setActiveMode("postpartum");
+      updateAppMode("postpartum");
       return;
     }
     setPendingMode(m);
@@ -1622,7 +1690,9 @@ const CycleDashboard: React.FC = () => {
           {/* ── Mode confirm modal ── */}
           {pendingMode === "pregnant" && (
             <PregnancySetupModal
-              onConfirm={(_data) => {
+              onConfirm={(data) => {
+                setPregnantSetupDone(true);
+                if (data.confirmDate) setPregnancyConfirmDate(data.confirmDate);
                 setActiveMode("pregnant");
                 updateAppMode("pregnancy");
                 setPendingMode(null);
@@ -1632,12 +1702,61 @@ const CycleDashboard: React.FC = () => {
           )}
           {pendingMode === "postpartum" && (
             <PostpartumSetupModal
-              onConfirm={(_data) => {
+              onConfirm={(data) => {
+                if (data.type === "stillPregnant") {
+                  // User is still pregnant — stay in current mode
+                  setPendingMode(null);
+                  return;
+                }
+                if (data.type === "mishappening") {
+                  // Compassionate handling — return to cycle mode
+                  setPendingMode(null);
+                  setActiveMode("cycle");
+                  updateAppMode("regular");
+                  return;
+                }
+                // Normal postpartum transition — store delivery date
+                if (data.deliveryDate) setDeliveryDate(data.deliveryDate);
+                setIsCSection(!!data.cSection);
+                setPostpartumSetupDone(true);
                 setActiveMode("postpartum");
                 updateAppMode("postpartum");
                 setPendingMode(null);
               }}
               onCancel={() => setPendingMode(null)}
+            />
+          )}
+
+          {/* Edit-setup modals (don't switch mode, just update stored data) */}
+          {editingSetup === "pregnant" && (
+            <PregnancySetupModal
+              initialDate={pregnancyConfirmDate}
+              initialSelection="confirmed"
+              onConfirm={(data) => {
+                if (data.confirmDate) setPregnancyConfirmDate(data.confirmDate);
+                setEditingSetup(null);
+              }}
+              onCancel={() => setEditingSetup(null)}
+            />
+          )}
+          {editingSetup === "postpartum" && (
+            <PostpartumSetupModal
+              initialDate={deliveryDate}
+              initialSelection="delivered"
+              onConfirm={(data) => {
+                if (data.type === "stillPregnant") {
+                  setEditingSetup(null);
+                  return;
+                }
+                if (data.type === "mishappening") {
+                  setEditingSetup(null);
+                  return;
+                }
+                if (data.deliveryDate) setDeliveryDate(data.deliveryDate);
+                setIsCSection(!!data.cSection);
+                setEditingSetup(null);
+              }}
+              onCancel={() => setEditingSetup(null)}
             />
           )}
 
@@ -1676,6 +1795,17 @@ const CycleDashboard: React.FC = () => {
                   </button>
                 ))}
               </div>
+              {/* Edit Setup button — only visible when a configured mode is active */}
+              {activeMode !== "cycle" && (
+                <button
+                  className="cd-edit-setup-btn"
+                  onClick={() => setEditingSetup(activeMode)}
+                  title={`Edit ${activeMode === "pregnant" ? "pregnancy" : "postpartum"} setup`}
+                >
+                  <IconSettings />
+                  Edit Setup
+                </button>
+              )}
             </div>
 
             {/* ═══════════════════════════════════════════
@@ -2045,7 +2175,7 @@ const CycleDashboard: React.FC = () => {
                           className={`cd-water-glass${i < cycleWaterGlasses ? " filled" : ""}`}
                           onClick={() =>
                             setCycleWaterGlasses(
-                              i < cycleWaterGlasses ? i : i + 1,
+                              cycleWaterGlasses === i + 1 ? i : i + 1,
                             )
                           }
                           aria-label={`Glass ${i + 1}`}
@@ -2099,22 +2229,23 @@ const CycleDashboard: React.FC = () => {
                       />
                       <text
                         x="70"
-                        y="63"
+                        y="56"
                         textAnchor="middle"
-                        fill="#fff"
-                        fontSize="22"
-                        fontWeight="800"
+                        fill="rgba(255,255,255,0.75)"
+                        fontSize="11"
+                        fontWeight="600"
                       >
-                        W{pregnancyWeek}
+                        Week
                       </text>
                       <text
                         x="70"
-                        y="80"
+                        y="79"
                         textAnchor="middle"
-                        fill="rgba(255,255,255,0.7)"
-                        fontSize="11"
+                        fill="#fff"
+                        fontSize="26"
+                        fontWeight="800"
                       >
-                        of 40
+                        {pregnancyWeek}
                       </text>
                     </svg>
                   </div>
@@ -2122,81 +2253,93 @@ const CycleDashboard: React.FC = () => {
                     className="cd-hero-info"
                     style={{ flex: 1 }}
                   >
-                    <div className="cd-preg-hero-grid">
-                      <div>
-                        <p className="cd-hero-label">Due Date</p>
-                        <p className="cd-hero-date">
-                          {format(dueDate, "MMM d, yyyy")}
-                        </p>
-                        <p className="cd-hero-sub">{daysUntilDue} days to go</p>
+                    <div style={{ marginBottom: 8 }}>
+                      <p className="cd-hero-label">Due Date</p>
+                      <p className="cd-hero-date">
+                        {format(dueDate, "MMM d, yyyy")}
+                      </p>
+                      <p className="cd-hero-sub">{daysUntilDue} days to go</p>
+                    </div>
+                    <div className="cd-hero-mini-stats">
+                      <div className="cd-hero-mini-stat">
+                        <span className="cd-hero-mini-label">Size</span>
+                        <span className="cd-hero-mini-value">
+                          {babyData.fruit}
+                        </span>
                       </div>
-                      <div>
-                        <p className="cd-hero-label">Baby Size</p>
-                        <p className="cd-hero-date cd-hero-date-sm">
-                          {babyData.emoji} {babyData.fruit}
-                        </p>
-                        <p className="cd-hero-sub">
-                          {babyData.weight} · {babyData.length}
-                        </p>
+                      <div className="cd-hero-mini-stat">
+                        <span className="cd-hero-mini-label">Weight</span>
+                        <span className="cd-hero-mini-value">
+                          {babyData.weight}
+                        </span>
+                      </div>
+                      <div className="cd-hero-mini-stat">
+                        <span className="cd-hero-mini-label">Length</span>
+                        <span className="cd-hero-mini-value">
+                          {babyData.length}
+                        </span>
+                      </div>
+                      <div className="cd-hero-mini-stat">
+                        <span className="cd-hero-mini-label">Trimester</span>
+                        <span className="cd-hero-mini-value">
+                          {trimester.split(" ")[0]}
+                        </span>
                       </div>
                     </div>
-                    <div className="cd-hero-divider" />
-                    <p className="cd-preg-tip">
-                      <span className="cd-tip-icon">
-                        <IconLightbulb />
-                      </span>
-                      {babyData.tip}
-                    </p>
-                    <span className="cd-phase-badge cd-soft-badge">
-                      {trimester}
-                    </span>
+                  </div>
+                  <div className="cd-embryo-img-wrap">
+                    <img
+                      src={embryoImages[pregnancyMonth]}
+                      alt={`Month ${pregnancyMonth} embryo`}
+                      className="cd-embryo-img"
+                    />
                   </div>
                 </div>
 
-                {/* ── Baby Development ── */}
+                {/* ── Pregnancy Tips ── */}
                 <div className="cd-card cd-baby-dev-card">
-                  <div className="cd-baby-dev-header">
-                    <span className="cd-baby-dev-emoji">{babyData.emoji}</span>
-                    <div>
-                      <h2
-                        className="cd-card-title"
-                        style={{ margin: 0 }}
+                  <h2 className="cd-card-title">
+                    <span className="cd-title-icon">
+                      <IconLightbulb />
+                    </span>
+                    Pregnancy Wellness Tips
+                  </h2>
+                  <div className="cd-alert-grid">
+                    {(trimester === "First Trimester"
+                      ? [
+                          "Take folic acid daily to support neural tube development.",
+                          "Eat small, frequent meals to manage nausea.",
+                          "Stay hydrated — at least 8–10 glasses of water a day.",
+                          "Avoid raw fish, soft cheeses, and deli meats.",
+                          "Schedule your first prenatal appointment if you haven't.",
+                          "Get extra sleep — fatigue is normal in the first trimester.",
+                        ]
+                      : trimester === "Second Trimester"
+                        ? [
+                            "Begin gentle pregnancy-safe exercise like walking or swimming.",
+                            "Sleep on your left side to improve blood flow to the baby.",
+                            "Track baby's movements — they should start soon.",
+                            "Eat calcium-rich foods to support baby's bone development.",
+                            "Consider a prenatal class to prepare for labour.",
+                            "Apply moisturiser to prevent stretch marks.",
+                          ]
+                        : [
+                            "Pack your hospital bag — you're in the home stretch!",
+                            "Practice breathing and relaxation techniques for labour.",
+                            "Reduce sodium intake to ease swelling.",
+                            "Rest as much as possible and accept help from others.",
+                            "Discuss your birth plan with your doctor.",
+                            "Monitor movements — call your doctor if baby is less active.",
+                          ]
+                    ).map((tip) => (
+                      <div
+                        key={tip}
+                        className="cd-alert-item"
                       >
-                        Week {pregnancyWeek} Development
-                      </h2>
-                      <p
-                        className="cd-score-desc"
-                        style={{ margin: "2px 0 0" }}
-                      >
-                        {babyData.development}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="cd-baby-stats-row">
-                    <div className="cd-baby-stat">
-                      <span className="cd-baby-stat-label">Weight</span>
-                      <span className="cd-baby-stat-value">
-                        {babyData.weight}
-                      </span>
-                    </div>
-                    <div className="cd-baby-stat">
-                      <span className="cd-baby-stat-label">Length</span>
-                      <span className="cd-baby-stat-value">
-                        {babyData.length}
-                      </span>
-                    </div>
-                    <div className="cd-baby-stat">
-                      <span className="cd-baby-stat-label">Trimester</span>
-                      <span className="cd-baby-stat-value">
-                        {trimester.split(" ")[0]}
-                      </span>
-                    </div>
-                    <div className="cd-baby-stat">
-                      <span className="cd-baby-stat-label">Progress</span>
-                      <span className="cd-baby-stat-value">
-                        {Math.round((pregnancyWeek / 40) * 100)}%
-                      </span>
-                    </div>
+                        <span className="cd-alert-dot" />
+                        {tip}
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -2286,7 +2429,10 @@ const CycleDashboard: React.FC = () => {
                       <button
                         className="cd-save-btn"
                         style={{ flex: 1 }}
-                        onClick={() => setIsContractionRunning(true)}
+                        onClick={() => {
+                          setContractionSeconds(0);
+                          setIsContractionRunning(true);
+                        }}
                         disabled={isContractionRunning}
                       >
                         Start
@@ -2351,11 +2497,11 @@ const CycleDashboard: React.FC = () => {
                           key={i}
                           className={`cd-water-glass${i < waterGlasses ? " filled" : ""}`}
                           onClick={() =>
-                            setWaterGlasses(i < waterGlasses ? i : i + 1)
+                            setWaterGlasses(waterGlasses === i + 1 ? i : i + 1)
                           }
                           title={`${i + 1} glass${i > 0 ? "es" : ""}`}
                         >
-                          <IconDroplet size={18} />
+                          <IconDroplet />
                         </button>
                       ))}
                     </div>
@@ -2399,15 +2545,45 @@ const CycleDashboard: React.FC = () => {
                         <span>Hydration goal (8 glasses)</span>
                       </label>
                       <label className="cd-check-item">
-                        <input type="checkbox" />
+                        <input
+                          type="checkbox"
+                          checked={pregChecklist.includes("movement")}
+                          onChange={() =>
+                            setPregChecklist((prev) =>
+                              prev.includes("movement")
+                                ? prev.filter((x) => x !== "movement")
+                                : [...prev, "movement"],
+                            )
+                          }
+                        />
                         <span>30 min gentle movement</span>
                       </label>
                       <label className="cd-check-item">
-                        <input type="checkbox" />
+                        <input
+                          type="checkbox"
+                          checked={pregChecklist.includes("iron")}
+                          onChange={() =>
+                            setPregChecklist((prev) =>
+                              prev.includes("iron")
+                                ? prev.filter((x) => x !== "iron")
+                                : [...prev, "iron"],
+                            )
+                          }
+                        />
                         <span>Took iron-rich meal</span>
                       </label>
                       <label className="cd-check-item">
-                        <input type="checkbox" />
+                        <input
+                          type="checkbox"
+                          checked={pregChecklist.includes("pelvic")}
+                          onChange={() =>
+                            setPregChecklist((prev) =>
+                              prev.includes("pelvic")
+                                ? prev.filter((x) => x !== "pelvic")
+                                : [...prev, "pelvic"],
+                            )
+                          }
+                        />
                         <span>Pelvic floor exercises</span>
                       </label>
                     </div>
@@ -2456,6 +2632,7 @@ const CycleDashboard: React.FC = () => {
                       type="date"
                       className="cd-preg-date-input"
                       value={nextApptDate}
+                      min={format(startOfToday(), "yyyy-MM-dd")}
                       onChange={(e) => setNextApptDate(e.target.value)}
                       style={{ marginBottom: 10 }}
                     />
@@ -2477,16 +2654,26 @@ const CycleDashboard: React.FC = () => {
                         Questions to ask:
                       </p>
                       {[
-                        "Baby's growth on track?",
-                        "Blood pressure normal?",
-                        "Birth plan discussion",
-                      ].map((q) => (
+                        { key: "growth", label: "Baby's growth on track?" },
+                        { key: "bp", label: "Blood pressure normal?" },
+                        { key: "birthplan", label: "Birth plan discussion" },
+                      ].map(({ key, label }) => (
                         <label
-                          key={q}
+                          key={key}
                           className="cd-check-item"
                         >
-                          <input type="checkbox" />
-                          <span>{q}</span>
+                          <input
+                            type="checkbox"
+                            checked={apptChecklist.includes(key)}
+                            onChange={() =>
+                              setApptChecklist((prev) =>
+                                prev.includes(key)
+                                  ? prev.filter((x) => x !== key)
+                                  : [...prev, key],
+                              )
+                            }
+                          />
+                          <span>{label}</span>
                         </label>
                       ))}
                     </div>
@@ -2578,6 +2765,10 @@ const CycleDashboard: React.FC = () => {
                       {!isPPFeedRunning ? (
                         <button
                           className="cd-save-btn"
+                          disabled={!ppFeedSide}
+                          title={
+                            !ppFeedSide ? "Select a side first" : undefined
+                          }
                           onClick={() => {
                             setIsPPFeedRunning(true);
                             setLastFeedAt(new Date());
@@ -2864,7 +3055,7 @@ const CycleDashboard: React.FC = () => {
                         </label>
                       ))}
                     </div>
-                    {ppChecklist.length === 5 && (
+                    {ppChecklist.length === PP_CHECKLIST_ITEMS.length && (
                       <p
                         className="cd-goal-met"
                         style={{ marginTop: 10 }}
@@ -2888,7 +3079,9 @@ const CycleDashboard: React.FC = () => {
                           key={i}
                           className={`cd-water-glass${i < ppWaterGlasses ? " filled" : ""}`}
                           onClick={() =>
-                            setPPWaterGlasses(i < ppWaterGlasses ? i : i + 1)
+                            setPPWaterGlasses(
+                              ppWaterGlasses === i + 1 ? i : i + 1,
+                            )
                           }
                           aria-label={`Glass ${i + 1}`}
                         >
@@ -2931,27 +3124,43 @@ const CycleDashboard: React.FC = () => {
                         {differenceInDays(
                           parseISO(ppNextApptDate),
                           startOfToday(),
-                        ) === 0
-                          ? "Your appointment is today!"
+                        ) <= 0
+                          ? "Appointment is today or past — did you go?"
                           : `${differenceInDays(parseISO(ppNextApptDate), startOfToday())} days until your check-up`}
                       </p>
                     )}
                     <div className="cd-appt-checklist">
                       {[
-                        "Discuss recovery progress",
-                        "Contraception options",
-                        "Mental health check-in",
-                        "Breastfeeding support",
-                      ].map((q) => (
+                        { key: "recovery", label: "Discuss recovery progress" },
+                        {
+                          key: "contraception",
+                          label: "Contraception options",
+                        },
+                        {
+                          key: "mentalhealth",
+                          label: "Mental health check-in",
+                        },
+                        {
+                          key: "breastfeeding",
+                          label: "Breastfeeding support",
+                        },
+                      ].map(({ key, label }) => (
                         <label
-                          key={q}
+                          key={key}
                           className="cd-check-item"
                         >
                           <input
                             type="checkbox"
-                            defaultChecked={false}
+                            checked={ppApptChecklist.includes(key)}
+                            onChange={() =>
+                              setPPApptChecklist((prev) =>
+                                prev.includes(key)
+                                  ? prev.filter((x) => x !== key)
+                                  : [...prev, key],
+                              )
+                            }
                           />
-                          {q}
+                          {label}
                         </label>
                       ))}
                     </div>
