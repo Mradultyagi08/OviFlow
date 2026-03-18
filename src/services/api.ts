@@ -142,3 +142,184 @@ export function apiGetCycleLogs(
 ): Promise<{ logs: CycleLog[] }> {
   return request<{ logs: CycleLog[] }>("/cycle/logs", { token });
 }
+
+/* ── Pregnancy ─────────────────────────────────────────────────── */
+
+export interface PregnancySetupPayload {
+  lastMenstrualPeriod: string;
+  confirmDate: string;
+  type: "confirmed" | "maybe";
+  doctorConfirmed: boolean;
+  highRisk: boolean;
+  dueDate: string;
+}
+
+export interface PregnancyProfile {
+  lastMenstrualPeriod: string;
+  confirmDate: string;
+  type: "confirmed" | "maybe";
+  doctorConfirmed: boolean;
+  highRisk: boolean;
+  dueDate: string;
+}
+
+export function apiPregnancySetup(
+  token: string,
+  data: PregnancySetupPayload,
+): Promise<{ user: UserProfile }> {
+  return request<{ user: UserProfile }>("/cycle/pregnancy/setup", {
+    method: "PUT",
+    body: data,
+    token,
+  });
+}
+
+export function apiGetPregnancyProfile(
+  token: string,
+): Promise<{ pregnancy: PregnancyProfile }> {
+  return request<{ pregnancy: PregnancyProfile }>("/cycle/pregnancy/profile", { token });
+}
+
+export interface PregnancyLogPayload {
+  date: string;
+  waterGlasses?: number;
+  vitaminsTaken?: boolean;
+  symptoms?: string[];
+  contractions?: Array<{ duration: number; time: string }>;
+  nextAppointmentDate?: string;
+  appointmentNotes?: string;
+  checklistItems?: string[];
+  notes?: string;
+}
+
+export interface PregnancyLog {
+  _id: string;
+  userId: string;
+  date: string;
+  waterGlasses: number;
+  vitaminsTaken: boolean;
+  symptoms: string[];
+  contractions: Array<{ duration: number; time: string }>;
+  nextAppointmentDate: string;
+  appointmentNotes: string;
+  checklistItems: string[];
+  notes: string;
+}
+
+export function apiSavePregnancyLog(
+  token: string,
+  data: PregnancyLogPayload,
+): Promise<{ log: PregnancyLog }> {
+  return request<{ log: PregnancyLog }>("/cycle/pregnancy/log", {
+    method: "POST",
+    body: data,
+    token,
+  });
+}
+
+export function apiGetPregnancyLogs(
+  token: string,
+): Promise<{ logs: PregnancyLog[] }> {
+  return request<{ logs: PregnancyLog[] }>("/cycle/pregnancy/logs", { token });
+}
+
+/* ── Postpartum ────────────────────────────────────────────────── */
+
+export interface PostpartumSetupPayload {
+  deliveryDate: string;
+  deliveryMethod: "vaginal" | "csection";
+  doctorFollowUp: boolean;
+}
+
+export interface PostpartumProfile {
+  deliveryDate: string;
+  deliveryMethod: "vaginal" | "csection";
+  doctorFollowUp: boolean;
+}
+
+export function apiPostpartumSetup(
+  token: string,
+  data: PostpartumSetupPayload,
+): Promise<{ user: UserProfile }> {
+  return request<{ user: UserProfile }>("/cycle/postpartum/setup", {
+    method: "PUT",
+    body: data,
+    token,
+  });
+}
+
+export function apiGetPostpartumProfile(
+  token: string,
+): Promise<{ postpartum: PostpartumProfile }> {
+  return request<{ postpartum: PostpartumProfile }>("/cycle/postpartum/profile", { token });
+}
+
+export interface PostpartumLogPayload {
+  date: string;
+  mood?: string;
+  symptoms?: string[];
+  energy?: number;
+  pain?: number;
+  sleep?: number;
+  waterGlasses?: number;
+  ironSupplementTaken?: boolean;
+  vitaminsTaken?: boolean;
+  motherChecklist?: string[];
+  feeds?: Array<{ side: string; duration: number; time: string }>;
+  feedCount?: number;
+  babySleepHours?: number;
+  nextAppointmentDate?: string;
+  appointmentChecklist?: string[];
+  notes?: string;
+}
+
+export interface PostpartumLog {
+  _id: string;
+  userId: string;
+  date: string;
+  mood: string;
+  symptoms: string[];
+  energy: number;
+  pain: number;
+  sleep: number;
+  waterGlasses: number;
+  ironSupplementTaken: boolean;
+  vitaminsTaken: boolean;
+  motherChecklist: string[];
+  feeds: Array<{ side: string; duration: number; time: string }>;
+  feedCount: number;
+  babySleepHours: number;
+  nextAppointmentDate: string;
+  appointmentChecklist: string[];
+  notes: string;
+}
+
+export function apiSavePostpartumLog(
+  token: string,
+  data: PostpartumLogPayload,
+): Promise<{ log: PostpartumLog }> {
+  return request<{ log: PostpartumLog }>("/cycle/postpartum/log", {
+    method: "POST",
+    body: data,
+    token,
+  });
+}
+
+export function apiGetPostpartumLogs(
+  token: string,
+): Promise<{ logs: PostpartumLog[] }> {
+  return request<{ logs: PostpartumLog[] }>("/cycle/postpartum/logs", { token });
+}
+
+/* ── State Management ──────────────────────────────────────────── */
+
+export function apiChangeUserState(
+  token: string,
+  newState: "cycle" | "pregnancy" | "postpartum",
+): Promise<{ user: UserProfile }> {
+  return request<{ user: UserProfile }>("/cycle/state", {
+    method: "PUT",
+    body: { newState },
+    token,
+  });
+}

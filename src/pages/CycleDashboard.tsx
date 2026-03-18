@@ -15,7 +15,17 @@ import {
 } from "date-fns";
 import { ThemeContext, SettingsContext } from "../state/Context";
 import { useAuth } from "../state/AuthContext";
-import { apiSaveCycleLog, apiGetCycleLogs } from "../services/api";
+import {
+  apiSaveCycleLog,
+  apiGetCycleLogs,
+  apiPregnancySetup,
+  apiSavePregnancyLog,
+  apiGetPregnancyLogs,
+  apiPostpartumSetup,
+  apiSavePostpartumLog,
+  apiGetPostpartumLogs,
+  apiChangeUserState,
+} from "../services/api";
 import type { CycleLog } from "../services/api";
 import "./CycleDashboard.css";
 
@@ -1463,6 +1473,18 @@ const CycleDashboard: React.FC = () => {
       .catch(console.error);
   }, [token]);
 
+  /* Load pregnancy logs */
+  useEffect(() => {
+    if (!token || activeMode !== "pregnant") return;
+    apiGetPregnancyLogs(token).catch(console.error);
+  }, [token, activeMode]);
+
+  /* Load postpartum logs */
+  useEffect(() => {
+    if (!token || activeMode !== "postpartum") return;
+    apiGetPostpartumLogs(token).catch(console.error);
+  }, [token, activeMode]);
+
   useEffect(() => {
     if (!isContractionRunning) {
       return;
@@ -1600,6 +1622,16 @@ const CycleDashboard: React.FC = () => {
   /* ── Save log ── */
   const saveLog = async () => {
     if (!token) return;
+
+    // Route to appropriate save function based on active mode
+    if (activeMode === "pregnant") {
+      return savePregnancyLog();
+    }
+    if (activeMode === "postpartum") {
+      return savePostpartumLog();
+    }
+
+    // Default to cycle log
     setSaving(true);
     setSaveMsg("");
     try {
@@ -1624,6 +1656,64 @@ const CycleDashboard: React.FC = () => {
     }
   };
 
+  /* ── Save pregnancy log ── */
+  const savePregnancyLog = async () => {
+    if (!token) return;
+    setSaving(true);
+    setSaveMsg("");
+    try {
+      await apiSavePregnancyLog(token, {
+        date: todayStr,
+        waterGlasses,
+        vitaminsTaken: vitaminTaken,
+        symptoms: pregSymptoms,
+        contractions: contractionLog,
+        nextAppointmentDate: nextApptDate,
+        checklistItems: pregChecklist,
+        notes,
+      });
+      setSaveMsg("Saved!");
+      setTimeout(() => setSaveMsg(""), 2500);
+    } catch (_err) {
+      setSaveMsg("Error saving pregnancy log. Try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* ── Save postpartum log ── */
+  const savePostpartumLog = async () => {
+    if (!token) return;
+    setSaving(true);
+    setSaveMsg("");
+    try {
+      await apiSavePostpartumLog(token, {
+        date: todayStr,
+        mood: ppMood,
+        symptoms: ppSymptoms,
+        energy: recoveryEnergy,
+        pain: recoveryPain,
+        sleep: recoverySleep,
+        waterGlasses: ppWaterGlasses,
+        ironSupplementTaken: false,
+        vitaminsTaken: false,
+        motherChecklist: ppChecklist,
+        feeds: ppFeedLog,
+        feedCount: babyFeedCount,
+        babySleepHours,
+        nextAppointmentDate: ppNextApptDate,
+        appointmentChecklist: ppApptChecklist,
+        notes,
+      });
+      setSaveMsg("Saved!");
+      setTimeout(() => setSaveMsg(""), 2500);
+    } catch (_err) {
+      setSaveMsg("Error saving postpartum log. Try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   /* ── Calendar data ── */
   const monthStart = startOfMonth(calMonth);
   const monthEnd = endOfMonth(calMonth);
@@ -1636,17 +1726,32 @@ const CycleDashboard: React.FC = () => {
     setIsContractionRunning(false);
     setIsPPFeedRunning(false);
     if (m === "cycle") {
+      if (token) {
+        apiChangeUserState(token, "cycle").catch((err) =>
+          console.error("Failed to change state:", err),
+        );
+      }
       setActiveMode("cycle");
       updateAppMode("regular");
       return;
     }
     // Only show the setup modal the very first time
     if (m === "pregnant" && pregnantSetupDone) {
+      if (token) {
+        apiChangeUserState(token, "pregnancy").catch((err) =>
+          console.error("Failed to change state:", err),
+        );
+      }
       setActiveMode("pregnant");
       updateAppMode("pregnancy");
       return;
     }
     if (m === "postpartum" && postpartumSetupDone) {
+      if (token) {
+        apiChangeUserState(token, "postpartum").catch((err) =>
+          console.error("Failed to change state:", err),
+        );
+      }
       setActiveMode("postpartum");
       updateAppMode("postpartum");
       return;
@@ -1691,6 +1796,20 @@ const CycleDashboard: React.FC = () => {
           {pendingMode === "pregnant" && (
             <PregnancySetupModal
               onConfirm={(data) => {
+                // Save pregnancy setup to backend
+                if (token) {
+                  const dueDate = addDays(parseISO(data.confirmDate), 280);
+                  apiPregnancySetup(token, {
+                    lastMenstrualPeriod: lastPeriodDate,
+                    confirmDate: data.confirmDate,
+                    type: data.type,
+                    doctorConfirmed: data.doctorConfirmed,
+                    highRisk: data.highRisk,
+                    dueDate: format(dueDate, "yyyy-MM-dd"),
+                  }).catch((err) =>
+                    console.error("Failed to save pregnancy setup:", err),
+                  );
+                }
                 setPregnantSetupDone(true);
                 if (data.confirmDate) setPregnancyConfirmDate(data.confirmDate);
                 setActiveMode("pregnant");
@@ -1710,12 +1829,26 @@ const CycleDashboard: React.FC = () => {
                 }
                 if (data.type === "mishappening") {
                   // Compassionate handling — return to cycle mode
+                  if (token) {
+                    apiChangeUserState(token, "cycle").catch((err) =>
+                      console.error("Failed to change state:", err),
+                    );
+                  }
                   setPendingMode(null);
                   setActiveMode("cycle");
                   updateAppMode("regular");
                   return;
                 }
-                // Normal postpartum transition — store delivery date
+                // Normal postpartum transition — save delivery data
+                if (token) {
+                  apiPostpartumSetup(token, {
+                    deliveryDate: data.deliveryDate,
+                    deliveryMethod: data.cSection ? "csection" : "vaginal",
+                    doctorFollowUp: data.doctorFollowUp,
+                  }).catch((err) =>
+                    console.error("Failed to save postpartum setup:", err),
+                  );
+                }
                 if (data.deliveryDate) setDeliveryDate(data.deliveryDate);
                 setIsCSection(!!data.cSection);
                 setPostpartumSetupDone(true);
@@ -2305,7 +2438,7 @@ const CycleDashboard: React.FC = () => {
                     Pregnancy Wellness Tips
                   </h2>
                   <div className="cd-alert-grid">
-                    {(trimester === "First Trimester"
+                    {(trimester === "1st Trimester"
                       ? [
                           "Take folic acid daily to support neural tube development.",
                           "Eat small, frequent meals to manage nausea.",
@@ -2314,7 +2447,7 @@ const CycleDashboard: React.FC = () => {
                           "Schedule your first prenatal appointment if you haven't.",
                           "Get extra sleep — fatigue is normal in the first trimester.",
                         ]
-                      : trimester === "Second Trimester"
+                      : trimester === "2nd Trimester"
                         ? [
                             "Begin gentle pregnancy-safe exercise like walking or swimming.",
                             "Sleep on your left side to improve blood flow to the baby.",
