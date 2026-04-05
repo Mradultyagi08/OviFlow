@@ -143,6 +143,50 @@ export function apiGetCycleLogs(
   return request<{ logs: CycleLog[] }>("/cycle/logs", { token });
 }
 
+/* ── AI ───────────────────────────────────────────────────────── */
+
+export interface AiInsight {
+  title: string;
+  insight: string;
+  why: string;
+  nextAction: string;
+  confidence: "low" | "medium" | "high";
+  model?: string;
+}
+
+export interface AiInsightResponse extends AiInsight {}
+
+export interface AiChatResponse {
+  message: string;
+  model?: string;
+  provider?: string;
+  apiBase?: string;
+  modelName?: string;
+}
+
+export function apiGetAiInsight(
+  token: string,
+  mode: "cycle" | "pregnancy" | "postpartum",
+): Promise<AiInsightResponse> {
+  return request<AiInsightResponse>("/ai/insight", {
+    method: "POST",
+    body: { mode },
+    token,
+  });
+}
+
+export function apiSendAiChat(
+  token: string,
+  mode: "cycle" | "pregnancy" | "postpartum",
+  message: string,
+): Promise<AiChatResponse> {
+  return request<AiChatResponse>("/ai/chat", {
+    method: "POST",
+    body: { mode, message },
+    token,
+  });
+}
+
 /* ── Pregnancy ─────────────────────────────────────────────────── */
 
 export interface PregnancySetupPayload {
