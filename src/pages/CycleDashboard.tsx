@@ -1396,6 +1396,7 @@ const CycleDashboard: React.FC = () => {
 
   /* ── Logs ── */
   const [logs, setLogs] = useState<CycleLog[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   /* ── Calendar ── */
   const [calMonth, setCalMonth] = useState(startOfToday());
@@ -1472,6 +1473,17 @@ const CycleDashboard: React.FC = () => {
       .then(({ logs: l }) => setLogs(l))
       .catch(console.error);
   }, [token]);
+
+  useEffect(() => {
+    const todayLog = logs.find((log) => log.date === todayStr);
+    if (!todayLog) return;
+
+    setIsPeriod(todayLog.isPeriod);
+    setFlow(todayLog.flow as "" | "light" | "medium" | "heavy");
+    setMood(todayLog.mood as "" | "happy" | "okay" | "low" | "anxious");
+    setSymptoms(todayLog.symptoms);
+    setNotes(todayLog.notes);
+  }, [logs, todayStr]);
 
   /* Load pregnancy logs */
   useEffect(() => {
@@ -1619,6 +1631,8 @@ const CycleDashboard: React.FC = () => {
       prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s],
     );
 
+  const todayCycleLog = logs.find((log) => log.date === todayStr);
+
   /* ── Save log ── */
   const saveLog = async () => {
     if (!token) return;
@@ -1647,7 +1661,7 @@ const CycleDashboard: React.FC = () => {
         const filtered = prev.filter((l) => l.date !== todayStr);
         return [log, ...filtered];
       });
-      setSaveMsg("Saved!");
+      setSaveMsg(todayCycleLog ? "Updated!" : "Saved!");
       setTimeout(() => setSaveMsg(""), 2500);
     } catch (_err) {
       setSaveMsg("Error saving. Try again.");
@@ -2226,20 +2240,34 @@ const CycleDashboard: React.FC = () => {
                     />
                     {saveMsg && (
                       <p
-                        className={`cd-save-msg ${saveMsg === "Saved!" ? "success" : "error"}`}
+                        className={`cd-save-msg ${saveMsg === "Saved!" || saveMsg === "Updated!" ? "success" : "error"}`}
                       >
                         {saveMsg}
                       </p>
                     )}
-                    <button
-                      className="cd-save-btn"
-                      disabled={saving}
-                      onClick={() => {
-                        saveLog().catch(console.error);
-                      }}
-                    >
-                      {saving ? "Saving…" : "Save Today's Log"}
-                    </button>
+                    <div className="cd-action-row">
+                      <button
+                        className="cd-save-btn"
+                        style={{ flex: 1.7 }}
+                        disabled={saving}
+                        onClick={() => {
+                          saveLog().catch(console.error);
+                        }}
+                      >
+                        {saving
+                          ? "Saving…"
+                          : todayCycleLog
+                            ? "Update Today's Log"
+                            : "Save Today's Log"}
+                      </button>
+                      <button
+                        className="cd-secondary-btn"
+                        style={{ flex: 1 }}
+                        onClick={() => setHistoryOpen(true)}
+                      >
+                        View History
+                      </button>
+                    </div>
                   </div>
 
                   {/* ── HEALTH SCORE ── */}
@@ -3330,6 +3358,86 @@ const CycleDashboard: React.FC = () => {
               </div>
             )}
             {/* end cd-body-grid */}
+
+            {historyOpen && (
+              <div
+                className="cd-overlay"
+                onClick={() => setHistoryOpen(false)}
+              >
+                <div
+                  className={`cd-history-modal ${isDark ? "dark" : ""}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="cd-history-header">
+                    <div>
+                      <p className="cd-history-kicker">Cycle logs</p>
+                      <h2 className="cd-history-title">Log History</h2>
+                    </div>
+                    <button
+                      className="cd-history-close"
+                      onClick={() => setHistoryOpen(false)}
+                    >
+                      Close
+                    </button>
+                  </div>
+
+                  <div className="cd-history-list">
+                    {logs.length === 0 ? (
+                      <p className="cd-history-empty">No logs saved yet.</p>
+                    ) : (
+                      logs.map((log) => {
+                        const parts = [
+                          log.isPeriod ? "Period day" : "No period",
+                          log.flow ? `${log.flow} flow` : null,
+                          log.mood ? `Mood: ${log.mood}` : null,
+                          log.symptoms.length > 0
+                            ? `${log.symptoms.length} symptom${log.symptoms.length === 1 ? "" : "s"}`
+                            : null,
+                        ].filter(Boolean);
+
+                        return (
+                          <article
+                            key={log._id}
+                            className="cd-history-item"
+                          >
+                            <div className="cd-history-item-header">
+                              <div>
+                                <p className="cd-history-item-date">
+                                  {format(parseISO(log.date), "EEE, MMM d, yyyy")}
+                                </p>
+                                <p className="cd-history-item-meta">
+                                  {parts.join(" • ") || "No details recorded"}
+                                </p>
+                              </div>
+                              {log.date === todayStr && (
+                                <span className="cd-history-today">Today</span>
+                              )}
+                            </div>
+
+                            {log.symptoms.length > 0 && (
+                              <div className="cd-history-tags">
+                                {log.symptoms.map((symptom) => (
+                                  <span
+                                    key={`${log._id}-${symptom}`}
+                                    className="cd-history-tag"
+                                  >
+                                    {symptom}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {log.notes && (
+                              <p className="cd-history-notes">{log.notes}</p>
+                            )}
+                          </article>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <button
               className="cd-assistant-fab"
