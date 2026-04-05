@@ -1507,7 +1507,9 @@ const CycleDashboard: React.FC = () => {
       })
       .catch((err) => {
         if (!cancelled) {
-          setAiInsightError((err as Error).message || "Failed to load AI insight");
+          setAiInsightError(
+            (err as Error).message || "Failed to load AI insight",
+          );
           setAiInsight(null);
         }
       })
@@ -1836,12 +1838,22 @@ const CycleDashboard: React.FC = () => {
     setAssistantSending(true);
     setAssistantError("");
 
-    apiSendAiChat(token, activeMode === "pregnant" ? "pregnancy" : activeMode === "postpartum" ? "postpartum" : "cycle", msg)
+    apiSendAiChat(
+      token,
+      activeMode === "pregnant"
+        ? "pregnancy"
+        : activeMode === "postpartum"
+          ? "postpartum"
+          : "cycle",
+      msg,
+    )
       .then(({ message }) => {
         setAssistantMessages((prev) => [...prev, `OVI: ${message}`]);
       })
       .catch((err) => {
-        setAssistantError((err as Error).message || "Failed to get OVI response");
+        setAssistantError(
+          (err as Error).message || "Failed to get OVI response",
+        );
         setAssistantMessages((prev) => [
           ...prev,
           "OVI: I’m having trouble responding right now. Please try again in a moment.",
@@ -2398,7 +2410,12 @@ const CycleDashboard: React.FC = () => {
                             setAiInsightLoading(true);
                             apiGetAiInsight(token!, "cycle")
                               .then((insight) => setAiInsight(insight))
-                              .catch((err) => setAiInsightError((err as Error).message || "Failed to load AI insight"))
+                              .catch((err) =>
+                                setAiInsightError(
+                                  (err as Error).message ||
+                                    "Failed to load AI insight",
+                                ),
+                              )
                               .finally(() => setAiInsightLoading(false));
                           }}
                         >
@@ -2410,14 +2427,17 @@ const CycleDashboard: React.FC = () => {
                         <p className="cd-ai-title">{aiInsight.title}</p>
                         <p className="cd-score-desc">{aiInsight.insight}</p>
                         <p className="cd-ai-meta">Why: {aiInsight.why}</p>
-                        <p className="cd-ai-meta">Next: {aiInsight.nextAction}</p>
+                        <p className="cd-ai-meta">
+                          Next: {aiInsight.nextAction}
+                        </p>
                         {aiInsight.model && (
                           <p className="cd-ai-meta">Model: {aiInsight.model}</p>
                         )}
                       </div>
                     ) : (
                       <p className="cd-score-desc">
-                        Your AI insight will appear here once we analyze your recent logs.
+                        Your AI insight will appear here once we analyze your
+                        recent logs.
                       </p>
                     )}
                   </div>
@@ -3584,7 +3604,9 @@ const CycleDashboard: React.FC = () => {
                       {assistantSending ? "Sending..." : "Send"}
                     </button>
                   </div>
-                  {assistantError && <p className="cd-assistant-error">{assistantError}</p>}
+                  {assistantError && (
+                    <p className="cd-assistant-error">{assistantError}</p>
+                  )}
                 </div>
               </div>
             )}
