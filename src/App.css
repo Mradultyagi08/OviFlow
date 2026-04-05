@@ -885,70 +885,61 @@ ion-tab-bar.dark {
 .petal {
   position: absolute;
   top: -140px;
-  border-radius: 65% 35% 60% 40% / 60% 45% 55% 40%;
+  background-image: url("./assets/Cherry_blossom.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
   opacity: 0;
   transform-origin: center;
-  animation: petal-fall 18s linear infinite;
+  animation: petal-fall 30s linear infinite;
+  scale: 2.5;
   will-change: transform, opacity;
 }
 
 .petal::before {
-  content: "";
-  position: absolute;
-  top: 14%;
-  left: 48%;
-  width: 1.5px;
-  height: 72%;
-  border-radius: 2px;
-  transform: rotate(8deg);
-  opacity: 0.35;
+  content: none;
 }
 
 .petal.basic {
-  background: linear-gradient(
-    160deg,
-    rgba(255, 209, 236, 0.45),
-    rgba(230, 180, 255, 0.34)
-  );
-  border: 1px solid rgba(236, 187, 255, 0.4);
-  box-shadow: 0 3px 10px rgba(189, 132, 230, 0.14);
+  filter: drop-shadow(0 3px 10px rgba(189, 132, 230, 0.18));
 }
 
 .petal.basic::before {
-  background: rgba(183, 106, 222, 0.48);
+  content: none;
 }
 
 .petal.dark {
-  background: linear-gradient(
-    160deg,
-    rgba(246, 166, 219, 0.34),
-    rgba(157, 103, 218, 0.28)
-  );
-  border: 1px solid rgba(201, 124, 236, 0.35);
-  box-shadow: 0 3px 10px rgba(140, 88, 196, 0.18);
+  filter: brightness(0.92) saturate(1.15)
+    drop-shadow(0 3px 10px rgba(140, 88, 196, 0.22));
 }
 
 .petal.dark::before {
-  background: rgba(247, 176, 224, 0.52);
+  content: none;
 }
 
 @keyframes petal-fall {
   0% {
-    transform: translate3d(0, -12vh, 0) rotate(0deg) scale(0.92);
+    transform: translate3d(0, -14vh, 0) rotate(0deg) scale(0.9);
     opacity: 0;
   }
-  7% {
+  8% {
     opacity: 1;
   }
-  45% {
-    transform: translate3d(26px, 44vh, 0) rotate(115deg) scale(1);
+  20% {
+    transform: translate3d(10px, 12vh, 0) rotate(60deg) scale(0.96);
   }
-  75% {
-    transform: translate3d(-18px, 78vh, 0) rotate(240deg) scale(1.03);
-    opacity: 0.86;
+  40% {
+    transform: translate3d(-8px, 38vh, 0) rotate(130deg) scale(1);
+  }
+  60% {
+    transform: translate3d(12px, 63vh, 0) rotate(205deg) scale(1.03);
+  }
+  80% {
+    transform: translate3d(-10px, 88vh, 0) rotate(280deg) scale(1);
+    opacity: 0.88;
   }
   100% {
-    transform: translate3d(35px, 114vh, 0) rotate(360deg) scale(0.95);
+    transform: translate3d(8px, 114vh, 0) rotate(350deg) scale(0.96);
     opacity: 0;
   }
 }
@@ -959,7 +950,7 @@ ion-tab-bar.dark {
   width: 18px;
   height: 28px;
   animation-delay: 0s;
-  animation-duration: 16s;
+  animation-duration: 23s;
 }
 
 .petal:nth-child(2) {
@@ -967,7 +958,7 @@ ion-tab-bar.dark {
   width: 16px;
   height: 24px;
   animation-delay: 1.6s;
-  animation-duration: 18s;
+  animation-duration: 25s;
 }
 
 .petal:nth-child(3) {
@@ -975,7 +966,7 @@ ion-tab-bar.dark {
   width: 20px;
   height: 30px;
   animation-delay: 0.9s;
-  animation-duration: 17s;
+  animation-duration: 24s;
 }
 
 .petal:nth-child(4) {
@@ -983,7 +974,7 @@ ion-tab-bar.dark {
   width: 15px;
   height: 23px;
   animation-delay: 2.7s;
-  animation-duration: 19s;
+  animation-duration: 27s;
 }
 
 .petal:nth-child(5) {
@@ -991,7 +982,7 @@ ion-tab-bar.dark {
   width: 19px;
   height: 27px;
   animation-delay: 1.3s;
-  animation-duration: 16.8s;
+  animation-duration: 24s;
 }
 
 .petal:nth-child(6) {
@@ -999,7 +990,7 @@ ion-tab-bar.dark {
   width: 14px;
   height: 21px;
   animation-delay: 3.1s;
-  animation-duration: 20s;
+  animation-duration: 28s;
 }
 
 .petal:nth-child(7) {
@@ -1007,7 +998,7 @@ ion-tab-bar.dark {
   width: 17px;
   height: 25px;
   animation-delay: 4.2s;
-  animation-duration: 18.5s;
+  animation-duration: 26s;
 }
 
 .petal:nth-child(8) {
@@ -1015,7 +1006,7 @@ ion-tab-bar.dark {
   width: 15px;
   height: 22px;
   animation-delay: 5.1s;
-  animation-duration: 17.4s;
+  animation-duration: 24.5s;
 }
 
 .petal:nth-child(9) {
@@ -1023,7 +1014,7 @@ ion-tab-bar.dark {
   width: 18px;
   height: 26px;
   animation-delay: 2.2s;
-  animation-duration: 18.8s;
+  animation-duration: 26.5s;
 }
 
 .petal:nth-child(10) {
@@ -1031,7 +1022,7 @@ ion-tab-bar.dark {
   width: 16px;
   height: 24px;
   animation-delay: 3.6s;
-  animation-duration: 16.6s;
+  animation-duration: 23.5s;
 }
 
 .petal:nth-child(11) {
@@ -1039,7 +1030,7 @@ ion-tab-bar.dark {
   width: 13px;
   height: 20px;
   animation-delay: 5.8s;
-  animation-duration: 19.7s;
+  animation-duration: 27.5s;
 }
 
 .petal:nth-child(12) {
@@ -1047,7 +1038,7 @@ ion-tab-bar.dark {
   width: 20px;
   height: 31px;
   animation-delay: 6.4s;
-  animation-duration: 17.1s;
+  animation-duration: 24s;
 }
 
 .petal:nth-child(13) {
@@ -1055,7 +1046,7 @@ ion-tab-bar.dark {
   width: 14px;
   height: 22px;
   animation-delay: 7.2s;
-  animation-duration: 20.2s;
+  animation-duration: 28.5s;
 }
 
 .petal:nth-child(14) {
@@ -1063,7 +1054,7 @@ ion-tab-bar.dark {
   width: 15px;
   height: 23px;
   animation-delay: 8.1s;
-  animation-duration: 18.1s;
+  animation-duration: 25.5s;
 }
 
 .petal:nth-child(15) {
@@ -1071,7 +1062,7 @@ ion-tab-bar.dark {
   width: 13px;
   height: 20px;
   animation-delay: 9.4s;
-  animation-duration: 19.4s;
+  animation-duration: 27s;
 }
 
 .petal:nth-child(16) {
@@ -1079,7 +1070,7 @@ ion-tab-bar.dark {
   width: 19px;
   height: 28px;
   animation-delay: 10.2s;
-  animation-duration: 17.2s;
+  animation-duration: 24.2s;
 }
 
 .petal:nth-child(17) {
@@ -1087,7 +1078,7 @@ ion-tab-bar.dark {
   width: 14px;
   height: 22px;
   animation-delay: 11.3s;
-  animation-duration: 20.4s;
+  animation-duration: 29s;
 }
 
 .petal:nth-child(18) {
@@ -1095,7 +1086,7 @@ ion-tab-bar.dark {
   width: 17px;
   height: 25px;
   animation-delay: 12.1s;
-  animation-duration: 18.6s;
+  animation-duration: 26s;
 }
 
 .petal:nth-child(19) {
@@ -1103,7 +1094,7 @@ ion-tab-bar.dark {
   width: 16px;
   height: 24px;
   animation-delay: 13.2s;
-  animation-duration: 16.9s;
+  animation-duration: 24s;
 }
 
 .petal:nth-child(20) {
@@ -1111,5 +1102,5 @@ ion-tab-bar.dark {
   width: 15px;
   height: 23px;
   animation-delay: 14.4s;
-  animation-duration: 19.1s;
+  animation-duration: 27s;
 }

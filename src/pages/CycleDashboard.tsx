@@ -31,6 +31,14 @@ import {
 import type { CycleLog } from "../services/api";
 import "./CycleDashboard.css";
 
+type AssistantRole = "user" | "assistant";
+
+interface AssistantMessage {
+  id: number;
+  role: AssistantRole;
+  text: string;
+}
+
 /* ─────────────────────────────────────────────────────
    Helpers
 ───────────────────────────────────────────────────── */
@@ -1467,8 +1475,14 @@ const CycleDashboard: React.FC = () => {
   const [assistantInput, setAssistantInput] = useState("");
   const [assistantSending, setAssistantSending] = useState(false);
   const [assistantError, setAssistantError] = useState("");
-  const [assistantMessages, setAssistantMessages] = useState<string[]>([
-    "Hi, I’m OVI. I can help with cycle, pregnancy and postpartum guidance.",
+  const [assistantMessages, setAssistantMessages] = useState<
+    AssistantMessage[]
+  >([
+    {
+      id: 1,
+      role: "assistant",
+      text: "Hi, I’m OVI. I can help with cycle, pregnancy and postpartum guidance.",
+    },
   ]);
 
   useEffect(() => {
@@ -1682,6 +1696,18 @@ const CycleDashboard: React.FC = () => {
     );
 
   const todayCycleLog = logs.find((log) => log.date === todayStr);
+  const assistantShortcuts = [
+    "What stands out in my recent logs?",
+    "What should I focus on today?",
+    "Any warning signs I should watch for?",
+  ];
+
+  const addAssistantMessage = (role: AssistantRole, text: string) => {
+    setAssistantMessages((prev) => [
+      ...prev,
+      { id: Date.now() + prev.length, role, text },
+    ]);
+  };
 
   /* ── Save log ── */
   const saveLog = async () => {
@@ -1832,8 +1858,7 @@ const CycleDashboard: React.FC = () => {
       return;
     }
 
-    const userLine = `You: ${msg}`;
-    setAssistantMessages((prev) => [...prev, userLine]);
+    addAssistantMessage("user", msg);
     setAssistantInput("");
     setAssistantSending(true);
     setAssistantError("");
@@ -1848,16 +1873,16 @@ const CycleDashboard: React.FC = () => {
       msg,
     )
       .then(({ message }) => {
-        setAssistantMessages((prev) => [...prev, `OVI: ${message}`]);
+        addAssistantMessage("assistant", message);
       })
       .catch((err) => {
         setAssistantError(
           (err as Error).message || "Failed to get OVI response",
         );
-        setAssistantMessages((prev) => [
-          ...prev,
-          "OVI: I’m having trouble responding right now. Please try again in a moment.",
-        ]);
+        addAssistantMessage(
+          "assistant",
+          "I’m having trouble responding right now. Please try again in a moment.",
+        );
       })
       .finally(() => {
         setAssistantSending(false);
@@ -3579,16 +3604,60 @@ const CycleDashboard: React.FC = () => {
                 />
                 <div className="cd-assistant-drawer">
                   <div className="cd-assistant-header">
-                    <h3>OVI Assistant</h3>
-                    <button onClick={() => setAssistantOpen(false)}>
+                    <div className="cd-assistant-title-wrap">
+                      <p className="cd-assistant-kicker">Groq AI</p>
+                      <h3>OVI Assistant</h3>
+                      <p className="cd-assistant-subtitle">
+                        Personalized guidance based on your recent logs.
+                      </p>
+                    </div>
+                    <button
+                      className="cd-assistant-close"
+                      onClick={() => setAssistantOpen(false)}
+                    >
                       Close
                     </button>
                   </div>
-                  <div className="cd-assistant-body">
-                    {assistantMessages.map((msg, index) => (
-                      <p key={`${msg}-${index}`}>{msg}</p>
+                  <div className="cd-assistant-shortcuts">
+                    {assistantShortcuts.map((prompt) => (
+                      <button
+                        key={prompt}
+                        className="cd-assistant-chip"
+                        onClick={() => setAssistantInput(prompt)}
+                        disabled={assistantSending}
+                      >
+                        {prompt}
+                      </button>
                     ))}
-                    {assistantSending && <p>OVI: Thinking...</p>}
+                  </div>
+                  <div className="cd-assistant-body">
+                    {assistantMessages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`cd-assistant-message ${msg.role}`}
+                      >
+                        <span className="cd-assistant-message-label">
+                          {msg.role === "user" ? "You" : "OVI"}
+                        </span>
+                        <p>{msg.text}</p>
+                      </div>
+                    ))}
+                    {assistantSending && (
+                      <div className="cd-assistant-message assistant">
+                        <span className="cd-assistant-message-label">OVI</span>
+                        <p>Thinking...</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="cd-assistant-status-row">
+                    <span>
+                      {assistantSending ? "Generating response" : "Ready"}
+                    </span>
+                    {assistantError && (
+                      <span className="cd-assistant-status-error">
+                        Connection issue
+                      </span>
+                    )}
                   </div>
                   <div className="cd-assistant-input-row">
                     <input
