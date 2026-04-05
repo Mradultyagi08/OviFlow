@@ -3403,7 +3403,10 @@ const CycleDashboard: React.FC = () => {
                             <div className="cd-history-item-header">
                               <div>
                                 <p className="cd-history-item-date">
-                                  {format(parseISO(log.date), "EEE, MMM d, yyyy")}
+                                  {format(
+                                    parseISO(log.date),
+                                    "EEE, MMM d, yyyy",
+                                  )}
                                 </p>
                                 <p className="cd-history-item-meta">
                                   {parts.join(" • ") || "No details recorded"}
