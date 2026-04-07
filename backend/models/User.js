@@ -37,14 +37,14 @@ const userSchema = new mongoose.Schema(
     pregnancy: {
       lastMenstrualPeriod: { type: String, default: "" },
       confirmDate: { type: String, default: "" },
-      type: { type: String, enum: ["confirmed", "maybe"], default: "" },
+      type: { type: String, enum: ["confirmed", "maybe", ""], default: "" },
       doctorConfirmed: { type: Boolean, default: false },
       highRisk: { type: Boolean, default: false },
       dueDate: { type: String, default: "" },
     },
     postpartum: {
       deliveryDate: { type: String, default: "" },
-      deliveryMethod: { type: String, enum: ["vaginal", "csection"], default: "" },
+      deliveryMethod: { type: String, enum: ["vaginal", "csection", ""], default: "" },
       doctorFollowUp: { type: Boolean, default: false },
     },
   },
