@@ -18,8 +18,6 @@ import { useAuth } from "../state/AuthContext";
 import {
   apiSaveCycleLog,
   apiGetCycleLogs,
-  apiGetAiInsight,
-  apiSendAiChat,
   apiPregnancySetup,
   apiSavePregnancyLog,
   apiGetPregnancyLogs,
@@ -30,14 +28,6 @@ import {
 } from "../services/api";
 import type { CycleLog } from "../services/api";
 import "./CycleDashboard.css";
-
-type AssistantRole = "user" | "assistant";
-
-interface AssistantMessage {
-  id: number;
-  role: AssistantRole;
-  text: string;
-}
 
 /* ─────────────────────────────────────────────────────
    Helpers
@@ -1408,18 +1398,6 @@ const CycleDashboard: React.FC = () => {
   const [logs, setLogs] = useState<CycleLog[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
 
-  /* ── AI ── */
-  const [aiInsight, setAiInsight] = useState<{
-    title: string;
-    insight: string;
-    why: string;
-    nextAction: string;
-    confidence: "low" | "medium" | "high";
-    model?: string;
-  } | null>(null);
-  const [aiInsightLoading, setAiInsightLoading] = useState(false);
-  const [aiInsightError, setAiInsightError] = useState("");
-
   /* ── Calendar ── */
   const [calMonth, setCalMonth] = useState(startOfToday());
 
@@ -1473,16 +1451,8 @@ const CycleDashboard: React.FC = () => {
   /* ── OVI Assistant ── */
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [assistantInput, setAssistantInput] = useState("");
-  const [assistantSending, setAssistantSending] = useState(false);
-  const [assistantError, setAssistantError] = useState("");
-  const [assistantMessages, setAssistantMessages] = useState<
-    AssistantMessage[]
-  >([
-    {
-      id: 1,
-      role: "assistant",
-      text: "Hi, I’m OVI. I can help with cycle, pregnancy and postpartum guidance.",
-    },
+  const [assistantMessages, setAssistantMessages] = useState<string[]>([
+    "Hi, I’m OVI. I can help with cycle, pregnancy and postpartum guidance.",
   ]);
 
   useEffect(() => {
@@ -1503,40 +1473,6 @@ const CycleDashboard: React.FC = () => {
       .then(({ logs: l }) => setLogs(l))
       .catch(console.error);
   }, [token]);
-
-  useEffect(() => {
-    if (!token || activeMode !== "cycle") {
-      return;
-    }
-
-    let cancelled = false;
-    setAiInsightLoading(true);
-    setAiInsightError("");
-
-    apiGetAiInsight(token, "cycle")
-      .then((insight) => {
-        if (!cancelled) {
-          setAiInsight(insight);
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setAiInsightError(
-            (err as Error).message || "Failed to load AI insight",
-          );
-          setAiInsight(null);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setAiInsightLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [token, activeMode, logs]);
 
   useEffect(() => {
     const todayLog = logs.find((log) => log.date === todayStr);
@@ -1696,18 +1632,6 @@ const CycleDashboard: React.FC = () => {
     );
 
   const todayCycleLog = logs.find((log) => log.date === todayStr);
-  const assistantShortcuts = [
-    "What stands out in my recent logs?",
-    "What should I focus on today?",
-    "Any warning signs I should watch for?",
-  ];
-
-  const addAssistantMessage = (role: AssistantRole, text: string) => {
-    setAssistantMessages((prev) => [
-      ...prev,
-      { id: Date.now() + prev.length, role, text },
-    ]);
-  };
 
   /* ── Save log ── */
   const saveLog = async () => {
@@ -1853,40 +1777,19 @@ const CycleDashboard: React.FC = () => {
     const msg = assistantInput.trim();
     if (!msg) return;
 
-    if (!token) {
-      setAssistantError("Please log in to use OVI.");
-      return;
-    }
-
-    addAssistantMessage("user", msg);
-    setAssistantInput("");
-    setAssistantSending(true);
-    setAssistantError("");
-
-    apiSendAiChat(
-      token,
+    const modeReply =
       activeMode === "pregnant"
-        ? "pregnancy"
+        ? "Pregnancy tip: stay hydrated, track contractions, and call your doctor for persistent pain."
         : activeMode === "postpartum"
-          ? "postpartum"
-          : "cycle",
-      msg,
-    )
-      .then(({ message }) => {
-        addAssistantMessage("assistant", message);
-      })
-      .catch((err) => {
-        setAssistantError(
-          (err as Error).message || "Failed to get OVI response",
-        );
-        addAssistantMessage(
-          "assistant",
-          "I’m having trouble responding right now. Please try again in a moment.",
-        );
-      })
-      .finally(() => {
-        setAssistantSending(false);
-      });
+          ? "Postpartum tip: prioritize rest, hydration, and monitor recovery symptoms daily."
+          : "Cycle tip: consistent logging improves prediction accuracy and health insights.";
+
+    setAssistantMessages((prev) => [
+      ...prev,
+      `You: ${msg}`,
+      `OVI: ${modeReply}`,
+    ]);
+    setAssistantInput("");
   };
 
   const modeClass =
@@ -2410,61 +2313,12 @@ const CycleDashboard: React.FC = () => {
 
                   {/* ── AI Insight ── */}
                   <div className="cd-card cd-insight-card">
-                    <div className="cd-score-header">
-                      <h2
-                        className="cd-card-title"
-                        style={{ margin: 0, color: "var(--cd-accent)" }}
-                      >
-                        AI Insight
-                      </h2>
-                      {aiInsight?.confidence && (
-                        <span className="cd-ai-confidence">
-                          {aiInsight.confidence}
-                        </span>
-                      )}
-                    </div>
-                    {aiInsightLoading ? (
-                      <p className="cd-score-desc">Generating insight...</p>
-                    ) : aiInsightError ? (
-                      <div className="cd-ai-block">
-                        <p className="cd-score-desc">{aiInsightError}</p>
-                        <button
-                          className="cd-secondary-btn"
-                          onClick={() => {
-                            setAiInsightError("");
-                            setAiInsightLoading(true);
-                            apiGetAiInsight(token!, "cycle")
-                              .then((insight) => setAiInsight(insight))
-                              .catch((err) =>
-                                setAiInsightError(
-                                  (err as Error).message ||
-                                    "Failed to load AI insight",
-                                ),
-                              )
-                              .finally(() => setAiInsightLoading(false));
-                          }}
-                        >
-                          Retry
-                        </button>
-                      </div>
-                    ) : aiInsight ? (
-                      <div className="cd-ai-block">
-                        <p className="cd-ai-title">{aiInsight.title}</p>
-                        <p className="cd-score-desc">{aiInsight.insight}</p>
-                        <p className="cd-ai-meta">Why: {aiInsight.why}</p>
-                        <p className="cd-ai-meta">
-                          Next: {aiInsight.nextAction}
-                        </p>
-                        {aiInsight.model && (
-                          <p className="cd-ai-meta">Model: {aiInsight.model}</p>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="cd-score-desc">
-                        Your AI insight will appear here once we analyze your
-                        recent logs.
-                      </p>
-                    )}
+                    <h2 className="cd-card-title">AI Insight</h2>
+                    <p className="cd-score-desc">
+                      {phase === "Ovulation"
+                        ? "You’re in a high-fertility window. Prioritize hydration and balanced meals."
+                        : "Your cycle is trending stable. Continue daily logs for better prediction accuracy."}
+                    </p>
                   </div>
 
                   {/* ── Stay Hydrated ── */}
@@ -3549,10 +3403,7 @@ const CycleDashboard: React.FC = () => {
                             <div className="cd-history-item-header">
                               <div>
                                 <p className="cd-history-item-date">
-                                  {format(
-                                    parseISO(log.date),
-                                    "EEE, MMM d, yyyy",
-                                  )}
+                                  {format(parseISO(log.date), "EEE, MMM d, yyyy")}
                                 </p>
                                 <p className="cd-history-item-meta">
                                   {parts.join(" • ") || "No details recorded"}
@@ -3604,78 +3455,24 @@ const CycleDashboard: React.FC = () => {
                 />
                 <div className="cd-assistant-drawer">
                   <div className="cd-assistant-header">
-                    <div className="cd-assistant-title-wrap">
-                      <p className="cd-assistant-kicker">Groq AI</p>
-                      <h3>OVI Assistant</h3>
-                      <p className="cd-assistant-subtitle">
-                        Personalized guidance based on your recent logs.
-                      </p>
-                    </div>
-                    <button
-                      className="cd-assistant-close"
-                      onClick={() => setAssistantOpen(false)}
-                    >
+                    <h3>OVI Assistant</h3>
+                    <button onClick={() => setAssistantOpen(false)}>
                       Close
                     </button>
                   </div>
-                  <div className="cd-assistant-shortcuts">
-                    {assistantShortcuts.map((prompt) => (
-                      <button
-                        key={prompt}
-                        className="cd-assistant-chip"
-                        onClick={() => setAssistantInput(prompt)}
-                        disabled={assistantSending}
-                      >
-                        {prompt}
-                      </button>
-                    ))}
-                  </div>
                   <div className="cd-assistant-body">
-                    {assistantMessages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`cd-assistant-message ${msg.role}`}
-                      >
-                        <span className="cd-assistant-message-label">
-                          {msg.role === "user" ? "You" : "OVI"}
-                        </span>
-                        <p>{msg.text}</p>
-                      </div>
+                    {assistantMessages.map((msg, index) => (
+                      <p key={`${msg}-${index}`}>{msg}</p>
                     ))}
-                    {assistantSending && (
-                      <div className="cd-assistant-message assistant">
-                        <span className="cd-assistant-message-label">OVI</span>
-                        <p>Thinking...</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="cd-assistant-status-row">
-                    <span>
-                      {assistantSending ? "Generating response" : "Ready"}
-                    </span>
-                    {assistantError && (
-                      <span className="cd-assistant-status-error">
-                        Connection issue
-                      </span>
-                    )}
                   </div>
                   <div className="cd-assistant-input-row">
                     <input
                       value={assistantInput}
                       onChange={(e) => setAssistantInput(e.target.value)}
                       placeholder="Ask OVI..."
-                      disabled={assistantSending}
                     />
-                    <button
-                      onClick={handleSendAssistantMessage}
-                      disabled={assistantSending}
-                    >
-                      {assistantSending ? "Sending..." : "Send"}
-                    </button>
+                    <button onClick={handleSendAssistantMessage}>Send</button>
                   </div>
-                  {assistantError && (
-                    <p className="cd-assistant-error">{assistantError}</p>
-                  )}
                 </div>
               </div>
             )}
