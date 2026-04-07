@@ -18,6 +18,8 @@ import { useAuth } from "../state/AuthContext";
 import {
   apiSaveCycleLog,
   apiGetCycleLogs,
+  apiGetAiInsight,
+  apiSendAiChat,
   apiPregnancySetup,
   apiSavePregnancyLog,
   apiGetPregnancyLogs,
@@ -26,7 +28,7 @@ import {
   apiGetPostpartumLogs,
   apiChangeUserState,
 } from "../services/api";
-import type { CycleLog } from "../services/api";
+import type { AiInsightResponse, CycleLog } from "../services/api";
 import "./CycleDashboard.css";
 
 /* ─────────────────────────────────────────────────────
@@ -1454,6 +1456,12 @@ const CycleDashboard: React.FC = () => {
   const [assistantMessages, setAssistantMessages] = useState<string[]>([
     "Hi, I’m OVI. I can help with cycle, pregnancy and postpartum guidance.",
   ]);
+  const [assistantLoading, setAssistantLoading] = useState(false);
+
+  /* ── AI Insight ── */
+  const [aiInsight, setAiInsight] = useState<AiInsightResponse | null>(null);
+  const [aiInsightLoading, setAiInsightLoading] = useState(false);
+  const [aiInsightError, setAiInsightError] = useState("");
 
   useEffect(() => {
     if (appMode === "pregnancy") {
@@ -1484,6 +1492,43 @@ const CycleDashboard: React.FC = () => {
     setSymptoms(todayLog.symptoms);
     setNotes(todayLog.notes);
   }, [logs, todayStr]);
+
+  useEffect(() => {
+    if (!token || activeMode !== "cycle") {
+      setAiInsight(null);
+      setAiInsightError("");
+      return;
+    }
+
+    let cancelled = false;
+
+    setAiInsightLoading(true);
+    setAiInsightError("");
+
+    apiGetAiInsight(token, "cycle")
+      .then((insight) => {
+        if (!cancelled) {
+          setAiInsight(insight);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setAiInsight(null);
+          setAiInsightError(
+            err instanceof Error ? err.message : "Failed to load AI insight",
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setAiInsightLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, activeMode, logs]);
 
   /* Load pregnancy logs */
   useEffect(() => {
@@ -1773,23 +1818,38 @@ const CycleDashboard: React.FC = () => {
     setPendingMode(m);
   };
 
-  const handleSendAssistantMessage = () => {
+  const handleSendAssistantMessage = async () => {
     const msg = assistantInput.trim();
     if (!msg) return;
-
-    const modeReply =
-      activeMode === "pregnant"
-        ? "Pregnancy tip: stay hydrated, track contractions, and call your doctor for persistent pain."
-        : activeMode === "postpartum"
-          ? "Postpartum tip: prioritize rest, hydration, and monitor recovery symptoms daily."
-          : "Cycle tip: consistent logging improves prediction accuracy and health insights.";
-
-    setAssistantMessages((prev) => [
-      ...prev,
-      `You: ${msg}`,
-      `OVI: ${modeReply}`,
-    ]);
+    setAssistantMessages((prev) => [...prev, `You: ${msg}`]);
     setAssistantInput("");
+
+    if (!token) {
+      setAssistantMessages((prev) => [
+        ...prev,
+        "OVI: Sign in again so I can connect to your health data.",
+      ]);
+      return;
+    }
+
+    setAssistantLoading(true);
+    try {
+      const mode =
+        activeMode === "pregnant"
+          ? "pregnancy"
+          : activeMode === "postpartum"
+            ? "postpartum"
+            : "cycle";
+      const response = await apiSendAiChat(token, mode, msg);
+      setAssistantMessages((prev) => [...prev, `OVI: ${response.message}`]);
+    } catch (err) {
+      setAssistantMessages((prev) => [
+        ...prev,
+        `OVI: ${err instanceof Error ? err.message : "I couldn't load a response right now."}`,
+      ]);
+    } finally {
+      setAssistantLoading(false);
+    }
   };
 
   const modeClass =
@@ -2313,12 +2373,31 @@ const CycleDashboard: React.FC = () => {
 
                   {/* ── AI Insight ── */}
                   <div className="cd-card cd-insight-card">
-                    <h2 className="cd-card-title">AI Insight</h2>
-                    <p className="cd-score-desc">
-                      {phase === "Ovulation"
-                        ? "You’re in a high-fertility window. Prioritize hydration and balanced meals."
-                        : "Your cycle is trending stable. Continue daily logs for better prediction accuracy."}
-                    </p>
+                    <h2 className="cd-card-title">
+                      {aiInsight?.title || "AI Insight"}
+                    </h2>
+                    {aiInsightLoading ? (
+                      <p className="cd-score-desc">Generating insight…</p>
+                    ) : aiInsightError ? (
+                      <p className="cd-score-desc">{aiInsightError}</p>
+                    ) : aiInsight ? (
+                      <>
+                        <p className="cd-score-desc">{aiInsight.insight}</p>
+                        <p className="cd-score-desc">
+                          <strong>Why:</strong> {aiInsight.why}
+                        </p>
+                        <p className="cd-score-desc">
+                          <strong>Next:</strong> {aiInsight.nextAction}
+                        </p>
+                        <p className="cd-score-desc">
+                          <strong>Confidence:</strong> {aiInsight.confidence}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="cd-score-desc">
+                        Your AI insight will appear here after your logs load.
+                      </p>
+                    )}
                   </div>
 
                   {/* ── Stay Hydrated ── */}
@@ -3403,7 +3482,10 @@ const CycleDashboard: React.FC = () => {
                             <div className="cd-history-item-header">
                               <div>
                                 <p className="cd-history-item-date">
-                                  {format(parseISO(log.date), "EEE, MMM d, yyyy")}
+                                  {format(
+                                    parseISO(log.date),
+                                    "EEE, MMM d, yyyy",
+                                  )}
                                 </p>
                                 <p className="cd-history-item-meta">
                                   {parts.join(" • ") || "No details recorded"}
@@ -3470,8 +3552,16 @@ const CycleDashboard: React.FC = () => {
                       value={assistantInput}
                       onChange={(e) => setAssistantInput(e.target.value)}
                       placeholder="Ask OVI..."
+                      disabled={assistantLoading}
                     />
-                    <button onClick={handleSendAssistantMessage}>Send</button>
+                    <button
+                      onClick={() => {
+                        handleSendAssistantMessage().catch(console.error);
+                      }}
+                      disabled={assistantLoading}
+                    >
+                      {assistantLoading ? "Sending…" : "Send"}
+                    </button>
                   </div>
                 </div>
               </div>
