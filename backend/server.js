@@ -21,6 +21,7 @@ import aiRoutes from "./routes/ai.js";
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/oviflow";
 
 // ─── Middleware ─────────────────────────────────────────────────────
 app.use(cors());
@@ -37,8 +38,14 @@ app.get("/api/health", (_req, res) => {
 });
 
 // ─── Connect to MongoDB & Start Server ──────────────────────────────
+if (!process.env.MONGO_URI) {
+  console.warn(
+    "MONGO_URI is not set. Falling back to local MongoDB: mongodb://127.0.0.1:27017/oviflow",
+  );
+}
+
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
   .then(() => {
     console.log("✅  MongoDB connected");
     app.listen(PORT, () => {

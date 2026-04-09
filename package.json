@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:all": "npx concurrently -n frontend,backend -c cyan,magenta \"npm run dev\" \"npm run dev --prefix backend\"",
+    "dev:all": "concurrently -n frontend,backend -c cyan,magenta \"npm run dev\" \"npm run dev --prefix backend\"",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run --silent",

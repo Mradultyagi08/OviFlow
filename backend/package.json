@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "db:ping": "mongosh --quiet --eval \"db.adminCommand({ ping: 1 })\"",
+    "db:name": "mongosh --quiet --eval \"db.getSiblingDB('oviflow').stats().db\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
