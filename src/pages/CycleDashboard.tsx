@@ -1305,9 +1305,7 @@ const PostpartumSetupModal: React.FC<PostpartumSetupModalProps> = ({
           className="cd-confirm-body"
           style={{ marginTop: 16, fontSize: 13 }}
         >
-          If you have any concerns,
-          <br />
-          reach out to a gynecologist.
+          If you have any concerns, reach out to a gynecologist.
         </p>
 
         <div
@@ -1354,6 +1352,10 @@ const CycleDashboard: React.FC = () => {
   const { theme } = useContext(ThemeContext);
   const { appMode, updateAppMode } = useContext(SettingsContext);
   const isDark = theme === "dark";
+
+  const prefs = (user as any)?.preferences;
+  const waterGoal: number = prefs?.waterGoal ?? 8;
+  const aiEnabled: boolean = prefs?.aiInsightsEnabled !== false;
 
   const cp = user?.cycleProfile;
   const lastPeriodDate =
@@ -1499,18 +1501,25 @@ const CycleDashboard: React.FC = () => {
   }, [logs, todayStr]);
 
   useEffect(() => {
-    if (!token || activeMode !== "cycle") {
+    if (!token || !aiEnabled) {
       setAiInsight(null);
       setAiInsightError("");
       return;
     }
+
+    const modeMap: Record<string, "cycle" | "pregnancy" | "postpartum"> = {
+      cycle: "cycle",
+      pregnant: "pregnancy",
+      postpartum: "postpartum",
+    };
+    const apiMode = modeMap[activeMode] || "cycle";
 
     let cancelled = false;
 
     setAiInsightLoading(true);
     setAiInsightError("");
 
-    apiGetAiInsight(token, "cycle")
+    apiGetAiInsight(token, apiMode)
       .then((insight) => {
         if (!cancelled) {
           setAiInsight(insight);
@@ -1533,7 +1542,7 @@ const CycleDashboard: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [token, activeMode, logs]);
+  }, [token, activeMode, logs, pregnancyLogs, postpartumLogs, aiEnabled]);
 
   /* Load pregnancy logs */
   useEffect(() => {
@@ -1919,15 +1928,21 @@ const CycleDashboard: React.FC = () => {
                   return;
                 }
                 if (data.type === "mishappening") {
-                  // Compassionate handling — return to cycle mode
+                  // Compassionate handling — transition to postpartum mode
                   if (token) {
-                    apiChangeUserState(token, "cycle").catch((err) =>
-                      console.error("Failed to change state:", err),
+                    apiPostpartumSetup(token, {
+                      deliveryDate: format(startOfToday(), "yyyy-MM-dd"),
+                      deliveryMethod: "vaginal",
+                      doctorFollowUp: false,
+                    }).catch((err) =>
+                      console.error("Failed to save postpartum setup:", err),
                     );
                   }
+                  setDeliveryDate(format(startOfToday(), "yyyy-MM-dd"));
+                  setPostpartumSetupDone(true);
+                  setActiveMode("postpartum");
+                  updateAppMode("postpartum");
                   setPendingMode(null);
-                  setActiveMode("cycle");
-                  updateAppMode("regular");
                   return;
                 }
                 // Normal postpartum transition — save delivery data
@@ -2227,11 +2242,7 @@ const CycleDashboard: React.FC = () => {
                   {/* ── QUICK LOG ── */}
                   <div className="cd-card">
                     <h2 className="cd-card-title">
-                      {activeMode === "pregnant" 
-                       ? "Pregnancy Log" 
-                       : activeMode === "postpartum" 
-                         ? "Postpartum Log" 
-                         : "Log Today's Cycle"}
+                      Log Today&apos;s Cycle
                     </h2>
 
                     {activeMode === "cycle" && (
@@ -2264,27 +2275,6 @@ const CycleDashboard: React.FC = () => {
                       </div>
                     )}
                     
-                    {activeMode === "pregnant" && (
-                      <div className="cd-log-row">
-                        <span className="cd-log-label">Water intake (glasses)</span>
-                        <div className="cd-stepper">
-                          <button onClick={() => setWaterGlasses(v => Math.max(0, v - 1))}>-</button>
-                          <span>{waterGlasses}</span>
-                          <button onClick={() => setWaterGlasses(v => v + 1)}>+</button>
-                        </div>
-                      </div>
-                    )}
-
-                    {activeMode === "postpartum" && (
-                      <div className="cd-log-row">
-                        <span className="cd-log-label">Baby Feeds</span>
-                        <div className="cd-stepper">
-                          <button onClick={() => setBabyFeedCount(v => Math.max(0, v - 1))}>-</button>
-                          <span>{babyFeedCount}</span>
-                          <button onClick={() => setBabyFeedCount(v => v + 1)}>+</button>
-                        </div>
-                      </div>
-                    )}
                     <p className="cd-log-section-label">Mood</p>
                     <div className="cd-mood-group">
                       {(
@@ -2318,17 +2308,8 @@ const CycleDashboard: React.FC = () => {
                     </div>
                     <p className="cd-log-section-label">Symptoms</p>
                     <div className="cd-symptom-group">
-                      {(activeMode === "pregnant" 
-                        ? PREG_SYMPTOM_LIST.map(s => ({ label: s, Icon: IconAlertTriangle, color: "#f59e0b" }))
-                        : activeMode === "postpartum"
-                          ? POSTPARTUM_SYMPTOM_LIST.map(s => ({ label: s, Icon: IconAlertTriangle, color: "#8b5cf6" }))
-                          : SYMPTOM_LIST
-                      ).map(({ label, Icon, color }) => {
-                        const isSelected = activeMode === "pregnant" 
-                          ? pregSymptoms.includes(label)
-                          : activeMode === "postpartum"
-                            ? ppSymptoms.includes(label)
-                            : symptoms.includes(label);
+                      {SYMPTOM_LIST.map(({ label, Icon, color }) => {
+                        const isSelected = symptoms.includes(label);
                         
                         return (
                           <button
@@ -2340,9 +2321,7 @@ const CycleDashboard: React.FC = () => {
                               } as React.CSSProperties
                             }
                             onClick={() => {
-                              if (activeMode === "pregnant") togglePregSymptom(label);
-                              else if (activeMode === "postpartum") togglePPSymptom(label);
-                              else toggleSymptom(label);
+                              toggleSymptom(label);
                             }}
                           >
                             <span className="cd-chip-icon">
@@ -2474,7 +2453,7 @@ const CycleDashboard: React.FC = () => {
                       Stay Hydrated
                     </h2>
                     <div className="cd-water-grid">
-                      {Array.from({ length: 8 }).map((_, i) => (
+                      {Array.from({ length: waterGoal }).map((_, i) => (
                         <button
                           key={i}
                           className={`cd-water-glass${i < cycleWaterGlasses ? " filled" : ""}`}
@@ -2490,12 +2469,12 @@ const CycleDashboard: React.FC = () => {
                       ))}
                     </div>
                     <p className="cd-score-desc">
-                      {cycleWaterGlasses >= 8 ? (
+                      {cycleWaterGlasses >= waterGoal ? (
                         <span className="cd-goal-met">
-                          <IconCheckCircle /> 8 glasses done — great hydration!
+                          <IconCheckCircle /> {waterGoal} glasses done — great hydration!
                         </span>
                       ) : (
-                        `${cycleWaterGlasses}/8 glasses — hydration eases cramps and bloating`
+                        `${cycleWaterGlasses}/${waterGoal} glasses — hydration eases cramps and bloating`
                       )}
                     </p>
                   </div>
@@ -2819,7 +2798,7 @@ const CycleDashboard: React.FC = () => {
                           <IconCheckCircle /> Great hydration today!
                         </span>
                       ) : (
-                        `${waterGlasses}/8 glasses logged`
+                        `${waterGlasses}/${waterGoal} glasses logged`
                       )}
                     </p>
                   </div>
@@ -2982,6 +2961,35 @@ const CycleDashboard: React.FC = () => {
                         </label>
                       ))}
                     </div>
+                  </div>
+
+                  {/* ── AI Insight ── */}
+                  <div className="cd-card cd-insight-card" style={{ gridColumn: "1 / -1" }}>
+                    <h2 className="cd-card-title">
+                      {aiInsight?.title || "AI Insight"}
+                    </h2>
+                    {aiInsightLoading ? (
+                      <p className="cd-score-desc">Generating insight…</p>
+                    ) : aiInsightError ? (
+                      <p className="cd-score-desc">{aiInsightError}</p>
+                    ) : aiInsight ? (
+                      <>
+                        <p className="cd-score-desc">{aiInsight.insight}</p>
+                        <p className="cd-score-desc">
+                          <strong>Why:</strong> {aiInsight.why}
+                        </p>
+                        <p className="cd-score-desc">
+                          <strong>Next:</strong> {aiInsight.nextAction}
+                        </p>
+                        <p className="cd-score-desc">
+                          <strong>Confidence:</strong> {aiInsight.confidence}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="cd-score-desc">
+                        Your AI insight will appear here after your logs load.
+                      </p>
+                    )}
                   </div>
 
                   {/* ── Risk Alert ── */}
@@ -3469,6 +3477,35 @@ const CycleDashboard: React.FC = () => {
                         </label>
                       ))}
                     </div>
+                  </div>
+
+                  {/* ── AI Insight ── */}
+                  <div className="cd-card cd-insight-card">
+                    <h2 className="cd-card-title">
+                      {aiInsight?.title || "AI Insight"}
+                    </h2>
+                    {aiInsightLoading ? (
+                      <p className="cd-score-desc">Generating insight…</p>
+                    ) : aiInsightError ? (
+                      <p className="cd-score-desc">{aiInsightError}</p>
+                    ) : aiInsight ? (
+                      <>
+                        <p className="cd-score-desc">{aiInsight.insight}</p>
+                        <p className="cd-score-desc">
+                          <strong>Why:</strong> {aiInsight.why}
+                        </p>
+                        <p className="cd-score-desc">
+                          <strong>Next:</strong> {aiInsight.nextAction}
+                        </p>
+                        <p className="cd-score-desc">
+                          <strong>Confidence:</strong> {aiInsight.confidence}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="cd-score-desc">
+                        Your AI insight will appear here after your logs load.
+                      </p>
+                    )}
                   </div>
 
                   {/* ── Warning Signs ── */}

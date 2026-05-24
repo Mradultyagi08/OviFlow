@@ -61,7 +61,7 @@ const pregnancyLogSchema = new mongoose.Schema(
 );
 
 // Compound index for user and date lookups
-pregnancyLogSchema.index({ userId: 1, date: -1 });
+pregnancyLogSchema.index({ userId: 1, date: -1 }, { unique: true });
 
 const PregnancyLog = mongoose.model("PregnancyLog", pregnancyLogSchema);
 export default PregnancyLog;

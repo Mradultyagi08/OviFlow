@@ -12,6 +12,7 @@ import { addDays, differenceInDays, startOfDay, startOfToday } from "date-fns";
 
 import {
   getLastStartDate,
+  getDayOfCycle,
 } from "../state/CalculationLogics";
 import { CyclesContext, SettingsContext, ThemeContext } from "../state/Context";
 import { Cycle } from "../data/ICycle";

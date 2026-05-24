@@ -47,6 +47,18 @@ const userSchema = new mongoose.Schema(
       deliveryMethod: { type: String, enum: ["", "vaginal", "csection"], default: "" },
       doctorFollowUp: { type: Boolean, default: false },
     },
+    preferences: {
+      theme: { type: String, enum: ["basic", "dark"], default: "basic" },
+      accentColor: { type: String, default: "pink" },
+      waterGoal: { type: Number, default: 8 },
+      temperatureUnit: { type: String, enum: ["C", "F"], default: "C" },
+      defaultSymptoms: { type: [String], default: [] },
+      aiInsightsEnabled: { type: Boolean, default: true },
+      lutealPhaseLength: { type: Number, default: 14 },
+      ovulationReminder: { type: Number, default: 0 },
+      appLockEnabled: { type: Boolean, default: false },
+      appLockPin: { type: String, default: "" },
+    },
   },
   { timestamps: true },
 );

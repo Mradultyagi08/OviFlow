@@ -5,6 +5,7 @@ import CycleLog from "../models/CycleLog.js";
 import PregnancyLog from "../models/PregnancyLog.js";
 import PostpartumLog from "../models/PostpartumLog.js";
 import { getCyclesHistoryFromDates, getPredictions } from "../utils/calculations.js";
+import { isValidDate, sanitizeString } from "../utils/validate.js";
 
 const router = express.Router();
 
@@ -85,14 +86,30 @@ router.get("/profile", auth, async (req, res) => {
   }
 });
 
+// ─── PATCH /api/cycle/profile ──────────────────────────────────────
+router.patch("/profile", auth, async (req, res) => {
+  try {
+    const updates = {};
+    if (req.body.cycleLength) updates["cycleProfile.cycleLength"] = Math.min(45, Math.max(20, req.body.cycleLength));
+    if (req.body.periodLength) updates["cycleProfile.periodLength"] = Math.min(10, Math.max(2, req.body.periodLength));
+    if (Object.keys(updates).length === 0) return res.status(400).json({ message: "Nothing to update" });
+
+    const user = await User.findByIdAndUpdate(req.user._id, { $set: updates }, { new: true }).select("cycleProfile");
+    res.json({ cycleProfile: user.cycleProfile });
+  } catch (err) {
+    console.error("Patch cycle profile error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // ─── POST /api/cycle/log ───────────────────────────────────────────
 // Save (or upsert) today's cycle log
 router.post("/log", auth, async (req, res) => {
   try {
     const { date, isPeriod, flow, mood, symptoms, notes } = req.body;
 
-    if (!date) {
-      return res.status(400).json({ message: "Date is required" });
+    if (!date || !isValidDate(date)) {
+      return res.status(400).json({ message: "Valid date is required" });
     }
 
     const log = await CycleLog.findOneAndUpdate(
@@ -367,6 +384,46 @@ router.put("/state", auth, async (req, res) => {
   } catch (err) {
     console.error("State change error:", err);
     res.status(500).json({ message: "Server error changing state" });
+  }
+});
+
+// ─── GET /api/cycle/export ─────────────────────────────────────────
+router.get("/export", auth, async (req, res) => {
+  try {
+    const [logs, pregnancyLogs, postpartumLogs] = await Promise.all([
+      CycleLog.find({ userId: req.user._id }).sort({ date: -1 }),
+      PregnancyLog.find({ userId: req.user._id }).sort({ date: -1 }),
+      PostpartumLog.find({ userId: req.user._id }).sort({ date: -1 }),
+    ]);
+    res.json({ logs, pregnancyLogs, postpartumLogs });
+  } catch (err) {
+    console.error("Export data error:", err);
+    res.status(500).json({ message: "Server error exporting data" });
+  }
+});
+
+// ─── DELETE /api/cycle/reset ───────────────────────────────────────
+// Delete all user logs and reset profile
+router.delete("/reset", auth, async (req, res) => {
+  try {
+    await Promise.all([
+      CycleLog.deleteMany({ userId: req.user._id }),
+      PregnancyLog.deleteMany({ userId: req.user._id }),
+      PostpartumLog.deleteMany({ userId: req.user._id }),
+      User.findByIdAndUpdate(req.user._id, {
+        $set: {
+          userState: "cycle",
+          cycleProfile: { lastPeriodDate: "", cycleLength: 28, periodLength: 5 },
+          pregnancy: {},
+          postpartum: {},
+          isOnboarded: false,
+        },
+      }),
+    ]);
+    res.json({ message: "All data reset successfully" });
+  } catch (err) {
+    console.error("Reset data error:", err);
+    res.status(500).json({ message: "Server error resetting data" });
   }
 });
 

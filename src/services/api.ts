@@ -1,4 +1,25 @@
-const API_BASE = "http://localhost:5001/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
+
+/* ── Toast helper ── */
+let toastTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function showToast(message: string, type: "error" | "success" = "error") {
+  let container = document.getElementById("app-toast");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "app-toast";
+    container.style.cssText =
+      "position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99999;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;color:#fff;pointer-events:none;opacity:0;transition:opacity 0.3s;max-width:90vw;text-align:center;";
+    document.body.appendChild(container);
+  }
+  container.textContent = message;
+  container.style.background = type === "error" ? "#ef4444" : "#22c55e";
+  container.style.opacity = "1";
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    container!.style.opacity = "0";
+  }, 4000);
+}
 
 interface ApiOptions {
   method?: string;
@@ -16,11 +37,17 @@ async function request<T>(endpoint: string, opts: ApiOptions = {}): Promise<T> {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${endpoint}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    showToast("Network error — check your connection");
+    throw new Error("Network error");
+  }
 
   const data: Record<string, unknown> = (await res.json()) as Record<
     string,
@@ -28,9 +55,9 @@ async function request<T>(endpoint: string, opts: ApiOptions = {}): Promise<T> {
   >;
 
   if (!res.ok) {
-    throw new Error(
-      (data.message as string | undefined) || "Something went wrong",
-    );
+    const msg = (data.message as string | undefined) || "Something went wrong";
+    showToast(msg);
+    throw new Error(msg);
   }
 
   return data as unknown as T;
@@ -51,6 +78,7 @@ export interface UserProfile {
   };
   pregnancy: Record<string, unknown>;
   postpartum: Record<string, unknown>;
+  preferences?: Record<string, unknown>;
 }
 
 export interface AuthResponse {
@@ -99,6 +127,17 @@ export function apiCycleSetup(
 ): Promise<{ user: UserProfile }> {
   return request<{ user: UserProfile }>("/cycle/setup", {
     method: "PUT",
+    body: data,
+    token,
+  });
+}
+
+export function apiPatchCycleProfile(
+  token: string,
+  data: { cycleLength?: number; periodLength?: number },
+): Promise<{ cycleProfile: { cycleLength: number; periodLength: number } }> {
+  return request<{ cycleProfile: { cycleLength: number; periodLength: number } }>("/cycle/profile", {
+    method: "PATCH",
     body: data,
     token,
   });
@@ -370,6 +409,68 @@ export function apiChangeUserState(
   return request<{ user: UserProfile }>("/cycle/state", {
     method: "PUT",
     body: { newState },
+    token,
+  });
+}
+
+export function apiResetAllData(
+  token: string,
+): Promise<{ message: string }> {
+  return request<{ message: string }>("/cycle/reset", {
+    method: "DELETE",
+    token,
+  });
+}
+
+/* ── Settings / Account ───────────────────────────────────────────── */
+
+export function apiChangeName(
+  token: string,
+  name: string,
+): Promise<{ user: UserProfile }> {
+  return request<{ user: UserProfile }>("/auth/name", {
+    method: "PUT",
+    body: { name },
+    token,
+  });
+}
+
+export function apiChangePassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string,
+): Promise<{ message: string }> {
+  return request<{ message: string }>("/auth/password", {
+    method: "PUT",
+    body: { currentPassword, newPassword },
+    token,
+  });
+}
+
+export function apiUpdatePreferences(
+  token: string,
+  prefs: Record<string, unknown>,
+): Promise<{ user: UserProfile }> {
+  return request<{ user: UserProfile }>("/auth/preferences", {
+    method: "PUT",
+    body: prefs,
+    token,
+  });
+}
+
+export function apiDeleteAccount(
+  token: string,
+): Promise<{ message: string }> {
+  return request<{ message: string }>("/auth/account", {
+    method: "DELETE",
+    token,
+  });
+}
+
+export function apiExportData(
+  token: string,
+): Promise<{ logs: CycleLog[]; pregnancyLogs: unknown[]; postpartumLogs: unknown[] }> {
+  return request<{ logs: CycleLog[]; pregnancyLogs: unknown[]; postpartumLogs: unknown[] }>("/cycle/export", {
     token,
   });
 }
