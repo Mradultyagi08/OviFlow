@@ -31,6 +31,9 @@ import {
 import type { AiInsightResponse, CycleLog } from "../services/api";
 import PregnancyHistory from "../components/PregnancyHistory";
 import PostpartumHistory from "../components/PostpartumHistory";
+import AiInsightCard from "../components/AiInsightCard";
+import AiPanel from "../components/AiPanel";
+import DoctorAlertCard from "../components/DoctorAlertCard";
 import "./CycleDashboard.css";
 
 /* ─────────────────────────────────────────────────────
@@ -1469,6 +1472,21 @@ const CycleDashboard: React.FC = () => {
   const [aiInsight, setAiInsight] = useState<AiInsightResponse | null>(null);
   const [aiInsightLoading, setAiInsightLoading] = useState(false);
   const [aiInsightError, setAiInsightError] = useState("");
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+
+  const refreshAiInsight = () => {
+    if (!token || !aiEnabled) return;
+    const modeMap: Record<string, "cycle" | "pregnancy" | "postpartum"> = {
+      cycle: "cycle", pregnant: "pregnancy", postpartum: "postpartum",
+    };
+    const apiMode = modeMap[activeMode] || "cycle";
+    setAiInsightLoading(true);
+    setAiInsightError("");
+    apiGetAiInsight(token, apiMode)
+      .then((insight) => setAiInsight(insight))
+      .catch((err) => { setAiInsight(null); setAiInsightError(err instanceof Error ? err.message : "Failed to load AI insight"); })
+      .finally(() => setAiInsightLoading(false));
+  };
 
   useEffect(() => {
     if (appMode === "pregnancy") {
@@ -2208,32 +2226,14 @@ const CycleDashboard: React.FC = () => {
                   </div>
 
                   {/* ── When to See a Doctor ── */}
-                  <div className="cd-card cd-warning-soft">
-                    <h2 className="cd-card-title">
-                      <span className="cd-title-icon">
-                        <IconAlertTriangle />
-                      </span>
-                      When to See a Doctor
-                    </h2>
-                    <div className="cd-alert-grid">
-                      {[
-                        "Cycles shorter than 21 days",
-                        "Cycles longer than 35 days",
-                        "Bleeding lasting over 7 days",
-                        "Severe pain affecting daily life",
-                        "Spotting between periods",
-                        "Sudden change in cycle pattern",
-                      ].map((item) => (
-                        <div
-                          key={item}
-                          className="cd-alert-item"
-                        >
-                          <span className="cd-alert-dot" />
-                          {item}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <DoctorAlertCard
+                    mode="cycle"
+                    logs={logs}
+                    doctorNumber={(user as any)?.preferences?.doctorNumber}
+                    doctorMessage={(user as any)?.preferences?.doctorMessage}
+                    userName={user?.name}
+                    onAskOvi={(q) => { setAssistantMessages((prev) => [...prev, q]); setAssistantOpen(true); }}
+                  />
                 </div>
                 {/* end cd-col-left */}
 
@@ -2416,33 +2416,13 @@ const CycleDashboard: React.FC = () => {
                   </div>
 
                   {/* ── AI Insight ── */}
-                  <div className="cd-card cd-insight-card">
-                    <h2 className="cd-card-title">
-                      {aiInsight?.title || "AI Insight"}
-                    </h2>
-                    {aiInsightLoading ? (
-                      <p className="cd-score-desc">Generating insight…</p>
-                    ) : aiInsightError ? (
-                      <p className="cd-score-desc">{aiInsightError}</p>
-                    ) : aiInsight ? (
-                      <>
-                        <p className="cd-score-desc">{aiInsight.insight}</p>
-                        <p className="cd-score-desc">
-                          <strong>Why:</strong> {aiInsight.why}
-                        </p>
-                        <p className="cd-score-desc">
-                          <strong>Next:</strong> {aiInsight.nextAction}
-                        </p>
-                        <p className="cd-score-desc">
-                          <strong>Confidence:</strong> {aiInsight.confidence}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="cd-score-desc">
-                        Your AI insight will appear here after your logs load.
-                      </p>
-                    )}
-                  </div>
+                  <AiInsightCard
+                    insight={aiInsight}
+                    loading={aiInsightLoading}
+                    error={aiInsightError}
+                    onRefresh={refreshAiInsight}
+                    onViewAll={() => setAiPanelOpen(true)}
+                  />
 
                   {/* ── Stay Hydrated ── */}
                   <div className="cd-card">
@@ -2964,63 +2944,26 @@ const CycleDashboard: React.FC = () => {
                   </div>
 
                   {/* ── AI Insight ── */}
-                  <div className="cd-card cd-insight-card" style={{ gridColumn: "1 / -1" }}>
-                    <h2 className="cd-card-title">
-                      {aiInsight?.title || "AI Insight"}
-                    </h2>
-                    {aiInsightLoading ? (
-                      <p className="cd-score-desc">Generating insight…</p>
-                    ) : aiInsightError ? (
-                      <p className="cd-score-desc">{aiInsightError}</p>
-                    ) : aiInsight ? (
-                      <>
-                        <p className="cd-score-desc">{aiInsight.insight}</p>
-                        <p className="cd-score-desc">
-                          <strong>Why:</strong> {aiInsight.why}
-                        </p>
-                        <p className="cd-score-desc">
-                          <strong>Next:</strong> {aiInsight.nextAction}
-                        </p>
-                        <p className="cd-score-desc">
-                          <strong>Confidence:</strong> {aiInsight.confidence}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="cd-score-desc">
-                        Your AI insight will appear here after your logs load.
-                      </p>
-                    )}
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <AiInsightCard
+                      insight={aiInsight}
+                      loading={aiInsightLoading}
+                      error={aiInsightError}
+                      onRefresh={refreshAiInsight}
+                      onViewAll={() => setAiPanelOpen(true)}
+                    />
                   </div>
 
                   {/* ── Risk Alert ── */}
-                  <div
-                    className="cd-card cd-warning-soft"
-                    style={{ gridColumn: "1 / -1" }}
-                  >
-                    <h2 className="cd-card-title">
-                      <span className="cd-title-icon">
-                        <IconAlertTriangle />
-                      </span>
-                      When to Call Your Doctor
-                    </h2>
-                    <div className="cd-alert-grid">
-                      {[
-                        "Severe headache or vision changes",
-                        "Sudden swelling in face/hands",
-                        "Baby not moving for 2+ hours",
-                        "Vaginal bleeding",
-                        "Fever above 38°C (100.4°F)",
-                        "Painful urination",
-                      ].map((item) => (
-                        <div
-                          key={item}
-                          className="cd-alert-item"
-                        >
-                          <span className="cd-alert-dot" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <DoctorAlertCard
+                      mode="pregnancy"
+                      logs={logs}
+                      doctorNumber={(user as any)?.preferences?.doctorNumber}
+                    doctorMessage={(user as any)?.preferences?.doctorMessage}
+                      userName={user?.name}
+                      onAskOvi={(q) => { setAssistantMessages((prev) => [...prev, q]); setAssistantOpen(true); }}
+                    />
                   </div>
                 </div>
               </div>
@@ -3480,61 +3423,23 @@ const CycleDashboard: React.FC = () => {
                   </div>
 
                   {/* ── AI Insight ── */}
-                  <div className="cd-card cd-insight-card">
-                    <h2 className="cd-card-title">
-                      {aiInsight?.title || "AI Insight"}
-                    </h2>
-                    {aiInsightLoading ? (
-                      <p className="cd-score-desc">Generating insight…</p>
-                    ) : aiInsightError ? (
-                      <p className="cd-score-desc">{aiInsightError}</p>
-                    ) : aiInsight ? (
-                      <>
-                        <p className="cd-score-desc">{aiInsight.insight}</p>
-                        <p className="cd-score-desc">
-                          <strong>Why:</strong> {aiInsight.why}
-                        </p>
-                        <p className="cd-score-desc">
-                          <strong>Next:</strong> {aiInsight.nextAction}
-                        </p>
-                        <p className="cd-score-desc">
-                          <strong>Confidence:</strong> {aiInsight.confidence}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="cd-score-desc">
-                        Your AI insight will appear here after your logs load.
-                      </p>
-                    )}
-                  </div>
+                  <AiInsightCard
+                    insight={aiInsight}
+                    loading={aiInsightLoading}
+                    error={aiInsightError}
+                    onRefresh={refreshAiInsight}
+                    onViewAll={() => setAiPanelOpen(true)}
+                  />
 
                   {/* ── Warning Signs ── */}
-                  <div className="cd-card cd-warning-soft">
-                    <h2 className="cd-card-title">
-                      <span className="cd-title-icon">
-                        <IconAlertTriangle />
-                      </span>
-                      When to Call Your Doctor
-                    </h2>
-                    <div className="cd-alert-grid">
-                      {[
-                        "Heavy bleeding (1+ pad/hour)",
-                        "Fever above 38°C (100.4°F)",
-                        "Severe headache or vision changes",
-                        "Chest pain or difficulty breathing",
-                        "Signs of wound infection",
-                        "Thoughts of harming self or baby",
-                      ].map((item) => (
-                        <div
-                          key={item}
-                          className="cd-alert-item"
-                        >
-                          <span className="cd-alert-dot" />
-                          {item}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <DoctorAlertCard
+                    mode="postpartum"
+                    logs={logs}
+                    doctorNumber={(user as any)?.preferences?.doctorNumber}
+                    doctorMessage={(user as any)?.preferences?.doctorMessage}
+                    userName={user?.name}
+                    onAskOvi={(q) => { setAssistantMessages((prev) => [...prev, q]); setAssistantOpen(true); }}
+                  />
                 </div>
               </div>
             )}
@@ -3631,12 +3536,39 @@ const CycleDashboard: React.FC = () => {
               </div>
             )}
 
+            <AiPanel
+              open={aiPanelOpen}
+              onClose={() => setAiPanelOpen(false)}
+              insight={aiInsight}
+              mode={activeMode === "pregnant" ? "pregnancy" : activeMode === "postpartum" ? "postpartum" : "cycle"}
+              chatHistory={assistantMessages}
+              onSendChat={async (msg) => {
+                setAssistantMessages((prev) => [...prev, msg]);
+                const mode = activeMode === "pregnant" ? "pregnancy" : activeMode === "postpartum" ? "postpartum" : "cycle";
+                try {
+                  const response = await apiSendAiChat(token!, mode, msg);
+                  setAssistantMessages((prev) => [...prev, `OVI: ${response.message}`]);
+                  return response.message;
+                } catch (err) {
+                  const errMsg = err instanceof Error ? err.message : "Failed";
+                  setAssistantMessages((prev) => [...prev, `OVI: ${errMsg}`]);
+                  return errMsg;
+                }
+              }}
+            />
+
             <button
               className="cd-assistant-fab"
               onClick={() => setAssistantOpen(true)}
               aria-label="Open OVI Assistant"
             >
-              OVI
+              <span className="cd-fab-pulse" />
+              <svg className="cd-fab-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2a7 7 0 0 1 7 7c0 3-1.5 5.5-4 7v2H9v-2c-2.5-1.5-4-4-4-7a7 7 0 0 1 7-7z" />
+                <line x1="9" y1="22" x2="15" y2="22" />
+                <circle cx="12" cy="9" r="1.5" fill="currentColor" stroke="none" />
+              </svg>
+              <span className="cd-fab-label">OVI</span>
             </button>
 
             {assistantOpen && (
