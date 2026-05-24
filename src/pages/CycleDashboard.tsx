@@ -13,7 +13,7 @@ import {
   isSameDay,
   isToday,
 } from "date-fns";
-import { ThemeContext, SettingsContext } from "../state/Context";
+import { ThemeContext, SettingsContext, CyclesContext } from "../state/Context";
 import { useAuth } from "../state/AuthContext";
 import {
   apiSaveCycleLog,

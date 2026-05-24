@@ -56,6 +56,8 @@ import {
 import { getDailyTip } from "../data/DailyTips";
 import { getCurrentTranslation } from "../utils/translation";
 import { format } from "../utils/datetime";
+import { useAuth } from "../state/AuthContext";
+import { apiSaveCycleLog } from "../services/api";
 
 import { chevronForwardOutline } from "ionicons/icons";
 
