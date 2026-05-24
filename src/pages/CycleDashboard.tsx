@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { IonPage, IonContent } from "@ionic/react";
+import { useTranslation } from "react-i18next";
 import {
   addDays,
   differenceInDays,
@@ -1352,6 +1353,7 @@ const PostpartumSetupModal: React.FC<PostpartumSetupModalProps> = ({
 ───────────────────────────────────────────────────── */
 const CycleDashboard: React.FC = () => {
   const { user, token } = useAuth();
+  const { t } = useTranslation();
   const { theme } = useContext(ThemeContext);
   const { appMode, updateAppMode } = useContext(SettingsContext);
   const isDark = theme === "dark";
@@ -2024,7 +2026,7 @@ const CycleDashboard: React.FC = () => {
             <div className="cd-topbar">
               <div className="cd-welcome">
                 <div>
-                  <p className="cd-welcome-sub">Today's Overview</p>
+                  <p className="cd-welcome-sub">{t("Today's Overview")}</p>
                   <h1 className="cd-welcome-name">
                     Welcome, {user?.name?.split(" ")[0] ?? "there"}
                   </h1>
@@ -2123,12 +2125,12 @@ const CycleDashboard: React.FC = () => {
                       </svg>
                     </div>
                     <div className="cd-hero-info">
-                      <p className="cd-hero-label">Next Period</p>
+                      <p className="cd-hero-label">{t("Next Period")}</p>
                       <p className="cd-hero-date">
                         {format(nextPeriod, "MMM d")}
                       </p>
                       <div className="cd-hero-divider" />
-                      <p className="cd-hero-label">Ovulation</p>
+                      <p className="cd-hero-label">{t("Ovulation")}</p>
                       <p className="cd-hero-date cd-hero-date-sm">
                         {format(ovulationDate, "MMM d")}
                       </p>
@@ -2247,7 +2249,7 @@ const CycleDashboard: React.FC = () => {
 
                     {activeMode === "cycle" && (
                       <div className="cd-log-row">
-                        <span className="cd-log-label">On period today?</span>
+                        <span className="cd-log-label">{t("On period today?")}</span>
                         <button
                           className={`cd-toggle ${isPeriod ? "on" : ""}`}
                           onClick={() => {
@@ -2275,7 +2277,7 @@ const CycleDashboard: React.FC = () => {
                       </div>
                     )}
                     
-                    <p className="cd-log-section-label">Mood</p>
+                    <p className="cd-log-section-label">{t("Mood")}</p>
                     <div className="cd-mood-group">
                       {(
                         [
@@ -2306,7 +2308,7 @@ const CycleDashboard: React.FC = () => {
                         </button>
                       ))}
                     </div>
-                    <p className="cd-log-section-label">Symptoms</p>
+                    <p className="cd-log-section-label">{t("Symptoms")}</p>
                     <div className="cd-symptom-group">
                       {SYMPTOM_LIST.map(({ label, Icon, color }) => {
                         const isSelected = symptoms.includes(label);
