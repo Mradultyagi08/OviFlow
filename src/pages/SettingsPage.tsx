@@ -118,6 +118,7 @@ const SettingsPage: React.FC = () => {
   const [appLockPin, setAppLockPin] = useState("");
   const [doctorNumber, setDoctorNumber] = useState("+91");
   const [doctorMessage, setDoctorMessage] = useState("Hi Doctor, I'm sharing my cycle health summary from OVIFLOW. Please review the attached PDF.");
+  const [fallingFlowers, setFallingFlowers] = useState(true);
 
   useEffect(() => {
     setCurrentLang(getCurrentTranslation());
@@ -137,6 +138,7 @@ const SettingsPage: React.FC = () => {
       if (p.appLockPin) setAppLockPin(p.appLockPin as string);
       if (p.doctorNumber) setDoctorNumber(p.doctorNumber as string);
       if (p.doctorMessage) setDoctorMessage(p.doctorMessage as string);
+      if (p.fallingFlowers !== undefined) setFallingFlowers(p.fallingFlowers as boolean);
     }
   }, [user]);
 
@@ -331,6 +333,21 @@ const SettingsPage: React.FC = () => {
                     aria-label={id}
                   />
                 ))}
+              </div>
+              <div className="settings-divider" />
+              {/* Falling flowers toggle */}
+              <div className="settings-toggle-row">
+                <div>
+                  <p className="settings-toggle-label">Falling Flowers</p>
+                  <p className="settings-toggle-desc">Animated petals in the background</p>
+                </div>
+                <button
+                  className={`settings-toggle ${fallingFlowers ? "on" : "off"}`}
+                  onClick={() => { setFallingFlowers(!fallingFlowers); savePreference({ fallingFlowers: !fallingFlowers }); }}
+                  aria-label="Toggle falling flowers"
+                >
+                  <span className="settings-toggle-knob" />
+                </button>
               </div>
             </div>
           </section>

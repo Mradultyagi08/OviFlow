@@ -446,7 +446,7 @@ const App = (props: AppProps) => {
         >
           <IonApp>
             {/* Falling Petals Background - rendered via portal to bypass Ionic stacking contexts */}
-            {createPortal(
+            {(user as any)?.preferences?.fallingFlowers !== false && createPortal(
               <div className="floating-bubbles">
                 {[...Array(20)].map((_, i) => (
                   <div
