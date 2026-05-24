@@ -48,7 +48,6 @@ import { storage } from "./data/Storage";
 import type { Cycle } from "./data/ICycle";
 import { getMaxStoredCountOfCycles } from "./state/CalculationLogics";
 import { CyclesContext, ThemeContext, SettingsContext } from "./state/Context";
-import { Menu } from "./modals/Menu";
 import { isNewVersionAvailable } from "./data/AppVersion";
 import { configuration } from "./data/AppConfiguration";
 
@@ -108,6 +107,19 @@ const App = (props: AppProps) => {
       setIsLoading(false);
     }
   }, [token, user?.isOnboarded, refreshData]);
+
+  // Apply accent color from user preferences
+  useEffect(() => {
+    const colorMap: Record<string, string> = {
+      pink: "#db2777",
+      purple: "#7c3aed",
+      blue: "#2563eb",
+      teal: "#0d9488",
+    };
+    const prefs = (user as any)?.preferences;
+    const accent = colorMap[prefs?.accentColor] || colorMap.pink;
+    document.documentElement.style.setProperty("--cd-accent", accent);
+  }, [user]);
 
   const updateCycles = useCallback(
     async (newCycles: Cycle[]) => {
@@ -446,7 +458,6 @@ const App = (props: AppProps) => {
               document.body,
             )}
 
-            <Menu contentId="main-content" />
             <IonReactRouter>
               {/* ── Auth routes (no tabs / header) ── */}
               <Route

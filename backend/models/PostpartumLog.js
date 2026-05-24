@@ -92,7 +92,7 @@ const postpartumLogSchema = new mongoose.Schema(
 );
 
 // Compound index for user and date lookups
-postpartumLogSchema.index({ userId: 1, date: -1 });
+postpartumLogSchema.index({ userId: 1, date: -1 }, { unique: true });
 
 const PostpartumLog = mongoose.model("PostpartumLog", postpartumLogSchema);
 export default PostpartumLog;

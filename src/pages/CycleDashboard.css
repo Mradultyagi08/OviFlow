@@ -1679,6 +1679,19 @@
   box-shadow: 0 1px 4px rgba(219, 39, 119, 0.15);
 }
 
+.dark .cd-water-glass {
+  border-color: rgba(244, 114, 182, 0.25);
+  background: rgba(244, 114, 182, 0.08);
+  color: #f9a8d4;
+}
+
+.dark .cd-water-glass.filled {
+  background: rgba(219, 39, 119, 0.25);
+  border-color: #f472b6;
+  color: #f9a8d4;
+  box-shadow: 0 1px 6px rgba(219, 39, 119, 0.3);
+}
+
 /* Daily checklist */
 .cd-checklist {
   display: flex;
