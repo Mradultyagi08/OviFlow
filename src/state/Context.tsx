@@ -3,12 +3,20 @@ import type { Cycle } from "../data/ICycle";
 
 interface ICyclesContext {
   cycles: Cycle[];
+  predictions: any;
+  logs: any[];
+  isLoading: boolean;
   updateCycles: (newCycles: Cycle[]) => void;
+  refreshData: () => Promise<void>;
 }
 
 const cyclesInit: ICyclesContext = {
   cycles: [],
+  predictions: null,
+  logs: [],
+  isLoading: true,
   updateCycles: (_newCycles) => {},
+  refreshData: async () => {},
 };
 
 interface IThemeContext {

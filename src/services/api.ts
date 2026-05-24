@@ -143,6 +143,12 @@ export function apiGetCycleLogs(
   return request<{ logs: CycleLog[] }>("/cycle/logs", { token });
 }
 
+export function apiGetPredictions(
+  token: string,
+): Promise<{ predictions: any; cycles: any[] }> {
+  return request<{ predictions: any; cycles: any[] }>("/cycle/predictions", { token });
+}
+
 /* ── AI ───────────────────────────────────────────────────────── */
 
 export interface AiInsight {

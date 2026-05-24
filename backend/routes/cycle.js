@@ -4,8 +4,39 @@ import User from "../models/User.js";
 import CycleLog from "../models/CycleLog.js";
 import PregnancyLog from "../models/PregnancyLog.js";
 import PostpartumLog from "../models/PostpartumLog.js";
+import { getCyclesHistoryFromDates, getPredictions } from "../utils/calculations.js";
 
 const router = express.Router();
+
+// ─── GET /api/cycle/predictions ───────────────────────────────────
+// Returns calculated predictions based on logs and profile
+router.get("/predictions", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // 1. Get all period dates from logs
+    const allLogs = await CycleLog.find({ userId: req.user._id }).sort({ date: -1 });
+    const periodDates = allLogs.filter(l => l.isPeriod).map(l => l.date).reverse();
+
+    // 2. If no logs, use the initial setup date from cycleProfile
+    let effectivePeriodDates = periodDates;
+    if (effectivePeriodDates.length === 0 && user.cycleProfile?.lastPeriodDate) {
+      effectivePeriodDates = [user.cycleProfile.lastPeriodDate];
+    }
+
+    // 3. Generate cycle history
+    const cycles = getCyclesHistoryFromDates(effectivePeriodDates);
+
+    // 4. Generate predictions (passing all logs for health score)
+    const predictions = getPredictions(cycles, 6, allLogs);
+
+    res.json({ predictions, cycles });
+  } catch (err) {
+    console.error("Get predictions error:", err);
+    res.status(500).json({ message: "Server error fetching predictions" });
+  }
+});
 
 // ─── PUT /api/cycle/setup ──────────────────────────────────────────
 // First-time cycle setup — saves profile & marks user as onboarded
