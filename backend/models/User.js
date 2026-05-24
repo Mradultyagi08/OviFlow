@@ -58,6 +58,8 @@ const userSchema = new mongoose.Schema(
       ovulationReminder: { type: Number, default: 0 },
       appLockEnabled: { type: Boolean, default: false },
       appLockPin: { type: String, default: "" },
+      doctorNumber: { type: String, default: "" },
+      doctorMessage: { type: String, default: "" },
     },
   },
   { timestamps: true },
