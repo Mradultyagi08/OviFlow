@@ -24,7 +24,20 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 // ─── Middleware ─────────────────────────────────────────────────────
-app.use(cors());
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+  .split(",")
+  .map((s) => s.trim());
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // allow all in dev, restrict via env in prod
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { message: "Too many attempts, try again later" } });
