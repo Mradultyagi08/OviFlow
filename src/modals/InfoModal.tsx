@@ -2,14 +2,7 @@ import { useContext } from "react";
 import { IonContent, IonModal, IonButton, IonCol } from "@ionic/react";
 import { useTranslation } from "react-i18next";
 
-import { CyclesContext, SettingsContext, ThemeContext } from "../state/Context";
-import {
-  getAverageLengthOfCycle,
-  getDayOfCycle,
-  getPhase,
-  getOvulationStatus,
-  getPregnancyChance,
-} from "../state/CalculationLogics";
+import { CyclesContext, ThemeContext } from "../state/Context";
 
 import "./InfoModal.css";
 
@@ -20,26 +13,38 @@ interface PropsInfoModal {
 
 const InfoModal = (props: PropsInfoModal) => {
   const { t } = useTranslation();
-  const cycles = useContext(CyclesContext).cycles;
+  const { cycles, predictions } = useContext(CyclesContext);
   const theme = useContext(ThemeContext).theme;
-  const maxNumberOfDisplayedCycles =
-    useContext(SettingsContext).maxNumberOfDisplayedCycles;
 
-  const lengthOfCycle = getAverageLengthOfCycle(
-    cycles,
-    maxNumberOfDisplayedCycles,
-  );
-  const currentDay = getDayOfCycle(cycles);
-  const ovulationStatus = getOvulationStatus(
-    cycles,
-    maxNumberOfDisplayedCycles,
-  );
-  const pregnancyChance = getPregnancyChance(
-    cycles,
-    maxNumberOfDisplayedCycles,
-  );
+  if (!predictions) return null;
 
-  const phase = getPhase(cycles, maxNumberOfDisplayedCycles);
+  const { cycleDay, averageCycleLength, phase, ovulationStatus, pregnancyChance } = predictions;
+
+  // Map backend phase keys to display titles and symptoms
+  const phaseMap: Record<string, { title: string; symptoms: string[] }> = {
+    menstrual: {
+      title: t("Menstrual phase"),
+      symptoms: [t("Cramps"), t("Fatigue"), t("Back pain")],
+    },
+    follicular: {
+      title: t("Follicular phase"),
+      symptoms: [t("High energy"), t("Better mood"), t("Glowing skin")],
+    },
+    ovulation: {
+      title: t("Ovulation phase"),
+      symptoms: [t("Increased libido"), t("Mild cramps"), t("Clear discharge")],
+    },
+    luteal: {
+      title: t("Luteal phase"),
+      symptoms: [t("Bloating"), t("Mood swings"), t("Breast tenderness")],
+    },
+    delay: {
+      title: t("Cycle delay"),
+      symptoms: [t("Stress"), t("Hormonal imbalance")],
+    },
+  };
+
+  const currentPhase = phaseMap[phase] || { title: t("Unknown"), symptoms: [] };
 
   return (
     <IonModal
@@ -52,35 +57,35 @@ const InfoModal = (props: PropsInfoModal) => {
           <p className={`info-title-${theme}`}>
             {`${t("Days", {
               postProcess: "interval",
-              count: 1, // NOTE: to indicate which day is in the account, you need to write the day as if in the singular
+              count: 1,
             })} `}
             {cycles.length === 1 ? (
-              currentDay
+              cycleDay
             ) : (
               <>
-                {currentDay}/{lengthOfCycle}
+                {cycleDay}/{averageCycleLength}
               </>
             )}
           </p>
           <ul>
             <li className={`info-item-${theme}`}>
-              <span className={`info-item-${theme}`}>{phase.title}</span>
+              <span className={`info-item-${theme}`}>{currentPhase.title}</span>
               <span> {t("Is current phase of cycle")}</span>
             </li>
             <li className={`info-item-${theme}`}>
               <span>{t("Ovulation")}</span>
               <span className={`info-item-${theme}`}>
-                {` ${ovulationStatus}`}
+                {` ${t(ovulationStatus)}`}
               </span>
             </li>
             <li className={`info-item-${theme}`}>
-              <span className={`info-item-${theme}`}>{pregnancyChance}</span>
+              <span className={`info-item-${theme}`}>{t(pregnancyChance)}</span>
               <span> {t("Chance of getting pregnant")}</span>
             </li>
           </ul>
           <p className={`info-title-${theme}`}>{t("Frequent symptoms")}</p>
           <ul>
-            {phase.symptoms.map((item, idx) => (
+            {currentPhase.symptoms.map((item, idx) => (
               <li
                 className={`info-item-${theme}`}
                 key={idx}
