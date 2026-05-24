@@ -159,7 +159,7 @@ router.put("/password", auth, async (req, res) => {
 // ─── PUT /api/auth/preferences ─────────────────────────────────────
 router.put("/preferences", auth, async (req, res) => {
   try {
-    const allowed = ["theme", "accentColor", "waterGoal", "temperatureUnit", "defaultSymptoms", "aiInsightsEnabled", "lutealPhaseLength", "ovulationReminder", "appLockEnabled", "appLockPin"];
+    const allowed = ["theme", "accentColor", "waterGoal", "temperatureUnit", "defaultSymptoms", "aiInsightsEnabled", "lutealPhaseLength", "ovulationReminder", "appLockEnabled", "appLockPin", "doctorNumber", "doctorMessage"];
     const updates = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) {
