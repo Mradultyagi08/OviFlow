@@ -21,6 +21,7 @@ import {
   supportedLanguages,
 } from "../utils/translation";
 import { changeDateTimeLocale } from "../utils/datetime";
+import { downloadCyclePDF } from "../utils/pdfGenerator";
 import "./Settings.css";
 
 /* ── SVG Icons ── */
@@ -86,7 +87,7 @@ const SettingsPage: React.FC = () => {
     updateAppMode,
   } = useContext(SettingsContext);
   const { updateCycles } = useContext(CyclesContext);
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, setUser } = useAuth();
 
   const isDark = theme === "dark";
   const [currentLang, setCurrentLang] = useState(getCurrentTranslation());
@@ -115,6 +116,8 @@ const SettingsPage: React.FC = () => {
   // Privacy
   const [appLockEnabled, setAppLockEnabled] = useState(false);
   const [appLockPin, setAppLockPin] = useState("");
+  const [doctorNumber, setDoctorNumber] = useState("+91");
+  const [doctorMessage, setDoctorMessage] = useState("Hi Doctor, I'm sharing my cycle health summary from OVIFLOW. Please review the attached PDF.");
 
   useEffect(() => {
     setCurrentLang(getCurrentTranslation());
@@ -132,11 +135,13 @@ const SettingsPage: React.FC = () => {
       if (p.ovulationReminder !== undefined) setOvulationReminder(p.ovulationReminder as number);
       if (p.appLockEnabled !== undefined) setAppLockEnabled(p.appLockEnabled as boolean);
       if (p.appLockPin) setAppLockPin(p.appLockPin as string);
+      if (p.doctorNumber) setDoctorNumber(p.doctorNumber as string);
+      if (p.doctorMessage) setDoctorMessage(p.doctorMessage as string);
     }
   }, [user]);
 
   const savePreference = (prefs: Record<string, unknown>) => {
-    if (token) apiUpdatePreferences(token, prefs).catch(console.error);
+    if (token) apiUpdatePreferences(token, prefs).then(({ user: u }) => setUser(u)).catch(console.error);
   };
 
   const handleLanguageChange = async (lang: string) => {
@@ -167,6 +172,22 @@ const SettingsPage: React.FC = () => {
     }
   };
 
+  const handleDownloadPDF = async () => {
+    if (!token) return;
+    try {
+      const data = await apiExportData(token);
+      downloadCyclePDF({
+        userName: user?.name,
+        mode: "cycle",
+        logs: data.logs,
+        cycleLength: user?.cycleProfile?.cycleLength,
+        periodLength: user?.cycleProfile?.periodLength,
+      });
+    } catch (err) {
+      console.error("PDF export failed:", err);
+    }
+  };
+
   const languageEntries = Array.from(supportedLanguages.entries());
 
   return (
@@ -188,16 +209,16 @@ const SettingsPage: React.FC = () => {
             <div className="settings-card">
               {/* Name */}
               <div className="settings-toggle-row">
-                <div>
+                <div style={{ width: "100%" }}>
                   <p className="settings-toggle-label">Name</p>
                   {editingName ? (
                     <input
-                      className="settings-input"
+                      className="settings-input settings-input-lg"
                       value={nameInput}
                       onChange={(e) => setNameInput(e.target.value)}
                       onBlur={() => {
                         if (nameInput.trim() && token) {
-                          apiChangeName(token, nameInput.trim()).catch(console.error);
+                          apiChangeName(token, nameInput.trim()).then(({ user: u }) => setUser(u)).catch(console.error);
                         }
                         setEditingName(false);
                       }}
@@ -205,7 +226,7 @@ const SettingsPage: React.FC = () => {
                       autoFocus
                     />
                   ) : (
-                    <p className="settings-toggle-desc" onClick={() => setEditingName(true)} style={{ cursor: "pointer" }}>
+                    <p className="settings-field-value" onClick={() => setEditingName(true)} style={{ cursor: "pointer" }}>
                       {user?.name || "Tap to set"} ✎
                     </p>
                   )}
@@ -214,9 +235,9 @@ const SettingsPage: React.FC = () => {
               <div className="settings-divider" />
               {/* Email (read-only) */}
               <div className="settings-toggle-row">
-                <div>
+                <div style={{ width: "100%" }}>
                   <p className="settings-toggle-label">Email</p>
-                  <p className="settings-toggle-desc">{user?.email}</p>
+                  <p className="settings-field-value">{user?.email}</p>
                 </div>
               </div>
               <div className="settings-divider" />
@@ -306,7 +327,7 @@ const SettingsPage: React.FC = () => {
                     key={id}
                     className={`settings-color-dot ${accentColor === id ? "active" : ""}`}
                     style={{ background: color }}
-                    onClick={() => { setAccentColor(id); savePreference({ accentColor: id }); }}
+                    onClick={() => { setAccentColor(id); savePreference({ accentColor: id }); document.documentElement.style.setProperty("--cd-accent", color); }}
                     aria-label={id}
                   />
                 ))}
@@ -375,6 +396,46 @@ const SettingsPage: React.FC = () => {
             </div>
           </section>
 
+          {/* ═══ DOCTOR DETAILS ═══ */}
+          <section className="settings-section">
+            <h2 className="settings-section-title"><ActivityIcon /><span>Doctor Details</span></h2>
+            <div className="settings-card">
+              <div className="settings-toggle-row">
+                <div style={{ width: "100%" }}>
+                  <p className="settings-toggle-label">Doctor's WhatsApp Number</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+                    <span className="settings-prefix">+91</span>
+                    <input
+                      className="settings-input settings-input-phone"
+                      type="tel"
+                      placeholder="98765 43210"
+                      maxLength={12}
+                      value={doctorNumber.replace(/^\+91\s?/, "")}
+                      onChange={(e) => setDoctorNumber("+91" + e.target.value.replace(/[^\d\s]/g, ""))}
+                      onBlur={() => savePreference({ doctorNumber })}
+                    />
+                  </div>
+                  <p className="settings-toggle-desc" style={{ marginTop: 4 }}>10-digit mobile number (WhatsApp only)</p>
+                </div>
+              </div>
+              <div className="settings-divider" />
+              <div className="settings-toggle-row">
+                <div style={{ width: "100%" }}>
+                  <p className="settings-toggle-label">Custom Message</p>
+                  <textarea
+                    className="settings-input settings-textarea"
+                    rows={3}
+                    placeholder="Message to send along with your summary..."
+                    value={doctorMessage}
+                    onChange={(e) => setDoctorMessage(e.target.value)}
+                    onBlur={() => savePreference({ doctorMessage })}
+                  />
+                  <p className="settings-toggle-desc" style={{ marginTop: 4 }}>This message will be pre-filled when sharing via WhatsApp</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* ═══ HEALTH & LOGGING ═══ */}
           <section className="settings-section">
             <h2 className="settings-section-title"><ActivityIcon /><span>Health & Logging</span></h2>
@@ -392,7 +453,7 @@ const SettingsPage: React.FC = () => {
                 <p className="settings-toggle-label">Temperature Unit</p>
                 <div className="settings-chip-row">
                   {(["C", "F"] as const).map((u) => (
-                    <button key={u} className={`settings-count-chip ${tempUnit === u ? "active" : ""}`} onClick={() => { setTempUnit(u); savePreference({ temperatureUnit: u }); }}>
+                    <button key={u} className={`settings-temp-chip ${tempUnit === u ? "active" : ""}`} onClick={() => { setTempUnit(u); savePreference({ temperatureUnit: u }); }}>
                       °{u}
                     </button>
                   ))}
@@ -461,7 +522,15 @@ const SettingsPage: React.FC = () => {
                 <DatabaseIcon />
                 <div className="settings-action-text">
                   <span className="settings-action-label">Export Data (CSV)</span>
-                  <span className="settings-action-desc">Download your cycle history</span>
+                  <span className="settings-action-desc">Download your cycle history as spreadsheet</span>
+                </div>
+              </button>
+              <div className="settings-divider" />
+              <button className="settings-action-row" onClick={handleDownloadPDF}>
+                <DatabaseIcon />
+                <div className="settings-action-text">
+                  <span className="settings-action-label">Download Health Report (PDF)</span>
+                  <span className="settings-action-desc">Formatted summary to share with your doctor</span>
                 </div>
               </button>
               <div className="settings-divider" />
