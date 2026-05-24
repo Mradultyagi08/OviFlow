@@ -60,6 +60,7 @@ const userSchema = new mongoose.Schema(
       appLockPin: { type: String, default: "" },
       doctorNumber: { type: String, default: "" },
       doctorMessage: { type: String, default: "" },
+      fallingFlowers: { type: Boolean, default: true },
     },
   },
   { timestamps: true },
