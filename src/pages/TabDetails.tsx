@@ -11,9 +11,6 @@ import { useTranslation } from "react-i18next";
 import { addDays, differenceInDays, startOfDay, startOfToday } from "date-fns";
 
 import {
-  getAverageLengthOfCycle,
-  getAverageLengthOfPeriod,
-  getDayOfCycle,
   getLastStartDate,
 } from "../state/CalculationLogics";
 import { CyclesContext, SettingsContext, ThemeContext } from "../state/Context";
@@ -85,18 +82,18 @@ function setProgressBar(value: number, maxLength: number) {
 }
 
 const CurrentCycle = () => {
-  const cycles = useContext(CyclesContext).cycles;
+  const { cycles, predictions } = useContext(CyclesContext);
   const theme = useContext(ThemeContext).theme;
 
   const { t } = useTranslation();
-  const dayOfCycle = getDayOfCycle(cycles);
+  const dayOfCycle = predictions?.cycleDay || 1;
   const title = `${dayOfCycle} ${t("Days", {
     postProcess: "interval",
     count: 1, // NOTE: to indicate which day is in the account, you need to write the day as if in the singular
   })}`;
 
-  const startDate = new Date(getLastStartDate(cycles));
-  const lengthOfPeriod = cycles[0].periodLength ?? 0;
+  const startDate = cycles.length > 0 ? new Date(cycles[0].startDate) : startOfToday();
+  const lengthOfPeriod = cycles.length > 0 ? (cycles[0].periodLength ?? 0) : 5;
 
   const maxLength = cycles.reduce((max: number, item) => {
     return Math.max(max, item.cycleLength);
@@ -427,17 +424,10 @@ const PostpartumDetails = () => {
 const AverageValues = ({ cycles }: AverageValuesProps) => {
   const { t } = useTranslation();
   const theme = useContext(ThemeContext).theme;
-  const maxNumberOfDisplayedCycles =
-    useContext(SettingsContext).maxNumberOfDisplayedCycles;
+  const { predictions } = useContext(CyclesContext);
 
-  const averageLengthOfCycle = getAverageLengthOfCycle(
-    cycles,
-    maxNumberOfDisplayedCycles,
-  );
-  const averageLengthOfPeriod = getAverageLengthOfPeriod(
-    cycles,
-    maxNumberOfDisplayedCycles,
-  );
+  const averageLengthOfCycle = predictions?.averageCycleLength || 28;
+  const averageLengthOfPeriod = predictions?.averagePeriodLength || 5;
 
   const lengthOfCycle = `${averageLengthOfCycle} ${t("Days", {
     postProcess: "interval",
@@ -461,7 +451,7 @@ const AverageValues = ({ cycles }: AverageValuesProps) => {
             mode="md"
           >
             <p className={`h_style-${theme}`}>
-              {averageLengthOfCycle && cycles.length > 1
+              {predictions && cycles.length > 1
                 ? lengthOfCycle
                 : "---"}
             </p>
@@ -475,7 +465,7 @@ const AverageValues = ({ cycles }: AverageValuesProps) => {
             mode="md"
           >
             <p className={`h_style-${theme}`}>
-              {averageLengthOfPeriod ? lengthOfPeriod : "---"}
+              {predictions ? lengthOfPeriod : "---"}
             </p>
             <p className="p_style">{t("Period length")}</p>
           </IonLabel>

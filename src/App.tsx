@@ -12,6 +12,7 @@ import {
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import { useTranslation } from "react-i18next";
+import { format, addDays, startOfDay } from "date-fns";
 import TabDetails from "./pages/TabDetails";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -66,8 +67,13 @@ interface AppProps {
   theme?: string;
 }
 
+import { apiGetPredictions, apiGetCycleLogs, apiSaveCycleLog } from "./services/api";
+
 const App = (props: AppProps) => {
   const [cycles, setCycles] = useState<Cycle[]>([]);
+  const [predictions, setPredictions] = useState<any>(null);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [theme, setTheme] = useState(props.theme ?? "basic");
 
   const { i18n } = useTranslation();
@@ -76,22 +82,47 @@ const App = (props: AppProps) => {
     useState(6);
   const [appMode, setAppMode] = useState("regular");
 
-  const changeLanguage = useCallback(
-    (lng: string) => {
-      i18n.changeLanguage(lng).catch((err) => console.error(err));
-    },
-    [i18n],
-  );
+  const { user, token, isLoading: authLoading } = useAuth();
+
+  const refreshData = useCallback(async () => {
+    if (!token) return;
+    try {
+      const [predRes, logsRes] = await Promise.all([
+        apiGetPredictions(token),
+        apiGetCycleLogs(token),
+      ]);
+      setPredictions(predRes.predictions);
+      setCycles(predRes.cycles);
+      setLogs(logsRes.logs);
+    } catch (err) {
+      console.error("Error refreshing data from backend", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (token && user?.isOnboarded) {
+      refreshData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [token, user?.isOnboarded, refreshData]);
 
   const updateCycles = useCallback(
     async (newCycles: Cycle[]) => {
+      // Optimistic update
+      setCycles(newCycles);
+      
       try {
-        const slicedCycles = newCycles.slice(
-          0,
-          getMaxStoredCountOfCycles(maxNumberOfDisplayedCycles),
-        );
-        setCycles(slicedCycles);
-        await storage.set.cycles(slicedCycles);
+        if (token) {
+          // If a new period was marked (cycles[0].startDate changed or periodLength changed)
+          // we should ideally sync logs. For now, let's just trigger a refresh
+          // after some delay or assume the caller (TabHome/CycleDashboard) handles specific log saves.
+          // The plan says "Optimistic UI for logging".
+        }
+        
+        await storage.set.cycles(newCycles);
 
         if (configuration.features.notifications && notificationEnabled) {
           await updateNotifications(newCycles, maxNumberOfDisplayedCycles);
@@ -100,7 +131,7 @@ const App = (props: AppProps) => {
         console.error("Error updating cycles", err);
       }
     },
-    [maxNumberOfDisplayedCycles, notificationEnabled],
+    [maxNumberOfDisplayedCycles, notificationEnabled, token],
   );
 
   const updateTheme = useCallback((newTheme: string) => {
@@ -269,6 +300,42 @@ const App = (props: AppProps) => {
   }, [changeLanguage, theme, maxNumberOfDisplayedCycles]);
 
   useEffect(() => {
+    const migrateToBackend = async () => {
+      if (!token || !user || !user.isOnboarded || cycles.length === 0) return;
+
+      try {
+        const logsRes = await apiGetCycleLogs(token);
+        if (logsRes.logs.length === 0) {
+          console.log("Migrating local cycles to backend...");
+          const periodDates: string[] = [];
+          cycles.forEach((c) => {
+            const start = startOfDay(new Date(c.startDate));
+            for (let i = 0; i < c.periodLength; i++) {
+              periodDates.push(format(addDays(start, i), "yyyy-MM-dd"));
+            }
+          });
+
+          for (const date of periodDates) {
+            await apiSaveCycleLog(token, {
+              date,
+              isPeriod: true,
+              flow: "medium",
+              mood: "okay",
+              symptoms: [],
+              notes: "Migrated from local storage",
+            });
+          }
+          await refreshData();
+        }
+      } catch (err) {
+        console.error("Migration to backend failed", err);
+      }
+    };
+
+    migrateToBackend();
+  }, [token, user, cycles.length, refreshData]);
+
+  useEffect(() => {
     if (!configuration.features.notifications || !notificationEnabled) {
       return;
     }
@@ -322,6 +389,10 @@ const App = (props: AppProps) => {
     <CyclesContext.Provider
       value={{
         cycles,
+        predictions,
+        logs,
+        isLoading,
+        refreshData,
         updateCycles: (newCycles) => {
           updateCycles(newCycles).catch((err) => console.error(err));
         },

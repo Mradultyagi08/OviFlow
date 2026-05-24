@@ -64,19 +64,17 @@ interface InfoButtonProps {
 }
 
 const DailyTipBanner = () => {
-  const { cycles } = useContext(CyclesContext);
+  const { predictions } = useContext(CyclesContext);
   const theme = useContext(ThemeContext).theme;
-  const maxNumberOfDisplayedCycles =
-    useContext(SettingsContext).maxNumberOfDisplayedCycles;
 
-  const phase = getCurrentCyclePhase(cycles, maxNumberOfDisplayedCycles);
-  const dayOfCycle = getDayOfCycle(cycles);
-  const periodLength = getLengthOfLastPeriod(cycles);
-  const cycleLength = getAverageLengthOfCycle(
-    cycles,
-    maxNumberOfDisplayedCycles,
+  if (!predictions) return null;
+
+  const tip = getDailyTip(
+    predictions.phase,
+    predictions.cycleDay,
+    predictions.averagePeriodLength,
+    predictions.averageCycleLength,
   );
-  const tip = getDailyTip(phase, dayOfCycle, periodLength, cycleLength);
 
   return (
     <div
@@ -382,17 +380,10 @@ const PostpartumCareHero = () => {
 
 const InfoButton = (props: InfoButtonProps) => {
   const { t } = useTranslation();
-
-  const cycles = useContext(CyclesContext).cycles;
+  const { predictions } = useContext(CyclesContext);
   const theme = useContext(ThemeContext).theme;
-  const maxNumberOfDisplayedCycles =
-    useContext(SettingsContext).maxNumberOfDisplayedCycles;
 
-  const pregnancyChance = getPregnancyChance(
-    cycles,
-    maxNumberOfDisplayedCycles,
-  );
-  if (cycles.length <= 1) {
+  if (!predictions) {
     return <p style={{ marginBottom: "20px", height: "22px" }}></p>;
   }
   return (
@@ -421,7 +412,7 @@ const InfoButton = (props: InfoButtonProps) => {
             fontWeight: "600",
           }}
         >
-          {pregnancyChance}
+          {t(predictions.pregnancyChance)}
         </span>
         - {t("Chance of getting pregnant")}
         <IonIcon
@@ -701,17 +692,16 @@ const DemoAlert = () => {
 
 const TabHome = () => {
   const theme = useContext(ThemeContext).theme;
+  const { token } = useAuth();
 
   const [isInfoModal, setIsInfoModal] = useState(false);
   const [isEditCalendar, setIsEditCalendar] = useState(false);
 
   const router = useIonRouter();
 
-  useEffect(() => {
-    storage.get.cycles().catch((err) => {
-      console.error(`Can't get cycles ${(err as Error).message}`);
-    });
-  }, []);
+  const { t } = useTranslation();
+  const { cycles, predictions, refreshData, isLoading } = useContext(CyclesContext);
+  const { appMode } = useContext(SettingsContext);
 
   useEffect(() => {
     const backButtonHandler = () => {
@@ -733,11 +723,15 @@ const TabHome = () => {
     };
   }, [router, isInfoModal]);
 
-  const { t } = useTranslation();
-  const { cycles, updateCycles } = useContext(CyclesContext);
-  const maxNumberOfDisplayedCycles =
-    useContext(SettingsContext).maxNumberOfDisplayedCycles;
-  const { appMode } = useContext(SettingsContext);
+  if (isLoading) {
+    return (
+      <IonPage style={{ backgroundColor: `var(--ion-color-background-${theme})` }}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+          <IonLabel>{t("Loading...")}</IonLabel>
+        </div>
+      </IonPage>
+    );
+  }
 
   return (
     <IonPage
@@ -799,12 +793,7 @@ const TabHome = () => {
                           marginBottom: "4px",
                         }}
                       >
-                        {
-                          getDaysBeforePeriod(
-                            cycles,
-                            maxNumberOfDisplayedCycles,
-                          ).title
-                        }
+                        {t(predictions?.daysBeforePeriod?.title || "Period in")}
                       </p>
                     </IonLabel>
                   </div>
@@ -814,10 +803,7 @@ const TabHome = () => {
                         style={{
                           fontWeight: "800",
                           fontSize: /^\d/.test(
-                            getDaysBeforePeriod(
-                              cycles,
-                              maxNumberOfDisplayedCycles,
-                            ).days,
+                            predictions?.daysBeforePeriod?.days || "",
                           )
                             ? "58px"
                             : "32px",
@@ -827,12 +813,7 @@ const TabHome = () => {
                           marginBottom: "16px",
                         }}
                       >
-                        {
-                          getDaysBeforePeriod(
-                            cycles,
-                            maxNumberOfDisplayedCycles,
-                          ).days
-                        }
+                        {t(predictions?.daysBeforePeriod?.days || "---")}
                       </p>
                     </IonLabel>
                   </div>
@@ -851,14 +832,22 @@ const TabHome = () => {
                       mode="md"
                       color={`dark-${theme}`}
                       disabled={isPeriodToday(cycles)}
-                      onClick={() => {
-                        const newCycles = getNewCyclesHistory(
-                          getPeriodDatesWithNewElement(
-                            cycles,
-                            maxNumberOfDisplayedCycles,
-                          ),
-                        );
-                        updateCycles(newCycles);
+                      onClick={async () => {
+                        if (token) {
+                          try {
+                            await apiSaveCycleLog(token, {
+                              date: format(startOfToday(), "yyyy-MM-dd"),
+                              isPeriod: true,
+                              flow: "medium",
+                              mood: "okay",
+                              symptoms: [],
+                              notes: "Marked from home screen"
+                            });
+                            await refreshData();
+                          } catch (err) {
+                            console.error("Failed to mark period", err);
+                          }
+                        }
                       }}
                     >
                       {t("Mark")}

@@ -29,6 +29,8 @@ import {
   apiChangeUserState,
 } from "../services/api";
 import type { AiInsightResponse, CycleLog } from "../services/api";
+import PregnancyHistory from "../components/PregnancyHistory";
+import PostpartumHistory from "../components/PostpartumHistory";
 import "./CycleDashboard.css";
 
 /* ─────────────────────────────────────────────────────
@@ -1398,7 +1400,10 @@ const CycleDashboard: React.FC = () => {
 
   /* ── Logs ── */
   const [logs, setLogs] = useState<CycleLog[]>([]);
+  const [pregnancyLogs, setPregnancyLogs] = useState<any[]>([]);
+  const [postpartumLogs, setPostpartumLogs] = useState<any[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   /* ── Calendar ── */
   const [calMonth, setCalMonth] = useState(startOfToday());
@@ -1533,13 +1538,13 @@ const CycleDashboard: React.FC = () => {
   /* Load pregnancy logs */
   useEffect(() => {
     if (!token || activeMode !== "pregnant") return;
-    apiGetPregnancyLogs(token).catch(console.error);
+    apiGetPregnancyLogs(token).then(res => setPregnancyLogs(res.logs)).catch(console.error);
   }, [token, activeMode]);
 
   /* Load postpartum logs */
   useEffect(() => {
     if (!token || activeMode !== "postpartum") return;
-    apiGetPostpartumLogs(token).catch(console.error);
+    apiGetPostpartumLogs(token).then(res => setPostpartumLogs(res.logs)).catch(console.error);
   }, [token, activeMode]);
 
   useEffect(() => {
@@ -1561,6 +1566,8 @@ const CycleDashboard: React.FC = () => {
   }, [isPPFeedRunning]);
 
   /* ── Derived ── */
+  const { predictions, refreshData } = useContext(CyclesContext);
+
   const PP_CHECKLIST_ITEMS = [
     "Iron supplement taken",
     "Prenatal vitamin taken",
@@ -1571,9 +1578,9 @@ const CycleDashboard: React.FC = () => {
   const nextPeriod = calcNextPeriod(lastPeriodDate, cycleLength);
   const daysUntil = differenceInDays(nextPeriod, startOfToday());
   const ovulationDate = calcOvulation(lastPeriodDate, cycleLength);
-  const phase = getCyclePhase(lastPeriodDate, cycleLength, periodLength);
-  const progress = calcProgressRing(lastPeriodDate, cycleLength);
-  const healthScore = calcHealthScore(logs, cycleLength);
+  const phase = predictions?.phase || getCyclePhase(lastPeriodDate, cycleLength, periodLength);
+  const progress = predictions?.cycleDay ? Math.min((predictions.cycleDay / predictions.averageCycleLength) * 100, 100) : calcProgressRing(lastPeriodDate, cycleLength);
+  const healthScore = predictions?.healthScore || calcHealthScore(logs, cycleLength);
   const scoreColor = getScoreColor(healthScore);
   const dueDate = addDays(parseISO(pregnancyConfirmDate), 280);
   const daysUntilDue = Math.max(0, differenceInDays(dueDate, startOfToday()));
@@ -1721,7 +1728,7 @@ const CycleDashboard: React.FC = () => {
     setSaving(true);
     setSaveMsg("");
     try {
-      await apiSavePregnancyLog(token, {
+      const { log } = await apiSavePregnancyLog(token, {
         date: todayStr,
         waterGlasses,
         vitaminsTaken: vitaminTaken,
@@ -1731,8 +1738,13 @@ const CycleDashboard: React.FC = () => {
         checklistItems: pregChecklist,
         notes,
       });
+      setPregnancyLogs((prev) => {
+        const filtered = prev.filter((l) => l.date !== todayStr);
+        return [log, ...filtered];
+      });
       setSaveMsg("Saved!");
       setTimeout(() => setSaveMsg(""), 2500);
+      await refreshData();
     } catch (_err) {
       setSaveMsg("Error saving pregnancy log. Try again.");
     } finally {
@@ -1746,7 +1758,7 @@ const CycleDashboard: React.FC = () => {
     setSaving(true);
     setSaveMsg("");
     try {
-      await apiSavePostpartumLog(token, {
+      const { log } = await apiSavePostpartumLog(token, {
         date: todayStr,
         mood: ppMood,
         symptoms: ppSymptoms,
@@ -1764,8 +1776,13 @@ const CycleDashboard: React.FC = () => {
         appointmentChecklist: ppApptChecklist,
         notes,
       });
+      setPostpartumLogs((prev) => {
+        const filtered = prev.filter((l) => l.date !== todayStr);
+        return [log, ...filtered];
+      });
       setSaveMsg("Saved!");
       setTimeout(() => setSaveMsg(""), 2500);
+      await refreshData();
     } catch (_err) {
       setSaveMsg("Error saving postpartum log. Try again.");
     } finally {
@@ -2209,22 +2226,31 @@ const CycleDashboard: React.FC = () => {
                 <div className="cd-col-right">
                   {/* ── QUICK LOG ── */}
                   <div className="cd-card">
-                    <h2 className="cd-card-title">Log Today's Cycle</h2>
-                    <div className="cd-log-row">
-                      <span className="cd-log-label">On period today?</span>
-                      <button
-                        className={`cd-toggle ${isPeriod ? "on" : ""}`}
-                        onClick={() => {
-                          setIsPeriod((v) => !v);
-                          if (!isPeriod) {
-                            setFlow("");
-                          }
-                        }}
-                      >
-                        <span className="cd-toggle-knob" />
-                      </button>
-                    </div>
-                    {isPeriod && (
+                    <h2 className="cd-card-title">
+                      {activeMode === "pregnant" 
+                       ? "Pregnancy Log" 
+                       : activeMode === "postpartum" 
+                         ? "Postpartum Log" 
+                         : "Log Today's Cycle"}
+                    </h2>
+
+                    {activeMode === "cycle" && (
+                      <div className="cd-log-row">
+                        <span className="cd-log-label">On period today?</span>
+                        <button
+                          className={`cd-toggle ${isPeriod ? "on" : ""}`}
+                          onClick={() => {
+                            setIsPeriod((v) => !v);
+                            if (!isPeriod) {
+                              setFlow("");
+                            }
+                          }}
+                        >
+                          <span className="cd-toggle-knob" />
+                        </button>
+                      </div>
+                    )}
+                    {activeMode === "cycle" && isPeriod && (
                       <div className="cd-chip-group">
                         {(["light", "medium", "heavy"] as const).map((f) => (
                           <button
@@ -2235,6 +2261,28 @@ const CycleDashboard: React.FC = () => {
                             {f.charAt(0).toUpperCase() + f.slice(1)}
                           </button>
                         ))}
+                      </div>
+                    )}
+                    
+                    {activeMode === "pregnant" && (
+                      <div className="cd-log-row">
+                        <span className="cd-log-label">Water intake (glasses)</span>
+                        <div className="cd-stepper">
+                          <button onClick={() => setWaterGlasses(v => Math.max(0, v - 1))}>-</button>
+                          <span>{waterGlasses}</span>
+                          <button onClick={() => setWaterGlasses(v => v + 1)}>+</button>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeMode === "postpartum" && (
+                      <div className="cd-log-row">
+                        <span className="cd-log-label">Baby Feeds</span>
+                        <div className="cd-stepper">
+                          <button onClick={() => setBabyFeedCount(v => Math.max(0, v - 1))}>-</button>
+                          <span>{babyFeedCount}</span>
+                          <button onClick={() => setBabyFeedCount(v => v + 1)}>+</button>
+                        </div>
                       </div>
                     )}
                     <p className="cd-log-section-label">Mood</p>
@@ -2270,23 +2318,40 @@ const CycleDashboard: React.FC = () => {
                     </div>
                     <p className="cd-log-section-label">Symptoms</p>
                     <div className="cd-symptom-group">
-                      {SYMPTOM_LIST.map(({ label, Icon, color }) => (
-                        <button
-                          key={label}
-                          className={`cd-chip ${symptoms.includes(label) ? "active" : ""}`}
-                          style={
-                            {
-                              "--chip-icon-color": color,
-                            } as React.CSSProperties
-                          }
-                          onClick={() => toggleSymptom(label)}
-                        >
-                          <span className="cd-chip-icon">
-                            <Icon />
-                          </span>
-                          {label}
-                        </button>
-                      ))}
+                      {(activeMode === "pregnant" 
+                        ? PREG_SYMPTOM_LIST.map(s => ({ label: s, Icon: IconAlertTriangle, color: "#f59e0b" }))
+                        : activeMode === "postpartum"
+                          ? POSTPARTUM_SYMPTOM_LIST.map(s => ({ label: s, Icon: IconAlertTriangle, color: "#8b5cf6" }))
+                          : SYMPTOM_LIST
+                      ).map(({ label, Icon, color }) => {
+                        const isSelected = activeMode === "pregnant" 
+                          ? pregSymptoms.includes(label)
+                          : activeMode === "postpartum"
+                            ? ppSymptoms.includes(label)
+                            : symptoms.includes(label);
+                        
+                        return (
+                          <button
+                            key={label}
+                            className={`cd-chip ${isSelected ? "active" : ""}`}
+                            style={
+                              {
+                                "--chip-icon-color": color,
+                              } as React.CSSProperties
+                            }
+                            onClick={() => {
+                              if (activeMode === "pregnant") togglePregSymptom(label);
+                              else if (activeMode === "postpartum") togglePPSymptom(label);
+                              else toggleSymptom(label);
+                            }}
+                          >
+                            <span className="cd-chip-icon">
+                              <Icon />
+                            </span>
+                            {label}
+                          </button>
+                        );
+                      })}
                     </div>
                     <p className="cd-log-section-label">
                       Notes <span className="cd-optional">(optional)</span>
@@ -3449,7 +3514,9 @@ const CycleDashboard: React.FC = () => {
                 >
                   <div className="cd-history-header">
                     <div>
-                      <p className="cd-history-kicker">Cycle logs</p>
+                      <p className="cd-history-kicker">
+                        {activeMode === "pregnant" ? "Pregnancy logs" : activeMode === "postpartum" ? "Postpartum logs" : "Cycle logs"}
+                      </p>
                       <h2 className="cd-history-title">Log History</h2>
                     </div>
                     <button
@@ -3461,60 +3528,66 @@ const CycleDashboard: React.FC = () => {
                   </div>
 
                   <div className="cd-history-list">
-                    {logs.length === 0 ? (
-                      <p className="cd-history-empty">No logs saved yet.</p>
+                    {activeMode === "pregnant" ? (
+                      <PregnancyHistory logs={pregnancyLogs} />
+                    ) : activeMode === "postpartum" ? (
+                      <PostpartumHistory logs={postpartumLogs} />
                     ) : (
-                      logs.map((log) => {
-                        const parts = [
-                          log.isPeriod ? "Period day" : "No period",
-                          log.flow ? `${log.flow} flow` : null,
-                          log.mood ? `Mood: ${log.mood}` : null,
-                          log.symptoms.length > 0
-                            ? `${log.symptoms.length} symptom${log.symptoms.length === 1 ? "" : "s"}`
-                            : null,
-                        ].filter(Boolean);
+                      logs.length === 0 ? (
+                        <p className="cd-history-empty">No logs saved yet.</p>
+                      ) : (
+                        logs.map((log) => {
+                          const parts = [
+                            log.isPeriod ? "Period day" : "No period",
+                            log.flow ? `${log.flow} flow` : null,
+                            log.mood ? `Mood: ${log.mood}` : null,
+                            log.symptoms.length > 0
+                              ? `${log.symptoms.length} symptom${log.symptoms.length === 1 ? "" : "s"}`
+                              : null,
+                          ].filter(Boolean);
 
-                        return (
-                          <article
-                            key={log._id}
-                            className="cd-history-item"
-                          >
-                            <div className="cd-history-item-header">
-                              <div>
-                                <p className="cd-history-item-date">
-                                  {format(
-                                    parseISO(log.date),
-                                    "EEE, MMM d, yyyy",
-                                  )}
-                                </p>
-                                <p className="cd-history-item-meta">
-                                  {parts.join(" • ") || "No details recorded"}
-                                </p>
+                          return (
+                            <article
+                              key={log._id}
+                              className="cd-history-item"
+                            >
+                              <div className="cd-history-item-header">
+                                <div>
+                                  <p className="cd-history-item-date">
+                                    {format(
+                                      parseISO(log.date),
+                                      "EEE, MMM d, yyyy",
+                                    )}
+                                  </p>
+                                  <p className="cd-history-item-meta">
+                                    {parts.join(" • ") || "No details recorded"}
+                                  </p>
+                                </div>
+                                {log.date === todayStr && (
+                                  <span className="cd-history-today">Today</span>
+                                )}
                               </div>
-                              {log.date === todayStr && (
-                                <span className="cd-history-today">Today</span>
+
+                              {log.symptoms.length > 0 && (
+                                <div className="cd-history-tags">
+                                  {log.symptoms.map((symptom) => (
+                                    <span
+                                      key={`${log._id}-${symptom}`}
+                                      className="cd-history-tag"
+                                    >
+                                      {symptom}
+                                    </span>
+                                  ))}
+                                </div>
                               )}
-                            </div>
 
-                            {log.symptoms.length > 0 && (
-                              <div className="cd-history-tags">
-                                {log.symptoms.map((symptom) => (
-                                  <span
-                                    key={`${log._id}-${symptom}`}
-                                    className="cd-history-tag"
-                                  >
-                                    {symptom}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-
-                            {log.notes && (
-                              <p className="cd-history-notes">{log.notes}</p>
-                            )}
-                          </article>
-                        );
-                      })
+                              {log.notes && (
+                                <p className="cd-history-notes">{log.notes}</p>
+                              )}
+                            </article>
+                          );
+                        })
+                      )
                     )}
                   </div>
                 </div>
