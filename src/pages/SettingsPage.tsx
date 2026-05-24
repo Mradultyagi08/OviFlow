@@ -207,7 +207,7 @@ const SettingsPage: React.FC = () => {
 
           {/* ═══ PROFILE & ACCOUNT ═══ */}
           <section className="settings-section">
-            <h2 className="settings-section-title"><UserIcon /><span>Profile & Account</span></h2>
+            <h2 className="settings-section-title"><UserIcon /><span>{t("Profile & Account")}</span></h2>
             <div className="settings-card">
               {/* Name */}
               <div className="settings-toggle-row">
@@ -273,7 +273,7 @@ const SettingsPage: React.FC = () => {
               <button className="settings-action-row" onClick={() => { logout(); history.replace("/login"); }}>
                 <LogOutIcon />
                 <div className="settings-action-text">
-                  <span className="settings-action-label">Logout</span>
+                  <span className="settings-action-label">{t("Logout")}</span>
                 </div>
               </button>
             </div>
@@ -295,12 +295,12 @@ const SettingsPage: React.FC = () => {
 
           {/* ═══ APPEARANCE ═══ */}
           <section className="settings-section">
-            <h2 className="settings-section-title"><PaletteIcon /><span>Appearance</span></h2>
+            <h2 className="settings-section-title"><PaletteIcon /><span>{t("Appearance")}</span></h2>
             <div className="settings-card">
               {/* Theme toggle */}
               <div className="settings-toggle-row">
                 <div>
-                  <p className="settings-toggle-label">Dark Mode</p>
+                  <p className="settings-toggle-label">{t("Dark Mode")}</p>
                   <p className="settings-toggle-desc">Switch between light and dark theme</p>
                 </div>
                 <button
@@ -315,7 +315,7 @@ const SettingsPage: React.FC = () => {
               {/* Accent color */}
               <div className="settings-toggle-row">
                 <div>
-                  <p className="settings-toggle-label">Accent Color</p>
+                  <p className="settings-toggle-label">{t("Accent Color")}</p>
                 </div>
               </div>
               <div className="settings-color-row">
@@ -338,7 +338,7 @@ const SettingsPage: React.FC = () => {
               {/* Falling flowers toggle */}
               <div className="settings-toggle-row">
                 <div>
-                  <p className="settings-toggle-label">Falling Flowers</p>
+                  <p className="settings-toggle-label">{t("Falling Flowers")}</p>
                   <p className="settings-toggle-desc">Animated petals in the background</p>
                 </div>
                 <button
@@ -354,10 +354,10 @@ const SettingsPage: React.FC = () => {
 
           {/* ═══ CYCLE PREFERENCES ═══ */}
           <section className="settings-section">
-            <h2 className="settings-section-title"><HeartIcon /><span>Cycle Preferences</span></h2>
+            <h2 className="settings-section-title"><HeartIcon /><span>{t("Cycle Preferences")}</span></h2>
             <div className="settings-card">
               <div className="settings-toggle-row">
-                <p className="settings-toggle-label">Default Cycle Length</p>
+                <p className="settings-toggle-label">{t("Default Cycle Length")}</p>
                 <div className="settings-stepper">
                   <button onClick={() => { const v = Math.max(20, cycleLength - 1); setCycleLength(v); savePreference({ cycleLength: v }); if (token) apiPatchCycleProfile(token, { cycleLength: v }).catch(console.error); }}>-</button>
                   <span>{cycleLength} days</span>
@@ -366,7 +366,7 @@ const SettingsPage: React.FC = () => {
               </div>
               <div className="settings-divider" />
               <div className="settings-toggle-row">
-                <p className="settings-toggle-label">Default Period Length</p>
+                <p className="settings-toggle-label">{t("Default Period Length")}</p>
                 <div className="settings-stepper">
                   <button onClick={() => { const v = Math.max(2, periodLength - 1); setPeriodLength(v); savePreference({ periodLength: v }); if (token) apiPatchCycleProfile(token, { periodLength: v }).catch(console.error); }}>-</button>
                   <span>{periodLength} days</span>
@@ -375,7 +375,7 @@ const SettingsPage: React.FC = () => {
               </div>
               <div className="settings-divider" />
               <div className="settings-toggle-row">
-                <p className="settings-toggle-label">Luteal Phase Length</p>
+                <p className="settings-toggle-label">{t("Luteal Phase Length")}</p>
                 <div className="settings-stepper">
                   <button onClick={() => { const v = Math.max(10, lutealPhase - 1); setLutealPhase(v); savePreference({ lutealPhaseLength: v }); }}>-</button>
                   <span>{lutealPhase} days</span>
@@ -385,7 +385,7 @@ const SettingsPage: React.FC = () => {
               <div className="settings-divider" />
               <div className="settings-toggle-row">
                 <div>
-                  <p className="settings-toggle-label">Ovulation Reminder</p>
+                  <p className="settings-toggle-label">{t("Ovulation Reminder")}</p>
                   <p className="settings-toggle-desc">Days before expected ovulation</p>
                 </div>
                 <div className="settings-stepper">
@@ -400,9 +400,9 @@ const SettingsPage: React.FC = () => {
                 <p className="settings-toggle-label" style={{ marginBottom: 8 }}>App Mode</p>
                 <div className="settings-chip-row">
                   {[
-                    { value: "regular", label: "Regular" },
-                    { value: "pregnancy", label: "Pregnancy" },
-                    { value: "postpartum", label: "Postpartum" },
+                    { value: "regular", label: t("Regular") },
+                    { value: "pregnancy", label: t("Pregnancy") },
+                    { value: "postpartum", label: t("Postpartum") },
                   ].map((opt) => (
                     <button key={opt.value} className={`settings-count-chip ${appMode === opt.value ? "active" : ""}`} onClick={() => updateAppMode(opt.value)}>
                       {opt.label}
@@ -415,7 +415,7 @@ const SettingsPage: React.FC = () => {
 
           {/* ═══ DOCTOR DETAILS ═══ */}
           <section className="settings-section">
-            <h2 className="settings-section-title"><ActivityIcon /><span>Doctor Details</span></h2>
+            <h2 className="settings-section-title"><ActivityIcon /><span>{t("Doctor Details")}</span></h2>
             <div className="settings-card">
               <div className="settings-toggle-row">
                 <div style={{ width: "100%" }}>
@@ -455,10 +455,10 @@ const SettingsPage: React.FC = () => {
 
           {/* ═══ HEALTH & LOGGING ═══ */}
           <section className="settings-section">
-            <h2 className="settings-section-title"><ActivityIcon /><span>Health & Logging</span></h2>
+            <h2 className="settings-section-title"><ActivityIcon /><span>{t("Health & Logging")}</span></h2>
             <div className="settings-card">
               <div className="settings-toggle-row">
-                <p className="settings-toggle-label">Daily Water Goal</p>
+                <p className="settings-toggle-label">{t("Daily Water Goal")}</p>
                 <div className="settings-stepper">
                   <button onClick={() => { const v = Math.max(4, waterGoal - 1); setWaterGoal(v); savePreference({ waterGoal: v }); }}>-</button>
                   <span>{waterGoal} glasses</span>
@@ -467,7 +467,7 @@ const SettingsPage: React.FC = () => {
               </div>
               <div className="settings-divider" />
               <div className="settings-toggle-row">
-                <p className="settings-toggle-label">Temperature Unit</p>
+                <p className="settings-toggle-label">{t("Temperature Unit")}</p>
                 <div className="settings-chip-row">
                   {(["C", "F"] as const).map((u) => (
                     <button key={u} className={`settings-temp-chip ${tempUnit === u ? "active" : ""}`} onClick={() => { setTempUnit(u); savePreference({ temperatureUnit: u }); }}>
@@ -479,7 +479,7 @@ const SettingsPage: React.FC = () => {
               <div className="settings-divider" />
               <div className="settings-toggle-row">
                 <div>
-                  <p className="settings-toggle-label">AI Insights</p>
+                  <p className="settings-toggle-label">{t("AI Insights")}</p>
                   <p className="settings-toggle-desc">Get AI-powered health insights</p>
                 </div>
                 <button
@@ -495,11 +495,11 @@ const SettingsPage: React.FC = () => {
 
           {/* ═══ PRIVACY & SECURITY ═══ */}
           <section className="settings-section">
-            <h2 className="settings-section-title"><LockIcon /><span>Privacy & Security</span></h2>
+            <h2 className="settings-section-title"><LockIcon /><span>{t("Privacy & Security")}</span></h2>
             <div className="settings-card">
               <div className="settings-toggle-row">
                 <div>
-                  <p className="settings-toggle-label">App Lock</p>
+                  <p className="settings-toggle-label">{t("App Lock")}</p>
                   <p className="settings-toggle-desc">Require PIN to open app</p>
                 </div>
                 <button
@@ -533,12 +533,12 @@ const SettingsPage: React.FC = () => {
 
           {/* ═══ DATA ═══ */}
           <section className="settings-section">
-            <h2 className="settings-section-title"><DatabaseIcon /><span>Data</span></h2>
+            <h2 className="settings-section-title"><DatabaseIcon /><span>{t("Data")}</span></h2>
             <div className="settings-card">
               <button className="settings-action-row" onClick={handleExportCSV}>
                 <DatabaseIcon />
                 <div className="settings-action-text">
-                  <span className="settings-action-label">Export Data (CSV)</span>
+                  <span className="settings-action-label">{t("Export Data (CSV)")}</span>
                   <span className="settings-action-desc">Download your cycle history as spreadsheet</span>
                 </div>
               </button>
@@ -546,7 +546,7 @@ const SettingsPage: React.FC = () => {
               <button className="settings-action-row" onClick={handleDownloadPDF}>
                 <DatabaseIcon />
                 <div className="settings-action-text">
-                  <span className="settings-action-label">Download Health Report (PDF)</span>
+                  <span className="settings-action-label">{t("Download Health Report (PDF)")}</span>
                   <span className="settings-action-desc">Formatted summary to share with your doctor</span>
                 </div>
               </button>
@@ -565,7 +565,7 @@ const SettingsPage: React.FC = () => {
               >
                 <DatabaseIcon />
                 <div className="settings-action-text">
-                  <span className="settings-action-label" style={{ color: "#f59e0b" }}>Reset All Data</span>
+                  <span className="settings-action-label" style={{ color: "#f59e0b" }}>{t("Reset All Data")}</span>
                   <span className="settings-action-desc">Clear all logs and start fresh</span>
                 </div>
               </button>
@@ -587,7 +587,7 @@ const SettingsPage: React.FC = () => {
               >
                 <DatabaseIcon />
                 <div className="settings-action-text">
-                  <span className="settings-action-label" style={{ color: "#ef4444" }}>Delete Account</span>
+                  <span className="settings-action-label" style={{ color: "#ef4444" }}>{t("Delete Account")}</span>
                   <span className="settings-action-desc">Permanently remove your account and data</span>
                 </div>
               </button>
