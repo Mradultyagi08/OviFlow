@@ -113,7 +113,7 @@ const App = (props: AppProps) => {
     async (newCycles: Cycle[]) => {
       // Optimistic update
       setCycles(newCycles);
-      
+
       try {
         if (token) {
           // If a new period was marked (cycles[0].startDate changed or periodLength changed)
@@ -121,7 +121,7 @@ const App = (props: AppProps) => {
           // after some delay or assume the caller (TabHome/CycleDashboard) handles specific log saves.
           // The plan says "Optimistic UI for logging".
         }
-        
+
         await storage.set.cycles(newCycles);
 
         if (configuration.features.notifications && notificationEnabled) {
@@ -132,6 +132,13 @@ const App = (props: AppProps) => {
       }
     },
     [maxNumberOfDisplayedCycles, notificationEnabled, token],
+  );
+
+  const changeLanguage = useCallback(
+    (lng: string) => {
+      i18n.changeLanguage(lng).catch((err) => console.error(err));
+    },
+    [i18n],
   );
 
   const updateTheme = useCallback((newTheme: string) => {
@@ -234,10 +241,18 @@ const App = (props: AppProps) => {
   useEffect(() => {
     storage.get
       .cycles()
-      .then(setCycles)
-      .catch((err) =>
-        console.error(`Can't get cycles ${(err as Error).message}`),
-      );
+      .then((savedCycles) => {
+        // Only set local cycles if we don't have a token/backend data yet
+        if (!token) {
+          setCycles(savedCycles);
+        }
+      })
+      .catch((err) => {
+        // Quiet expected warning for new users
+        if (!(err as Error).message.includes("Can't find 'cycles'")) {
+          console.error(`Can't get cycles ${(err as Error).message}`);
+        }
+      });
 
     storage.get
       .language()
@@ -377,8 +392,6 @@ const App = (props: AppProps) => {
     }
     document.body.classList.add("mode-cycle");
   }, [appMode]);
-
-  const { user, isLoading: authLoading } = useAuth();
 
   // While checking auth state, show a simple loading spinner
   if (authLoading) {
