@@ -2553,13 +2553,7 @@ const CycleDashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="cd-embryo-img-wrap">
-                    <img
-                      src={embryoImages[pregnancyMonth]}
-                      alt={`Month ${pregnancyMonth} embryo`}
-                      className="cd-embryo-img"
-                    />
-                  </div>
+                  
                 </div>
 
                 {/* ── Pregnancy Tips ── */}
