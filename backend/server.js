@@ -10,11 +10,9 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-for (const envPath of [path.resolve(__dirname, ".env"), path.resolve(__dirname, "../.env")]) {
-  if (fs.existsSync(envPath)) {
-    dotenv.config({ path: envPath, override: false });
-  }
-}
+// Load environment variables
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.resolve(__dirname, ".env"), override: true });
 
 import authRoutes from "./routes/auth.js";
 import cycleRoutes from "./routes/cycle.js";
@@ -40,8 +38,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { message: "Too many attempts, try again later" } });
-const aiLimiter = rateLimit({ windowMs: 60 * 1000, max: 10, message: { message: "AI rate limit reached, try again in a minute" } });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 50, message: { message: "Too many attempts, try again later" } });
+const aiLimiter = rateLimit({ windowMs: 60 * 1000, max: 50, message: { message: "AI rate limit reached, try again in a minute" } });
 
 // ─── Routes ─────────────────────────────────────────────────────────
 app.use("/api/auth", authLimiter, authRoutes);
